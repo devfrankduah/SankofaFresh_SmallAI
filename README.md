@@ -55,6 +55,8 @@ Request URL: https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2
 
 Citation, in the wording the POWER project asks for: "The data was obtained from National Aeronautics and Space Administration (NASA) Langley Research Center's Prediction Of Worldwide Energy Resources (POWER) project funded through the NASA Earth Science Division." Service: POWER Hourly API v2.10.2, accessed 3 October 2026. The raw CSV is committed so the build runs offline.
 
+**Synthetic batches.** `python -m data.gen_batches` writes `data/batches.csv` (5,760 batches) and `data/manifest.json` from `data/generator_config.json`, where every parameter names its source (FAO, Codex or ASSUMPTION). There are 60 farms of 80 batches split 36/12/12 by farm, plus 12 stress farms whose checks all fall in September to November, a season the main farms never see. Features are computed by `model/contract.py`, the same encoder the app's JavaScript is tested against. The labels are SYNTHETIC_DEMO: they follow the spec 6 rule, not field measurements. One ASSUMPTION changed from the spec's starting values (the storage time constant, 20 to 120 days); the config records why.
+
 ## Evidence boundary
 
 Training labels are synthetic, generated from a documented rule tied to FAO and Codex moisture thresholds (evidence mode `SYNTHETIC_DEMO`). Results will show how well the tree recovers that rule. They are not field accuracy, food-safety assessments or income gains.

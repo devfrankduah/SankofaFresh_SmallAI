@@ -1,0 +1,73 @@
+{
+  "evidence_mode": "SYNTHETIC_DEMO",
+  "command": "python -m data.gen_batches",
+  "seed": 20261003,
+  "config_sha256": "9ca7a4066c8448c9099e8196292177575d43b0dd92b6378de8278b153cfc5218",
+  "weather_sha256": "2490d95b0a719c5d66abb19be46499dd799f253998b72421dc5de4a275f081b5",
+  "batches_sha256": "be3a60ad80cc597ea3a78a9d38023d71a2711d9cc538852b5990c0ed38f3b7f4",
+  "rows": 5760,
+  "numpy_version": "2.5.3",
+  "feature_columns": [
+    "feature_days_drying",
+    "feature_rewetted",
+    "feature_floor",
+    "feature_musty",
+    "feature_dryness_check",
+    "feature_days_stored",
+    "feature_rh14_mean",
+    "feature_rh14_max",
+    "feature_t14_mean"
+  ],
+  "farms": {
+    "train": 36,
+    "validation": 12,
+    "test": 12,
+    "season_stress": 12
+  },
+  "counts": {
+    "train": {
+      "green": 658,
+      "amber": 828,
+      "red": 1394,
+      "total": 2880
+    },
+    "validation": {
+      "green": 212,
+      "amber": 294,
+      "red": 454,
+      "total": 960
+    },
+    "test": {
+      "green": 226,
+      "amber": 254,
+      "red": 480,
+      "total": 960
+    },
+    "season_stress": {
+      "green": 106,
+      "amber": 181,
+      "red": 673,
+      "total": 960
+    }
+  },
+  "main_red_share": 0.485,
+  "rewetted_in_dry_weeks": {
+    "train": {
+      "rows": 84,
+      "amber_or_red": 49
+    },
+    "validation": {
+      "rows": 22,
+      "amber_or_red": 18
+    },
+    "test": {
+      "rows": 27,
+      "amber_or_red": 16
+    },
+    "season_stress": {
+      "rows": 0,
+      "amber_or_red": 0
+    }
+  },
+  "dry_weeks_rule": "rewetted is yes and rh14_mean below 70"
+}
