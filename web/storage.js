@@ -78,7 +78,14 @@ export function sanitizeRecords(contract, raw) {
       .filter(entry => isPlainObject(entry) && actions.has(entry.action) && isTimestamp(entry.at))
       .map(entry => ({ action: entry.action, at: entry.at }));
     seen.add(batch.label);
-    records.batches.push({ label: batch.label, answers: { ...batch.answers }, checkedAt: batch.checkedAt, result, actions: recorded });
+    records.batches.push({
+      label: batch.label,
+      answers: { ...batch.answers },
+      checkedAt: batch.checkedAt,
+      result,
+      actions: recorded,
+      demoData: batch.demoData === true,
+    });
   }
   return records;
 }

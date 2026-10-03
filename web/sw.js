@@ -6,12 +6,13 @@
 // fetch a new tree, message file or script.
 
 const CACHE_PREFIX = 'sankofafresh-';
-const CACHE_VERSION = '69e348021ffd8615';
+const CACHE_VERSION = 'e2ee2c44f3146472';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const PRECACHE = [
   'app.js',
   'canonical.js',
   'contract.json',
+  'demo_batches.json',
   'features.js',
   'icons/icon-192.png',
   'icons/icon-512.png',
