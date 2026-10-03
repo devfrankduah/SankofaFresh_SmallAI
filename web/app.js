@@ -890,7 +890,8 @@ class App {
       ? this.optionalText('weather_strip', { low: this.formatShare(Math.min(...values) / 100), high: this.formatShare(Math.max(...values) / 100) })
       : null;
     if (!label) return note;
-    const [width, height, low, high, mark] = [300, 56, 40, 100, 80];
+    // 50 to 100 percent covers the bundled year's daily means (about 54 to 91) with room to read the shape.
+    const [width, height, low, high, mark] = [300, 64, 50, 100, 80];
     const points = sparklinePoints(values, { width, height, low, high });
     const markY = sparklinePoints([mark], { width, height, low, high })[0][1];
     const [lastX, lastY] = points[points.length - 1];
