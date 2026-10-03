@@ -1,7 +1,7 @@
 {
   "tree_json_bytes": 4153,
   "tree_json_limit_bytes": 250000,
-  "web_total_bytes": 125151,
+  "web_total_bytes": 125633,
   "web_target_bytes": 1000000,
   "web_total_within_target": true,
   "files": {
@@ -12,6 +12,7 @@
     "web/index.html": 4056,
     "web/messages.en.json": 4062,
     "web/messages.tw.draft.json": 4128,
+    "web/metrics.json": 482,
     "web/storage.js": 4834,
     "web/styles.css": 13909,
     "web/tree.js": 7305,
