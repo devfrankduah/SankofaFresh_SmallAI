@@ -1,6 +1,6 @@
 {
   "description": "One input outside the contract range: days_stored is 240, above the 0 to 180 limit, so it is also outside any tree trained on valid inputs.",
-  "weather_note": "Weather values are illustrative, not NASA POWER data; the demo location is not chosen yet (issue #1).",
+  "weather_table": "weather_sample.json",
   "cases": [
     {
       "id": "days_stored_too_long",
@@ -16,15 +16,10 @@
         "days_stored": 240,
         "storage_start": "2025-01-20"
       },
-      "weather": {
-        "rh14_mean": 70.0,
-        "rh14_max": 76.0,
-        "t14_mean": 20.0
-      },
       "expected": {
         "abstain_reason": "reason_out_of_range",
         "features": null,
-        "baseline_band": "green"
+        "baseline_band": null
       }
     }
   ]

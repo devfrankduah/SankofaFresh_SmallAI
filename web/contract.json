@@ -14,8 +14,11 @@
   ],
   "weather_window": {
     "days": 14,
-    "check_date": "storage_start plus days_stored days",
-    "window": "the 14 days before check_date, not including check_date"
+    "start_input": "storage_start",
+    "days_input": "days_stored",
+    "rule": "check_date is start_input plus days_input days. The window is the 14 days ending on check_date, inclusive, mapped onto the bundled year by day of year and wrapping at the year boundary.",
+    "table": "web/weather.json",
+    "columns": {"RH2M": "rh2m_mean", "T2M": "t2m_mean"}
   },
   "features": [
     {"name": "days_drying", "source": "input", "input": "days_drying", "encoding": "integer", "reason": "reason_long_drying"},
@@ -24,9 +27,9 @@
     {"name": "musty", "source": "input", "input": "musty_smell", "encoding": "map", "map": {"no": 0, "yes": 1}, "reason": "reason_musty"},
     {"name": "dryness_check", "source": "input", "input": "dryness_check", "encoding": "map", "map": {"dry": 0, "unsure": 1, "damp": 2}, "reason": "reason_damp_check"},
     {"name": "days_stored", "source": "input", "input": "days_stored", "encoding": "integer", "reason": "reason_long_storage"},
-    {"name": "rh14_mean", "source": "weather", "variable": "RH2M", "aggregate": "mean of hourly values over the window", "unit": "percent", "reason": "reason_humid_weeks"},
-    {"name": "rh14_max", "source": "weather", "variable": "RH2M", "aggregate": "max of daily means over the window", "unit": "percent", "reason": "reason_humid_weeks"},
-    {"name": "t14_mean", "source": "weather", "variable": "T2M", "aggregate": "mean of hourly values over the window", "unit": "degrees C", "reason": null}
+    {"name": "rh14_mean", "source": "weather", "variable": "RH2M", "aggregate": "mean", "unit": "percent", "reason": "reason_humid_weeks"},
+    {"name": "rh14_max", "source": "weather", "variable": "RH2M", "aggregate": "max", "unit": "percent", "reason": "reason_humid_weeks"},
+    {"name": "t14_mean", "source": "weather", "variable": "T2M", "aggregate": "mean", "unit": "degrees C", "reason": null}
   ],
   "classes": ["green", "amber", "red"],
   "bands": [

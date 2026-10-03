@@ -104,11 +104,11 @@ Three main screens (batch list, check form, result) plus consent and settings.
 | 3 | musty | 0 no, 1 yes |
 | 4 | dryness_check | 0 dry, 1 unsure, 2 damp |
 | 5 | days_stored | integer |
-| 6 | rh14_mean | mean RH2M over the 14 days before the check, percent |
+| 6 | rh14_mean | mean of daily mean RH2M over the 14 days ending on the check date, percent |
 | 7 | rh14_max | max daily mean RH2M over those 14 days, percent |
-| 8 | t14_mean | mean T2M over those 14 days, degrees C |
+| 8 | t14_mean | mean of daily mean T2M over those 14 days, degrees C |
 
-Weather features come from the bundled table. The demo uses the bundled year's values for the same calendar weeks as a proxy, and the UI says so ("typical humidity for these weeks, NASA POWER <year>"). In a real deployment the table would refresh whenever the phone has data.
+Weather features come from the bundled table, which holds one row of daily means per day of the year. The check date is storage_start plus days_stored, and the window is the 14 days ending on it, mapped onto the bundled year by day of year and wrapping at the year boundary. The demo uses the bundled year's values for the same calendar weeks as a proxy, and the UI says so ("typical humidity for these weeks, NASA POWER <year>"). In a real deployment the table would refresh whenever the phone has data.
 
 ### 5.3 Abstention rules (the not_sure band)
 
