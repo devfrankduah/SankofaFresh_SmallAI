@@ -81,5 +81,9 @@
   "demo_data_note": "Nhwɛso data, ɛnyɛ kuw ankasa",
   "sms_copied": "Wɔayɛ bi",
   "weather_strip": "Ewiem fɔ, nna 14 a atwam: {low} kosi {high}",
-  "button_back": "San kɔ akyi"
+  "button_back": "San kɔ akyi",
+  "error_future_date": "Da no wɔ nnɛ akyi.",
+  "app_tagline": "Hwɛ kɔfe a wokora ansa na woatɔn.",
+  "offline_chip": "Ɛyɛ adwuma a network nni hɔ",
+  "summary_line": "Kuw {count} wɔ {total} mu hia sɔhwɛ"
 }
