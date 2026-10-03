@@ -7,9 +7,8 @@ about: A bounded team task with dependencies and verification
 
 Specification sections:
 
-## Ownership and priority
+## Priority
 
-Suggested role: A / B / C / D
 Priority: P0 / P1 / P2
 
 ## Dependencies
@@ -26,4 +25,4 @@ Blocked by:
 
 ## Handoff
 
-Claim the issue, coordinate shared files, and attach evidence in a focused PR.
+Either teammate can start an unblocked issue. Attach evidence in a focused PR.

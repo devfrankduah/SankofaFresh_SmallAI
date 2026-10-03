@@ -14,11 +14,10 @@ state = json.loads(STATE.read_text()) if STATE.exists() else {'issues': {}, 'edg
 def save():
     STATE.write_text(json.dumps(state, indent=2)+'\n')
 
-colors = {'priority:P0':'B60205', 'priority:P1':'FBCA04', 'priority:P2':'D4C5F9',
-          'role:A':'0052CC','role:B':'006B75','role:C':'5319E7','role:D':'0E8A16'}
+colors = {'priority:P0':'B60205', 'priority:P1':'FBCA04', 'priority:P2':'D4C5F9'}
 for name, color in colors.items():
     gh('label','create',name,'--repo',REPO,'--color',color,'--description',
-       'Required release work' if name == 'priority:P0' else 'Optional work' if name == 'priority:P1' else 'Deferred work' if name == 'priority:P2' else 'Suggested owner role; named teammate unassigned', '--force')
+       'Required release work' if name == 'priority:P0' else 'Optional work' if name == 'priority:P1' else 'Deferred work', '--force')
 
 for task in TASKS:
     key = task['key']
@@ -27,7 +26,7 @@ for task in TASKS:
     path = ROOT / f'docs/planning/issues/{TASKS.index(task)+1:02d}-{key}.md'
     path.write_text(body(task, state['issues']))
     url = gh('issue','create','--repo',REPO,'--title',task['title'],'--body-file',str(path),
-             '--label',f'priority:{task["priority"]}','--label',f'role:{task["role"]}')
+             '--label',f'priority:{task["priority"]}')
     number = int(url.rsplit('/',1)[1])
     info = json.loads(gh('issue','view',str(number),'--repo',REPO,'--json','id,number,url'))
     state['issues'][key] = info
@@ -49,11 +48,11 @@ for task in TASKS:
         save()
     print(f'Linked blockers: {task["key"]}', flush=True)
 
-index = ['# Published issue index', '', 'All tasks start open and unassigned. Estimates are planning estimates only.', '',
-         '| Issue | Role | Priority | Blocked by |', '|---|---|---|---|']
+index = ['# Published issue index', '', 'Either teammate can pick any unblocked issue. Estimates are planning estimates only.', '',
+         '| Issue | Priority | Blocked by |', '|---|---|---|']
 for task in TASKS:
     info = state['issues'][task['key']]
     deps = ', '.join(f'[#{state["issues"][d]["number"]}]({state["issues"][d]["url"]})' for d in task['deps']) or 'None'
-    index.append(f'| [#{info["number"]} {task["title"]}]({info["url"]}) | {task["role"]} | {task["priority"]} | {deps} |')
+    index.append(f'| [#{info["number"]} {task["title"]}]({info["url"]}) | {task["priority"]} | {deps} |')
 (ROOT/'docs/planning/ISSUE_INDEX.md').write_text('\n'.join(index)+'\n')
 print(f'Published {len(state["issues"])} issues and {len(state["edges"])} dependency links.', flush=True)

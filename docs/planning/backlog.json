@@ -1,8 +1,7 @@
 [
   {
     "key": "coordination",
-    "title": "Confirm competition rules, named owners and demo environment",
-    "role": "D",
+    "title": "Confirm competition rules and demo environment",
     "priority": "P0",
     "estimate": "0.5\u20131",
     "deps": [],
@@ -10,21 +9,20 @@
     "scope": [
       "Obtain the complete competition brief, participant acceptance, registered team, permitted work window, exact deadline and timezone, technology requirements, and simulation/prior-work rules.",
       "Record prior SankofaFresh concept disclosure and distinguish pre-existing material from work created during the permitted window.",
-      "Name role A (model), B (backend), C (interface), D (integration), one merge owner and demo laptop/network. For two people combine A+B and C+D. Obtain GitHub handles before assigning or inviting anyone."
+      "Confirm the demo laptop and network needed for local and offline verification."
     ],
     "criteria": [
       "Record each external answer with source/date or explicitly mark unresolved; do not claim organizer approval.",
       "Record laptop OS/Python and intended LAN test arrangement.",
-      "Publish owner and merge-review coverage; resolve competition eligibility before final submission."
+      "Resolve competition eligibility before final submission."
     ],
     "evidence": [
-      "Linked organizer evidence and owner matrix; unresolved decisions with responsible person."
+      "Linked organizer evidence and demo environment details; unresolved external decisions clearly listed."
     ]
   },
   {
     "key": "contracts",
     "title": "Freeze v1 schemas, errors, interfaces and shared fixtures",
-    "role": "B",
     "priority": "P0",
     "estimate": "1\u20131.5",
     "deps": [],
@@ -32,13 +30,13 @@
     "scope": [
       "Implement app/schemas.py and document all /api/v1 request/response contracts, enums, UTC timestamps, schema_version=1 and simulation versus wall time.",
       "Define batch/reading/prediction/alert/run/action, public state, export and health shapes; keep hidden outcomes out of public schemas. Fix tomato-only immutable metadata and maturity unknown semantics.",
-      "Freeze pure interfaces validate_reading, extract_features, predict, apply_policy and advance_run with roles A/C/D. Supply three-batch, valid, unavailable, invalid and error JSON fixtures.",
+      "Freeze pure interfaces validate_reading, extract_features, predict, apply_policy and advance_run for consistent use across modules. Supply three-batch, valid, unavailable, invalid and error JSON fixtures.",
       "Resolve and document unspecified action note/assumptions shape, batch status/reading quality enums, observation alignment, active-run rules, history_known_from semantics and support-status precedence; do not hide decisions in implementations."
     ],
     "criteria": [
       "Validation rejects non-finite/non-positive quantity, reversed dates, unsupported crops and invalid humidity; unknown maturity remains unknown.",
       "Errors consistently contain code/message/field errors; 422/404/409 and mutation ID/version responses have fixtures.",
-      "Endpoints, feature order and nullable unavailable score/probability are reviewed by all module owners."
+      "Endpoints, feature order and nullable unavailable score/probability are consistent across the shared fixtures."
     ],
     "evidence": [
       "Contract tests and versioned fixtures; reviewed decision notes."
@@ -47,7 +45,6 @@
   {
     "key": "scaffold",
     "title": "Create pinned Python scaffold, local assets and CI checks",
-    "role": "D",
     "priority": "P0",
     "estimate": "0.75\u20131.5",
     "deps": [],
@@ -69,7 +66,6 @@
   {
     "key": "storage",
     "title": "Implement SQLite schema, atomic steps and restart persistence",
-    "role": "B",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -93,8 +89,7 @@
   },
   {
     "key": "simulator",
-    "title": "Implement seeded 96-hour trajectories and single-owner simulation clock",
-    "role": "B",
+    "title": "Implement seeded 96-hour trajectories and single server simulation clock",
     "priority": "P0",
     "estimate": "1.5\u20132.5",
     "deps": [
@@ -121,7 +116,6 @@
   {
     "key": "features",
     "title": "Implement past-only feature extraction and assessment eligibility",
-    "role": "A",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -146,7 +140,6 @@
   {
     "key": "batch_api",
     "title": "Implement batch, snapshot, action and acknowledgment APIs",
-    "role": "B",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -171,7 +164,6 @@
   {
     "key": "policy",
     "title": "Implement persistent alert state machine and baseline policy",
-    "role": "B",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -197,7 +189,6 @@
   {
     "key": "training_data",
     "title": "Generate independent run dataset, labels and immutable split manifest",
-    "role": "A",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -222,7 +213,6 @@
   {
     "key": "train_export",
     "title": "Train depth-limited decision tree and export trusted JSON bundle",
-    "role": "A",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -246,7 +236,6 @@
   {
     "key": "inference",
     "title": "Implement local tree interpreter and verify export parity/performance",
-    "role": "A",
     "priority": "P0",
     "estimate": "0.75\u20131.5",
     "deps": [
@@ -270,7 +259,6 @@
   {
     "key": "ui_core",
     "title": "Build responsive operator overview, registration and batch details",
-    "role": "C",
     "priority": "P0",
     "estimate": "2\u20133",
     "deps": [
@@ -295,7 +283,6 @@
   {
     "key": "ui_sim",
     "title": "Build farmer alert view, simulator controls and evidence display",
-    "role": "C",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -319,7 +306,6 @@
   {
     "key": "integration",
     "title": "Integrate transactional simulation-to-alert pipeline and full local workflow",
-    "role": "B",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -350,7 +336,6 @@
   {
     "key": "evaluation",
     "title": "Evaluate frozen AI versus baseline on held-out runs and report honest metrics",
-    "role": "A",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -378,7 +363,6 @@
   {
     "key": "reliability",
     "title": "Verify deterministic replay, leakage, missing sensors and process restart",
-    "role": "D",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -402,7 +386,6 @@
   {
     "key": "offline_mobile",
     "title": "Rehearse offline cold start, phone layout and clean installation",
-    "role": "D",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -428,7 +411,6 @@
   {
     "key": "release",
     "title": "Complete AC01\u2013AC14 evidence gate, claims review and submission rehearsal",
-    "role": "D",
     "priority": "P0",
     "estimate": "1\u20132",
     "deps": [
@@ -439,7 +421,7 @@
     ],
     "sections": "13\u201316",
     "scope": [
-      "Map all AC01\u2013AC14 to evidence and responsible reviewer; verify model parity/performance and registration evidence alongside integration checks.",
+      "Map all AC01\u2013AC14 to evidence; verify model parity/performance and registration evidence alongside integration checks.",
       "Review every UI/readme/demo claim: SYNTHETIC_DEMO, probability null, no farm-loss/food-safety/solar/real-SMS/microcontroller claims.",
       "Freeze features and record backup demo covering registration, heat replay, trained model, operator alert, internet disconnect, missing sensor and baseline results.",
       "Use confirmed organizer format/deadline and prior-work disclosure for submission pack; obtain any required human submission action."
@@ -456,7 +438,6 @@
   {
     "key": "audio",
     "title": "Optional: add reviewed bundled local-language alert audio",
-    "role": "C",
     "priority": "P1",
     "estimate": "0.5\u20131",
     "deps": [
@@ -478,7 +459,6 @@
   {
     "key": "baseline_plus",
     "title": "Optional: evaluate age/exposure comparator",
-    "role": "A",
     "priority": "P1",
     "estimate": "0.5\u20131",
     "deps": [
@@ -498,7 +478,6 @@
   {
     "key": "economics",
     "title": "Deferred: transparent economic scenario calculator",
-    "role": "C",
     "priority": "P2",
     "estimate": "1\u20132",
     "deps": [
@@ -520,7 +499,6 @@
   {
     "key": "interventions",
     "title": "Deferred: reproducible intervention branches",
-    "role": "A",
     "priority": "P2",
     "estimate": "2\u20133",
     "deps": [

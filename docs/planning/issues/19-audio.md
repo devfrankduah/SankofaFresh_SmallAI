@@ -1,8 +1,7 @@
 ## Context
 Implement specification sections 4, 12, 14: [project specification](../../blob/main/docs/SankofaFresh_Project_Specification.md). This is planned work, not verified behavior.
 
-## Ownership and priority
-- Suggested owner: role C; named assignee not yet confirmed.
+## Priority
 - Priority: P1
 - Planning estimate: 0.5–1 focused person-hours, unvalidated and not a delivery guarantee.
 - Task key: `audio`
@@ -21,9 +20,8 @@ Implement specification sections 4, 12, 14: [project specification](../../blob/m
 ## Required evidence
 - Reviewer/language record and offline playback check.
 
-## Team handoff
-- Claim the issue with a named owner before editing. One owner per task; pair/reviewer roles are welcome.
+## Implementation notes
 - Use a short branch such as `codex/<issue-number>-<topic>` and a focused PR with `Closes #<issue-number>`.
-- Keep shared-contract changes explicit and notify dependent owners in the PR. Attach commands/results or mark checks not run.
-- Merge owner reviews integration and evidence. Do not close because code exists alone; required acceptance evidence must be present.
+- Keep shared-contract changes explicit in the PR. Attach commands/results or mark checks not run.
+- Close the issue when its acceptance criteria and required evidence are complete.
 - Do not expand into real sensors, accounts, cloud inference, real SMS, payments or real-world accuracy claims.

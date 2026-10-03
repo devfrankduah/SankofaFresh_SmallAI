@@ -11,7 +11,7 @@ Closes #
 ## Integration handoff
 
 - Dependencies satisfied:
-- Shared contracts changed (coordinate with dependent owners):
+- Shared contracts changed (note effects on dependent issues):
 - Remaining risks or blockers:
 
 Keep synthetic evidence clearly labeled. Do not claim checks passed without observed results.

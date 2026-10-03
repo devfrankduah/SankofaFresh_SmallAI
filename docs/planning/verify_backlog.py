@@ -1,7 +1,7 @@
 """Read GitHub state and verify planned issue metadata and dependency edges."""
 import json
 import subprocess
-from prepare_backlog import ROOT, TASKS
+from prepare_backlog import ROOT, TASKS, body
 
 query = '''{repository(owner:"GeorgeDavidson2",name:"SankofaFresh_SmallAI"){
 isPrivate url issues(first:100){nodes{id number title state assignees(first:10){totalCount}
@@ -19,12 +19,14 @@ for task in TASKS:
     assert issue['state'] == 'OPEN'
     assert issue['assignees']['totalCount'] == 0
     labels = {x['name'] for x in issue['labels']['nodes']}
-    assert {f'priority:{task["priority"]}', f'role:{task["role"]}'} <= labels
+    assert f'priority:{task["priority"]}' in labels
+    assert not any(label.startswith('role:') for label in labels)
+    assert issue['body'] == body(task, published['issues'])
     expected = {published['issues'][d]['id'] for d in task['deps']}
     assert {x['id'] for x in issue['blockedBy']['nodes']} == expected, task['key']
-    for heading in ['## Context','## Ownership and priority','## Dependencies','## Scope','## Acceptance criteria','## Required evidence']:
+    for heading in ['## Context','## Priority','## Dependencies','## Scope','## Acceptance criteria','## Required evidence']:
         assert heading in issue['body'], (task['key'], heading)
     for d in task['deps']:
         assert published['issues'][d]['url'] in issue['body']
     edges += len(expected)
-print(f'VERIFIED: private repository, {len(TASKS)} open issues, role/priority labels, required body sections and {edges} exact native blocker links.')
+print(f'VERIFIED: private repository, {len(TASKS)} open issues, priority labels, no assignees or role labels, required body sections and {edges} exact native blocker links.')

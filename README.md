@@ -4,7 +4,7 @@ Planning repository for a local, phone-friendly tomato storage demonstration. **
 
 The target stack is local HTML/CSS/JavaScript, Python FastAPI (one worker), SQLite and a trained compact decision tree. Runtime inference must not require internet. Default evidence mode is `SYNTHETIC_DEMO`; synthetic risk scores are not real-world probabilities, food-safety assessments or measured farm-loss reductions.
 
-- [Authoritative supplied specification](docs/SankofaFresh_Project_Specification.md)
+- [Supplied technical specification](docs/SankofaFresh_Project_Specification.md)
 - [Team execution guide](docs/TEAM_EXECUTION.md)
 - [Acceptance evidence register](docs/ACCEPTANCE.md)
 - [GitHub issues](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues)
@@ -12,7 +12,7 @@ The target stack is local HTML/CSS/JavaScript, Python FastAPI (one worker), SQLi
 
 ## Start here
 
-Claim an issue before editing, check its blockers, then open a focused PR with evidence. Begin with contracts, scaffold and coordination. Work from shared fixtures so model, backend and interface owners can proceed independently after contracts freeze.
+Either teammate, GeorgeDavidson2 or devfrankduah, can pick any unblocked issue and start. No assigned roles or task owners are required. Begin with contracts and scaffold; use shared fixtures to develop backend, model and interface work in parallel. Open focused PRs with evidence.
 
 Setup commands in the specification are **planned**, not working instructions yet. The scaffold and clean-install issues must supply and verify them. No application tests have run at this planning stage.
 
