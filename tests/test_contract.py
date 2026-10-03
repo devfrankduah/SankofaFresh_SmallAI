@@ -17,7 +17,7 @@ FIXTURES = ROOT / 'tests/fixtures'
 SPEC = (ROOT / 'docs/SankofaFresh_Spec_v2.md').read_text()
 CATEGORICAL_ENCODING = re.compile(r'\d+ \w+(, \d+ \w+)*')
 SHORT_KEY_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_', 'error_', 'evidence_', 'source_', 'metric_')
-SHORT_KEYS = ('sms_not_sent', 'demo_model_note')
+SHORT_KEYS = ('sms_not_sent', 'demo_model_note', 'demo_data_note')
 SHORT_MAX_CHARACTERS = 40
 DRAFT_STATUS = 'UNREVIEWED DRAFT, machine-written, not for release'
 
