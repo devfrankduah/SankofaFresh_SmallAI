@@ -79,5 +79,7 @@
   "metric_coverage": "Coverage",
   "button_load_demo": "Load demo batches",
   "demo_data_note": "Demo data, not a real batch",
-  "sms_copied": "Copied"
+  "sms_copied": "Copied",
+  "weather_strip": "Humidity, last 14 days: {low} to {high}",
+  "button_back": "Back"
 }
