@@ -2,7 +2,7 @@
 
 One video, under 4 minutes 45 seconds, covering the five required parts in order. Spoken lines are the quoted blocks (579 words; about 4 minutes 33 seconds at 140 words a minute, including about 25 seconds of demo taps). "Do" steps are what the phone shows. "Numbers" lines give the file behind every number that is spoken; don't read them aloud.
 
-Before recording: open the live link once with a connection so the app is stored on the phone, delete any old records in Settings, and have airplane mode one swipe away. Record the phone screen with the status bar visible, so viewers can see airplane mode.
+Before recording: open the live app (https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection so the app is stored on the phone, delete any old records in Settings, and have airplane mode one swipe away. Record the phone screen with the status bar visible, so viewers can see airplane mode.
 
 ## 1. The problem (about 35 seconds)
 
