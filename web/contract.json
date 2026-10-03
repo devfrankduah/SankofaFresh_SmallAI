@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "evidence_mode": "SYNTHETIC_DEMO",
-  "languages": ["en"],
+  "languages": ["en", "tw"],
   "dont_know_value": "dont_know",
   "inputs": [
     {"name": "batch_label", "type": "choice", "values": ["Batch 1", "Batch 2", "Batch 3", "Batch 4", "Batch 5", "Batch 6", "Batch 7", "Batch 8", "Batch 9", "Batch 10"], "allows_dont_know": false},

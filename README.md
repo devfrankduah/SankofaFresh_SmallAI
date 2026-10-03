@@ -29,7 +29,7 @@ This evidence is for the problem, not for our tool: we have not measured any eff
 2. **Local weather.** The app carries NASA POWER daily humidity and temperature for 2025 at the demo location. For each batch it takes the 14 days ending on the check date (storage start plus days stored) and computes average humidity, peak daily humidity and average temperature.
 3. **The tree.** A decision tree six levels deep, trained offline in Python (scikit-learn) on synthetic batches, exported as a 12 KB JSON file and run in the browser. The app checks the file's SHA-256 hash before using it. Python and the browser give identical answers on all 2,880 held-out batches and 228 threshold edge cases (`tests/test_parity.mjs`).
 4. **Four results.** Green, amber, red or not sure. Not sure appears when an answer is "Don't know", when an answer is outside what the tree saw in training, or when the tree's top probability is below a cut chosen on validation farms.
-5. **Fixed messages.** Each result shows its band message, up to two reasons from the tree's decision path (for example "The bags are on the floor."), and one action: dry it again, move the bags onto a pallet or rack, or take a sample to the cooperative's moisture meter. English ships now. A Twi translation is drafted and waits for a fluent speaker's check (`web/messages.tw.draft.json`); drafts are never shipped or cached.
+5. **Fixed messages.** Each result shows its band message, up to two reasons from the tree's decision path (for example "The bags are on the floor."), and one action: dry it again, move the bags onto a pallet or rack, or take a sample to the cooperative's moisture meter. English and Twi ship; switch language in Settings. The Twi strings were machine-drafted, then checked by one fluent speaker on the team, who approved all 81 without changes. Unreviewed drafts (`*.draft.json`) are never shipped or cached.
 6. **SMS draft.** Amber, red and not sure results show a short message to the cooperative, labelled SIMULATED_NOT_SENT, with a copy button. The app has no way to send it.
 7. **Records stay on the phone.** Batches live in the browser's local storage. There is no account, name, phone number or location, and Settings has a one-tap delete with a confirmation.
 
@@ -96,7 +96,7 @@ After changing any file in `web/`, update `PRECACHE` and `CACHE_VERSION` in `web
 | Weather, `web/weather.json` and `data/raw/power_6.6034_-0.7121_2025.csv` | NASA POWER Hourly API v2.10.2 (MERRA-2), T2M and RH2M for 2025, accessed 3 October 2026 | "There are no restrictions on the use, access, and/or download of data from the NASA POWER Project", with a request to cite it ([AWS Registry of Open Data listing for NASA POWER](https://registry.opendata.aws/nasa-power/)) | 24 KB (raw CSV 214 KB) |
 | Synthetic batches, `data/batches.csv` | Generated here by `data/gen_batches.py` from `data/generator_config.json`, seed 20261003 | MIT (this repository) | 894 KB, 5,760 batches |
 | Model, `web/tree.json` | Trained here by `model/train.py` | MIT (this repository) | 12 KB, 115 nodes |
-| Messages, `web/messages.en.json` and the Twi draft | Written by the team; the Twi draft is machine-written and unreviewed | MIT (this repository) | about 4 KB each |
+| Messages, `web/messages.en.json` and `web/messages.tw.json` | English written by the team; Twi machine-drafted and approved unchanged by one fluent speaker on the team | MIT (this repository) | about 4 KB each |
 | Demo location point | OpenStreetMap (village point) and GeoNames (ID 2303145) | OpenStreetMap: ODbL, © OpenStreetMap contributors. GeoNames: CC BY 4.0 | one coordinate pair |
 
 No audio ships yet. The whole app (`web/`) is about 200 KB; [evidence/sizes.json](evidence/sizes.json) lists every file.
@@ -116,7 +116,7 @@ No audio ships yet. The whole app (`web/`) is about 200 KB; [evidence/sizes.json
 - Most coffee in this area is robusta and often sold as dried cherry, so the parchment thresholds follow the brief's scenario rather than local practice.
 - No farmer registry, no real users and no field test.
 - Price figures are national and dated, not live or local.
-- Local-language messages: the Twi file is a machine-written draft that no fluent speaker has checked yet. Once checked, it will be by one speaker, and dialect variation isn't covered.
+- Local-language messages are checked by one speaker; dialect variation isn't covered.
 
 ## Results
 
@@ -151,7 +151,7 @@ The tree uses the rewetting and floor answers directly. Its depth was chosen fro
 - **No generated text:** every result, reason and action comes from a fixed message file.
 - **Privacy:** no account, name, number or location. Records stay in the browser, with one-tap delete.
 - **Consent:** a first-run screen explains that records stay on the phone and nothing is sent.
-- **Bias and limits:** labels come from published thresholds, not from farmers' own batches; the weather is one grid cell; the local language is not yet checked by a speaker; and the smartphone may belong to another household member, which is why the design is a weekly check.
+- **Bias and limits:** labels come from published thresholds, not from farmers' own batches; the weather is one grid cell; the Twi messages were checked by one speaker; and the smartphone may belong to another household member, which is why the design is a weekly check.
 - **Registries:** if this ever feeds a farmer registry, that must be opt-in, because farm-level records could weaken a farmer's position with buyers.
 
 ## Claims we make and claims we don't

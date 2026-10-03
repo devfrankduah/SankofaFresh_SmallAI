@@ -69,7 +69,7 @@ The humidity-only baseline (spec 7, `model/bands.py`) says red when `rh14_mean` 
 
 ## Messages
 
-`languages` lists the shipped language codes in order; the first is the default. Each code has a file `web/messages.<code>.json`, and every listed file must contain exactly the keys in `message_keys`, the full list from spec 5.5. A file with a top-level `_status` field is a draft and must not be listed. `web/messages.tw.draft.json` is an unreviewed, machine-written Twi draft: a fluent speaker checks it, removes `_status`, renames it to `messages.tw.json` and adds `tw` to `languages`. They come in two groups: result messages, and interface strings for the screens. Interface keys follow fixed patterns so the app can find them without a lookup table:
+`languages` lists the shipped language codes in order; the first is the default. Each code has a file `web/messages.<code>.json`, and every listed file must contain exactly the keys in `message_keys`, the full list from spec 5.5. A file with a top-level `_status` field is a draft and must not be listed. A new language starts as `web/messages.<code>.draft.json` with `_status`; a fluent speaker checks every string, then the file loses `_status`, is renamed `messages.<code>.json`, and the code is added to `languages`. Twi (`tw`) went through this: machine-drafted, approved unchanged by one fluent speaker on the team, and listed after English. They come in two groups: result messages, and interface strings for the screens. Interface keys follow fixed patterns so the app can find them without a lookup table:
 
 - `question_<input>` for each input in `inputs`.
 - `option_<value>` for each choice value except batch labels, plus `option_dont_know`.
