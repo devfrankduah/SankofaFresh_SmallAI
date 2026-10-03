@@ -1,8 +1,13 @@
 """Publish the user-authorized issue backlog; checkpoints make retries resumable."""
 import json
 import subprocess
+import sys
 from pathlib import Path
-from prepare_backlog import TASKS, ROOT, body
+from prepare_backlog import OPEN, TASKS, ROOT, body
+
+# This script only creates issues and appends blockers; it cannot retitle, close or unlink.
+if any(task['status'] != OPEN for task in TASKS):
+    sys.exit('The backlog has closed tasks, which publish_backlog.py cannot handle. Use sync_backlog_v2.py.')
 
 REPO = 'GeorgeDavidson2/SankofaFresh_SmallAI'
 STATE = ROOT / 'docs/planning/published.json'

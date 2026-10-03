@@ -1,9 +1,9 @@
 ## Context
-Implement specification sections 6, 8: [project specification](../../blob/main/docs/SankofaFresh_Project_Specification.md). This is planned work, not verified behavior.
+Specification sections 5.2, 5.3: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
-- Planning estimate: 1–2 focused person-hours, unvalidated and not a delivery guarantee.
+- Planning estimate: 1 to 1.5 focused person-hours, unvalidated and not a delivery guarantee.
 - Task key: `features`
 
 ## Dependencies
@@ -11,20 +11,19 @@ Implement specification sections 6, 8: [project specification](../../blob/main/d
 - Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/3
 
 ## Scope and implementation notes
-- Implement app/features.py shared by training/runtime with exact ordered nine features, window boundaries (t-window,t], units, maturity codes and heat-degree-hours formula.
-- Require measured six-hour history without invented pre-arrival values, 58/72 valid pairs in six hours and 10/12 in one hour; stop fresh scores after two missed scheduled readings.
-- Handle unknown maturity, insufficient history, stale and outside_model_support, including 10..45 C and model bundle support ranges; null fresh score/probability on abstention.
+- One encoding function in Python and one in JS that turn the spec 5.1 inputs and weather features into the nine-feature vector, in spec 5.2 order.
+- Abstention rules 1 and 2 from spec 5.3: any "don't know" input, or any feature outside the training ranges stored in tree.json, returns not_sure with the reason.
+- Both implementations run against the #2 fixtures.
 
 ## Acceptance criteria
-- [ ] Future observations cannot alter earlier feature vectors or eligibility (AC03).
-- [ ] Window edges, exact coverage cutoffs, two missed readings, unknown maturity and out-of-support values are tested (AC04/AC07).
-- [ ] Latent quality, scenario ID and future conditions are never read by this module.
+- [ ] Python and JS produce identical vectors for every fixture.
+- [ ] AC01 (inputs part): the missing-input and out-of-range fixtures return not_sure with reason_missing_input and reason_out_of_range.
 
 ## Required evidence
-- Hand-calculated feature fixture and boundary/leakage/eligibility tests.
+- Python and JS test output on the fixtures.
 
 ## Implementation notes
-- Use a short branch such as `codex/<issue-number>-<topic>` and a focused PR with `Closes #<issue-number>`.
+- Use a short branch such as `<issue-number>-<topic>` and a focused PR with `Closes #<issue-number>`.
 - Keep shared-contract changes explicit in the PR. Attach commands/results or mark checks not run.
 - Close the issue when its acceptance criteria and required evidence are complete.
-- Do not expand into real sensors, accounts, cloud inference, real SMS, payments or real-world accuracy claims.
+- Do not add server APIs, databases, cloud inference, real SMS, accounts or real-world accuracy claims.

@@ -1,21 +1,34 @@
 # SankofaFresh Small AI
 
-Planning repository for a local, phone-friendly tomato storage demonstration. **Status: specification and backlog only; application not implemented or verified.**
+An offline phone web app (PWA) that helps a smallholder coffee farmer decide what to do with stored coffee parchment before selling it: keep it, re-dry it, move it off the floor, or take a sample to the cooperative's moisture meter first. A small decision tree runs inside the browser. It combines tap-only answers about each batch with bundled local humidity data and returns one of four results (green, amber, red, not sure), each a fixed, human-checked message in a named local language.
 
-The target stack is local HTML/CSS/JavaScript, Python FastAPI (one worker), SQLite and a trained compact decision tree. Runtime inference must not require internet. Default evidence mode is `SYNTHETIC_DEMO`; synthetic risk scores are not real-world probabilities, food-safety assessments or measured farm-loss reductions.
+**Status: specification and backlog only. No application code exists yet, and nothing has been built or verified.**
 
-- [Supplied technical specification](docs/SankofaFresh_Project_Specification.md)
+Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Development, Agriculture sector.
+
+- [Specification v2](docs/SankofaFresh_Spec_v2.md), the source of truth for the product
 - [Team execution guide](docs/TEAM_EXECUTION.md)
 - [Acceptance evidence register](docs/ACCEPTANCE.md)
-- [GitHub issues](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues)
-- [Issue index and dependencies](docs/planning/ISSUE_INDEX.md)
+- [GitHub issues](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues) and the [issue index with dependencies](docs/planning/ISSUE_INDEX.md)
+- [v1 to v2 issue migration map](docs/planning/V2_ISSUE_MAP.md)
+- [Specification v1](docs/SankofaFresh_Project_Specification.md), superseded and kept as history
+
+## Planned stack
+
+- Static PWA: HTML, CSS, vanilla JavaScript, a service worker and a web manifest. No frontend framework and no build step.
+- A scikit-learn decision tree (max depth 4), trained offline by the team in Python, exported to a JSON file of a few KB and run in the browser by a small JavaScript interpreter.
+- NASA POWER hourly humidity and temperature for one demo location, bundled with the app.
+- Records stay in the browser's localStorage. No accounts, names, phone numbers or location.
+- The app drafts an SMS the user can choose to send from their own phone. It never sends anything itself.
+
+After one online load, checks and results are meant to work in airplane mode. The whole app targets under 1 MB, to be measured and reported.
 
 ## Start here
 
-Either teammate, GeorgeDavidson2 or devfrankduah, can pick any unblocked issue and start. No assigned roles or task owners are required. Begin with contracts and scaffold; use shared fixtures to develop backend, model and interface work in parallel. Open focused PRs with evidence.
+Either teammate, GeorgeDavidson2 or devfrankduah, can pick any unblocked issue and start. Begin with [#1](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/1) (deadline, language and demo location), [#2](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/2) (contracts) and [#3](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/3) (scaffold). Open focused PRs with evidence.
 
-Setup commands in the specification are **planned**, not working instructions yet. The scaffold and clean-install issues must supply and verify them. No application tests have run at this planning stage.
+Setup and run commands don't exist yet. The scaffold issue supplies them and the release issue checks them on a clean checkout. No application tests have run.
 
-Minimum scope: tomatoes, three batches, one virtual storage zone, seeded simulated readings, trained local model, persisted alerts, operator actions and labeled held-out evaluation. Optional audio and a stronger baseline follow P0. Financial scenarios and intervention branches are deferred.
+## Evidence boundary
 
-Localhost is the default runtime binding. Controlled phone access requires the laptop and phone on a tested LAN. This unauthenticated prototype must not be exposed publicly. The private repository does not itself provide runtime authentication.
+Training labels are synthetic, generated from a documented rule tied to FAO and Codex moisture thresholds (evidence mode `SYNTHETIC_DEMO`). Results will show how well the tree recovers that rule. They are not field accuracy, food-safety assessments or income gains.
