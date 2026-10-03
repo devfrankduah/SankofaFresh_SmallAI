@@ -4,6 +4,8 @@ An offline phone web app (PWA) that helps a smallholder coffee farmer decide wha
 
 **Status: scaffold and shared contracts only. The app itself isn't built yet, and nothing has been verified on a phone.**
 
+**Live app:** LIVE_LINK_PLACEHOLDER (published by `.github/workflows/pages.yml` once the repository is public). Two steps need a repository admin: make the repository public, and in Settings, Pages, set Source to "GitHub Actions". Until then the deploy job skips itself.
+
 Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Development, Agriculture sector.
 
 - [Specification v2](docs/SankofaFresh_Spec_v2.md), the source of truth for the product
@@ -72,7 +74,7 @@ cd web
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-Open http://127.0.0.1:8000/. The first load stores every file in `web/` for offline use. After that, checks work with no connection, including a reload (see [evidence/offline-check.md](evidence/offline-check.md)). Use https, or `localhost` or `127.0.0.1` on the same machine. Plain http on a LAN address is not a secure context, so the browser runs no service worker and no Web Crypto, and the app refuses the model because it can't check its hash.
+Open http://127.0.0.1:8000/. The first load stores every file in `web/` for offline use, except unreviewed drafts (`*.draft.json`), which are never cached or loaded. After that, checks work with no connection, including a reload (see [evidence/offline-check.md](evidence/offline-check.md)). Use https, or `localhost` or `127.0.0.1` on the same machine. Plain http on a LAN address is not a secure context, so the browser runs no service worker and no Web Crypto, and the app refuses the model because it can't check its hash.
 
 To preview the screens with the shared test fixtures, serve the repository root instead and open http://127.0.0.1:8000/web/index.html?fixtures. The fixture batches are kept in memory only, never in the phone's records. If `web/tree.json` is missing, the app uses `tests/fixtures/sample_tree.json` from the repository root and marks every result with the demo model note.
 

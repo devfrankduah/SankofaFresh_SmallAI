@@ -161,8 +161,11 @@ export function languageCandidates(contract, bootstrapCode) {
   return [...new Set(listed.filter(code => typeof code === 'string' && LANGUAGE_CODE.test(code)))];
 }
 
+// docs/contracts_v2.md: a messages file with a top-level _status is an unreviewed draft. It is never
+// offered, even if a contract were to list it.
 export function hasEveryMessage(contract, messages) {
   if (!messages || typeof messages !== 'object' || Array.isArray(messages)) return false;
+  if (Object.hasOwn(messages, '_status')) return false;
   return contract.message_keys.every(key => typeof messages[key] === 'string' && messages[key].trim() !== '');
 }
 

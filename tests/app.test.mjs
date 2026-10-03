@@ -100,6 +100,21 @@ test('a messages file counts only when it has every contract key with text', () 
   assert.equal(hasEveryMessage(CONTRACT, null), false);
 });
 
+test('an unreviewed draft is never offered, even when listed or renamed', async () => {
+  const draft = json('web/messages.tw.draft.json');
+  assert.ok(Object.hasOwn(draft, '_status'), 'the Twi draft is marked with _status');
+  assert.equal(hasEveryMessage(CONTRACT, draft), false);
+  assert.equal(hasEveryMessage(CONTRACT, { ...MESSAGES, _status: 'draft' }), false);
+  assert.deepEqual(languageCandidates({ languages: ['tw.draft', 'en'] }, 'en'), ['en'], 'no code can name a .draft.json file');
+  const readJson = async url => {
+    if (url === 'messages.tw.json') return draft;
+    if (url === 'messages.en.json') return MESSAGES;
+    throw new Error(`${url}: HTTP 404`);
+  };
+  const loaded = await loadLanguages(CONTRACT, ['tw', 'en'], readJson);
+  assert.deepEqual(loaded.map(language => language.code), ['en'], 'a draft renamed without review is still refused');
+});
+
 test('only languages whose file loads complete are offered, in contract order', async () => {
   const files = {
     'messages.en.json': MESSAGES,
