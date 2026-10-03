@@ -1,9 +1,8 @@
 // SankofaFresh screens. Everything the farmer reads comes from messages.<lang>.json, and every
 // question, option, band and rule comes from contract.json at runtime.
 
-// batch_label names the record instead of describing the coffee (docs/contracts_v2.md), so the
-// app has to know which input it is; the contract has no field that marks it.
-const BATCH_LABEL_INPUT = 'batch_label';
+import { BATCH_LABEL_INPUT, RecordStore, STORAGE_KEY, browserStorage, emptyRecords, memoryStorage } from './storage.js';
+
 const VIEWS = new Set(['batches', 'check', 'result', 'settings']);
 const LANGUAGE_CODE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -28,6 +27,7 @@ export function requireContract(contract) {
     problems.push('actions missing');
   }
   if (typeof contract.dont_know_value !== 'string') problems.push('dont_know_value missing');
+  if (!Array.isArray(contract.recorded_actions)) problems.push('recorded_actions missing');
   const label = Array.isArray(contract.inputs) ? contract.inputs.find(input => input.name === BATCH_LABEL_INPUT) : null;
   if (!label || label.type !== 'choice' || !Array.isArray(label.values) || label.values.length === 0) {
     problems.push(`${BATCH_LABEL_INPUT} must be a choice input with values`);
@@ -161,6 +161,7 @@ export function batchesFromFixtures(contract, fixtures, checkedAt) {
         answers: { ...fixtureCase.inputs },
         checkedAt,
         result: reason ? { band: contract.abstention.band, reasons: [reason] } : null,
+        actions: [],
       });
     }
   }
@@ -194,21 +195,43 @@ function icon(name, className = '') {
 }
 
 class App {
-  constructor({ contract, languages }) {
+  constructor({ contract, languages, store }) {
     this.contract = contract;
     this.languages = languages;
-    this.language = languages[0];
-    this.batches = new Map();
+    this.store = store;
+    this.storageWorks = store.available;
     this.previousView = null;
+    this.recordOpen = false;
     this.bar = document.getElementById('bar');
     this.main = document.getElementById('main');
     this.dock = document.getElementById('dock');
+    this.applyRecords(store.read(contract));
+  }
+
+  // Only a language the farmer picked is saved, so a household that never chose one follows the
+  // contract's default if a local language is added later.
+  applyRecords(records) {
+    this.consent = records.consent;
+    this.chosenLanguage = this.languages.some(language => language.code === records.language) ? records.language : null;
+    this.language = this.languages.find(language => language.code === this.chosenLanguage) ?? this.languages[0];
+    this.batches = new Map(records.batches.map(batch => [batch.label, batch]));
+  }
+
+  persist() {
+    const batches = batchLabels(this.contract).filter(label => this.batches.has(label)).map(label => this.batches.get(label));
+    this.storageWorks = this.store.write({ consent: this.consent, language: this.chosenLanguage, batches });
+    return this.storageWorks;
   }
 
   t(key, values) {
     const text = this.language.messages[key];
     if (typeof text !== 'string') throw new Error(`message ${key} is missing`);
     return values ? fillPlaceholders(text, values) : text;
+  }
+
+  // For keys the contract may add later; until it lists them the app shows no text for them.
+  optionalText(key) {
+    return this.contract.message_keys.includes(key) ? this.t(key) : null;
   }
 
   formatNumber(value) {
@@ -236,9 +259,9 @@ class App {
     }
   }
 
-  render() {
+  render(focusSelector = null) {
     const route = parseRoute(location.hash);
-    const screen = this.screenFor(route);
+    const screen = this.consent ? this.screenFor(route) : this.consentScreen();
     if (screen.redirect) {
       location.replace(screen.redirect);
       return;
@@ -246,15 +269,44 @@ class App {
     document.documentElement.lang = this.language.code;
     document.title = screen.title;
     this.bar.replaceChildren(...this.renderBar(screen));
-    this.main.replaceChildren(...screen.body);
+    this.main.replaceChildren(...this.storageNotice(), ...screen.body);
     this.dock.replaceChildren(...(screen.dock ?? []));
     this.dock.hidden = !screen.dock || screen.dock.length === 0;
-    const routeKey = `${route.view}/${route.param ?? ''}`;
-    if (this.previousView !== null && this.previousView !== routeKey) {
-      window.scrollTo(0, 0);
-      this.main.focus({ preventScroll: true });
+    const routeKey = this.consent ? `${route.view}/${route.param ?? ''}` : 'consent';
+    if (this.previousView !== routeKey) {
+      if (this.previousView !== null) window.scrollTo(0, 0);
+      this.recordOpen = false;
     }
+    const target = focusSelector ? document.querySelector(focusSelector) : null;
+    if (target) target.focus();
+    else if (this.previousView !== null && this.previousView !== routeKey) this.main.focus({ preventScroll: true });
     this.previousView = routeKey;
+  }
+
+  storageNotice() {
+    if (this.storageWorks) return [];
+    const text = this.optionalText('error_storage');
+    return [h('p', { class: 'storage-notice', role: 'status' }, icon('alert'), text ? h('span', { text }) : null)];
+  }
+
+  consentScreen() {
+    const body = [h('section', { class: 'consent' },
+      icon('sack', 'consent-mark'),
+      h('p', { class: 'consent-text', text: this.t('consent_text') }))];
+    if (this.languages.length > 1) body.push(this.languageChoices());
+    return {
+      title: this.t('title_consent'),
+      bare: true,
+      body,
+      dock: [h('button', { class: 'button button-primary', type: 'button', onclick: () => this.giveConsent() },
+        icon('check'), h('span', { text: this.t('button_continue') }))],
+    };
+  }
+
+  giveConsent() {
+    this.consent = true;
+    this.persist();
+    this.render();
   }
 
   screenFor(route) {
@@ -272,6 +324,7 @@ class App {
 
   renderBar(screen) {
     const title = h('h1', { class: 'bar-title', text: screen.title });
+    if (screen.bare) return [h('span', { class: 'bar-mark' }, icon('sack')), title];
     if (!screen.back) {
       const settings = h('a', { class: 'icon-button', href: routeHash('settings'), 'aria-label': this.t('title_settings') },
         icon('settings'));
@@ -494,7 +547,15 @@ class App {
       return;
     }
     const label = draft.answers[BATCH_LABEL_INPUT];
-    this.batches.set(label, { label, answers: { ...draft.answers }, checkedAt: new Date().toISOString(), result: null });
+    const previous = this.batches.get(label);
+    this.batches.set(label, {
+      label,
+      answers: { ...draft.answers },
+      checkedAt: new Date().toISOString(),
+      result: null,
+      actions: previous ? previous.actions : [],
+    });
+    this.persist();
     location.hash = routeHash('batches');
   }
 
@@ -520,6 +581,7 @@ class App {
     }
     if (action) body.push(h('p', { class: 'action' }, icon('action'), h('span', { text: this.t(action) })));
     body.push(h('p', { class: 'synthetic', text: this.t('synthetic_label') }));
+    body.push(this.recordSection(batch));
     return {
       title: this.t('title_result'),
       back: this.backToBatches(),
@@ -529,20 +591,58 @@ class App {
     };
   }
 
-  settingsScreen() {
-    const languages = h('div', { class: 'options options-languages' },
-      this.languages.map(language => this.optionTile({
+  // Recording what was done never touches batch.result (spec 3, step 5).
+  recordSection(batch) {
+    const toggle = h('button', {
+      type: 'button', class: 'button button-secondary record-toggle', 'aria-expanded': String(this.recordOpen),
+      onclick: () => {
+        this.recordOpen = !this.recordOpen;
+        this.render(this.recordOpen ? '.record-choice' : '.record-toggle');
+      },
+    }, icon('record'), h('span', { text: this.t('button_record_action') }));
+    const choices = this.recordOpen
+      ? h('div', { class: 'options record-options' }, this.contract.recorded_actions.map(action => h('button', {
+        type: 'button', class: 'record-choice', onclick: () => this.recordAction(batch.label, action),
+      }, h('span', { text: this.t(`record_${action}`) }))))
+      : null;
+    const history = batch.actions.length > 0
+      ? h('ul', { class: 'records' }, [...batch.actions].reverse().map(entry => h('li', {},
+        icon('check'),
+        h('span', { class: 'records-action', text: this.t(`record_${entry.action}`) }),
+        h('time', { datetime: entry.at, text: this.formatDate(entry.at) }))))
+      : null;
+    return h('section', { class: 'record' }, toggle, choices, history);
+  }
+
+  recordAction(label, action) {
+    const batch = this.batches.get(label);
+    if (!batch || !this.contract.recorded_actions.includes(action)) return;
+    batch.actions = [...batch.actions, { action, at: new Date().toISOString() }];
+    this.recordOpen = false;
+    this.persist();
+    this.render('.record-toggle');
+  }
+
+  languageChoices() {
+    return h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('language')),
+      h('div', { class: 'options options-languages' }, this.languages.map(language => this.optionTile({
         type: 'radio',
         name: 'language',
         value: language.code,
         checked: language.code === this.language.code,
         text: language.messages.language_name,
         onchange: () => this.chooseLanguage(language.code),
-      })));
+      }))));
+  }
+
+  settingsScreen() {
+    const deleteAll = h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('trash')),
+      h('button', { class: 'button button-danger', type: 'button', onclick: () => this.deleteAll() },
+        h('span', { text: this.t('button_delete_all') })));
     return {
       title: this.t('title_settings'),
       back: this.backToBatches(),
-      body: [h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('language')), languages)],
+      body: [this.languageChoices(), deleteAll],
     };
   }
 
@@ -550,6 +650,18 @@ class App {
     const language = this.languages.find(candidate => candidate.code === code);
     if (!language || language === this.language) return;
     this.language = language;
+    this.chosenLanguage = code;
+    this.persist();
+    this.render(`input[name="language"][value="${code}"]`);
+  }
+
+  // Delete-all returns the app to its first-run state, consent included (AC11: delete clears everything).
+  deleteAll() {
+    if (!window.confirm(this.t('confirm_delete_all'))) return;
+    const cleared = this.store.clear();
+    this.storageWorks = this.store.available && cleared;
+    this.applyRecords(emptyRecords());
+    history.replaceState(null, '', routeHash('batches'));
     this.render();
   }
 }
@@ -576,10 +688,20 @@ export async function boot() {
     const codes = languageCandidates(contract, document.documentElement.lang);
     const languages = await loadLanguages(contract, codes, url => fetchJson(url));
     if (languages.length === 0) throw new Error(`no complete messages file for ${codes.join(', ')}`);
+    // Fixture previews never read or write the phone's real records.
     const fixtureMode = new URLSearchParams(location.search).has('fixtures');
-    const app = new App({ contract, languages });
+    const store = new RecordStore(fixtureMode ? memoryStorage() : browserStorage());
+    const app = new App({ contract, languages, store });
     if (fixtureMode) await app.loadFixtures();
     window.addEventListener('hashchange', () => app.render());
+    if (!fixtureMode) {
+      // Another open tab changed or deleted the records; show what is actually stored now.
+      window.addEventListener('storage', event => {
+        if (event.key !== STORAGE_KEY && event.key !== null) return;
+        app.applyRecords(store.read(contract));
+        app.render();
+      });
+    }
     app.render();
   } catch (error) {
     renderFatal(error);

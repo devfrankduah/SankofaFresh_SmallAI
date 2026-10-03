@@ -187,6 +187,12 @@ main:focus {
   color: var(--tarp);
 }
 
+.button-danger {
+  background: var(--page);
+  border-color: var(--red);
+  color: var(--red);
+}
+
 .button:disabled {
   background: var(--line);
   color: var(--ink-soft);
@@ -562,12 +568,110 @@ main:focus {
   line-height: 1.4;
 }
 
+/* Recording what was done: a quiet tool under the result, never part of it. */
+.record {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.record-options {
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+.record-choice {
+  min-height: var(--tap);
+  padding: 10px 14px;
+  border: 2px solid var(--tarp);
+  border-radius: var(--radius);
+  background: var(--page);
+  color: var(--tarp);
+  font: inherit;
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+}
+
+.record-choice:active {
+  background: var(--tarp-soft);
+}
+
+.records {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.records li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 10px 0;
+  border-bottom: 2px solid var(--parchment);
+}
+
+.records .icon {
+  color: var(--green);
+}
+
+.records-action {
+  flex: 1;
+  font-weight: 600;
+}
+
+.records time {
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+/* Consent */
+.consent {
+  display: grid;
+  justify-items: start;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.consent-mark {
+  width: 64px;
+  height: 64px;
+  color: var(--jute);
+  stroke-width: 1.5;
+}
+
+.consent-text {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.45;
+}
+
+.storage-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  color: var(--red);
+  font-weight: 650;
+}
+
 /* Settings */
 .setting {
   display: grid;
   grid-template-columns: 32px 1fr;
   gap: 14px;
   align-items: start;
+}
+
+.setting + .setting {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid var(--parchment);
 }
 
 .setting-mark {
