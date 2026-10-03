@@ -94,9 +94,9 @@ After changing any file in `web/`, update `PRECACHE` and `CACHE_VERSION` in `web
 | Dataset | Source | Licence or terms | Size |
 |---|---|---|---|
 | Weather, `web/weather.json` and `data/raw/power_6.6034_-0.7121_2025.csv` | NASA POWER Hourly API v2.10.2 (MERRA-2), T2M and RH2M for 2025, accessed 3 October 2026 | "There are no restrictions on the use, access, and/or download of data from the NASA POWER Project", with a request to cite it ([AWS Registry of Open Data listing for NASA POWER](https://registry.opendata.aws/nasa-power/)) | 24 KB (raw CSV 214 KB) |
-| Synthetic batches, `data/batches.csv` | Generated here by `data/gen_batches.py` from `data/generator_config.json`, seed 20261003 | This repository's licence | 894 KB, 5,760 batches |
-| Model, `web/tree.json` | Trained here by `model/train.py` | This repository's licence | 12 KB, 115 nodes |
-| Messages, `web/messages.en.json` and the Twi draft | Written by the team; the Twi draft is machine-written and unreviewed | This repository's licence | about 4 KB each |
+| Synthetic batches, `data/batches.csv` | Generated here by `data/gen_batches.py` from `data/generator_config.json`, seed 20261003 | MIT (this repository) | 894 KB, 5,760 batches |
+| Model, `web/tree.json` | Trained here by `model/train.py` | MIT (this repository) | 12 KB, 115 nodes |
+| Messages, `web/messages.en.json` and the Twi draft | Written by the team; the Twi draft is machine-written and unreviewed | MIT (this repository) | about 4 KB each |
 | Demo location point | OpenStreetMap (village point) and GeoNames (ID 2303145) | OpenStreetMap: ODbL, © OpenStreetMap contributors. GeoNames: CC BY 4.0 | one coordinate pair |
 
 No audio ships yet. The whole app (`web/`) is about 200 KB; [evidence/sizes.json](evidence/sizes.json) lists every file.
@@ -166,7 +166,7 @@ SankofaFresh existed as an idea before the event. All code in this repository wa
 
 ## Licence
 
-TODO: licence not chosen yet.
+MIT, copyright (c) 2026 The SankofaFresh contributors; see [LICENSE](LICENSE). The NASA POWER, OpenStreetMap and GeoNames data keep their own terms, listed under [Data](#data).
 
 ## Team
 

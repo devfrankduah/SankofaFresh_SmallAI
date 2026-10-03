@@ -78,5 +78,6 @@
   "metric_abstain_rate": "Abstain rate",
   "metric_coverage": "Coverage",
   "button_load_demo": "Load demo batches",
-  "demo_data_note": "Demo data, not a real batch"
+  "demo_data_note": "Demo data, not a real batch",
+  "sms_copied": "Copied"
 }

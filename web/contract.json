@@ -77,7 +77,7 @@
     "evidence_model_version", "evidence_tree_hash", "evidence_file_sizes", "evidence_metrics", "evidence_tree",
     "evidence_baseline", "evidence_sources", "source_weather", "source_labels",
     "metric_accuracy", "metric_macro_f1", "metric_red_recall", "metric_false_reassurance_rate", "metric_abstain_rate", "metric_coverage",
-    "button_load_demo", "demo_data_note"
+    "button_load_demo", "demo_data_note", "sms_copied"
   ],
   "message_placeholders": {"sms_template": ["batch_label"], "weather_note": ["year"], "source_weather": ["year"]}
 }

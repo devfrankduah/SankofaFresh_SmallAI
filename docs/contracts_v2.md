@@ -80,7 +80,9 @@ The humidity-only baseline (spec 7, `model/bands.py`) says red when `rh14_mean` 
 
 `message_placeholders` lists the placeholders each message may contain, written `{name}`. `sms_template` has `{batch_label}`, and `weather_note` and `source_weather` have `{year}`, the bundled weather year. Translators must keep placeholders unchanged. Interface strings (`question_`, `option_`, `button_`, `record_`, `title_`, `error_`, `evidence_`, `source_` and `metric_` keys, plus `sms_not_sent` and `demo_model_note`) stay at 40 characters or fewer, so they fit a 360 px screen and are quick to translate.
 
-The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to "Batch 10") are stored values and are shown as stored; they have no message key.
+The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to "Batch 10") are stored values and are shown as stored; they have no message key. `sms_copied` ("Copied") confirms that the SMS draft was copied.
+
+**The one documented exception:** the reload button on the app's error screen may use the hard-coded aria-label "Reload". That screen can appear because the message files themselves failed to load, so there may be no message to read the label from. Every other visible or spoken string comes from the message files.
 
 ## tree.json
 
