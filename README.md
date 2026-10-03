@@ -20,8 +20,9 @@ Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Development, agr
 - Buyers pay less for wet coffee. In Uganda, exporters require moisture "under 12 per cent", and traders can face "a 10 per cent discount if the moisture level is above 12 per cent". (ILO, *Mapping the coffee value chain in Uganda*, 2024, pp. 15 and 32, citing Nalunga 2021)
 - Farmers sell at an information disadvantage: "The resulting information asymmetry between producer and the buyer may lead to perverse outcomes for agrarian households." (Arslan, Gregg and Wollni, *American Journal of Agricultural Economics* 106(1), 2024; published online 2023)
 - The World Bank describes small AI as "practical, affordable solutions that run on everyday devices" (*Small AI, Big Impact*, 2026).
+- In Ghana, coffee is "the main source of income for over 8,000 households of small-scale farmers" (ICO and COCOBOD, *Country Coffee Profile: Ghana*, 2018, p. 7), and drying is "a very critical stage in determining the final quality of coffee" (p. 20).
 
-This evidence is for the problem, not for our tool: we have not measured any effect on losses or income. Most of it comes from FAO and Codex guidance and from Uganda, while our demo location is in Ghana (see [Data](#data)).
+This evidence is for the problem, not for our tool: we have not measured any effect on losses or income. Most of it comes from FAO and Codex guidance and from Uganda; the Ghana facts come from the ICO profile produced with COCOBOD, and our demo location is in Ghana (see [Data](#data)).
 
 ## How it works
 
@@ -165,6 +166,16 @@ We do not claim reduced losses, higher income, food safety, real-world accuracy 
 SankofaFresh existed as an idea before the event. All code in this repository was written during the event; the repository history starts on 3 October 2026.
 
 The original plan (a tomato storage hub, before the team moved to coffee) and the event-weekend planning material are in [archive/](archive/README.md).
+
+## What happens next
+
+**Planned, not done.** None of this has started; it is how the tool would move from synthetic labels to real ones.
+
+- **A pilot with one cooperative in Kwahu South.**
+- **Real labels.** When a farmer takes a sampled batch to the cooperative's moisture meter, the reading becomes a real label for that batch, replacing the synthetic ones. It is opt-in, and it stays on the phone until the farmer chooses to share it.
+- **Retrain and re-evaluate on real labels**, reported the same way as now: against the humidity-only rule, on farms the tree never saw.
+- **More languages** by translating the fixed message list, with no retraining.
+- **Running cost:** static hosting, with no server to run.
 
 ## Licence
 
