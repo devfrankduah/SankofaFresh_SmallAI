@@ -568,6 +568,167 @@ main:focus {
   line-height: 1.4;
 }
 
+/* Result extras */
+.play {
+  margin: 0 0 18px;
+}
+
+.demo-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 2px solid var(--jute);
+  border-radius: var(--radius);
+  background: var(--parchment);
+  font-weight: 650;
+}
+
+.demo-note .icon {
+  color: var(--jute);
+}
+
+.weather-note {
+  margin: 0 0 18px;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.synthetic {
+  display: grid;
+  gap: 4px;
+}
+
+.synthetic + .demo-note {
+  margin-top: 12px;
+}
+
+.synthetic-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  justify-self: start;
+  color: var(--tarp);
+  font-weight: 650;
+}
+
+/* The SMS draft: dashed like the synthetic note, because it is a draft the app never sends. */
+.sms {
+  display: grid;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.sms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-weight: 650;
+}
+
+.sms-label .icon {
+  color: var(--jute);
+}
+
+.sms-text {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.4;
+  resize: none;
+}
+
+.sms-copy .when-copied,
+.sms-copy.copied .when-ready {
+  display: none;
+}
+
+.sms-copy.copied .when-copied {
+  display: block;
+}
+
+/* Evidence */
+.facts {
+  margin: 20px 0 0;
+}
+
+.facts dt {
+  font-weight: 650;
+}
+
+.facts dd {
+  margin: 0 0 14px;
+}
+
+.hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.file-sizes {
+  margin: -6px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.file-sizes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--parchment);
+}
+
+.section-title {
+  margin: 28px 0 10px;
+  font-size: 19px;
+  line-height: 1.3;
+}
+
+.metrics {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.metrics th,
+.metrics td {
+  padding: 8px 6px;
+  border-bottom: 2px solid var(--parchment);
+  text-align: start;
+  vertical-align: top;
+}
+
+.metrics td {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrics thead th {
+  text-align: end;
+}
+
+.metrics .not-evaluated {
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+.sources {
+  margin: 0;
+  padding-inline-start: 20px;
+}
+
 /* Recording what was done: a quiet tool under the result, never part of it. */
 .record {
   display: grid;
@@ -648,7 +809,7 @@ main:focus {
   line-height: 1.45;
 }
 
-.storage-notice {
+.notice {
   display: flex;
   align-items: flex-start;
   gap: 10px;

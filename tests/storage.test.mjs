@@ -24,7 +24,7 @@ function batch(overrides = {}) {
     label: 'Batch 1',
     answers: { ...DEMO.cases[0].inputs },
     checkedAt: '2026-10-03T12:00:00.000Z',
-    result: { band: 'not_sure', reasons: [REASON] },
+    result: { band: 'not_sure', reasons: [REASON], demo: false, weatherYear: null },
     actions: [{ action: ACTION, at: '2026-10-04T08:00:00.000Z' }],
     ...overrides,
   };
@@ -132,6 +132,15 @@ test('stored batches the contract does not allow are dropped one by one', () => 
   assert.deepEqual(records.batches[1].actions, []);
   assert.equal(records.consent, true);
   assert.equal(records.language, 'en');
+});
+
+test('a result keeps its demo flag and weather year, and drops anything else', () => {
+  const records = sanitizeRecords(CONTRACT, stored([
+    batch({ result: { band: 'red', reasons: [], demo: true, weatherYear: 2025, extra: 'x' } }),
+    batch({ label: 'Batch 2', result: { band: 'red', reasons: [], demo: 'yes', weatherYear: '2025' } }),
+  ]));
+  assert.deepEqual(records.batches[0].result, { band: 'red', reasons: [], demo: true, weatherYear: 2025 });
+  assert.deepEqual(records.batches[1].result, { band: 'red', reasons: [], demo: false, weatherYear: null });
 });
 
 test('consent counts only when stored as true', () => {
