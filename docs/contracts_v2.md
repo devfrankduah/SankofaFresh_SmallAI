@@ -82,7 +82,7 @@ The humidity-only baseline (spec 7, `model/bands.py`) says red when `rh14_mean` 
 
 The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to "Batch 10") are stored values and are shown as stored; they have no message key. `sms_copied` ("Copied") confirms that the SMS draft was copied.
 
-**The one documented exception:** the reload button on the app's error screen may use the hard-coded aria-label "Reload". That screen can appear because the message files themselves failed to load, so there may be no message to read the label from. Every other visible or spoken string comes from the message files.
+**The documented exceptions:** the reload button on the app's error screen may use the hard-coded aria-label "Reload", and that screen's page title may be the hard-coded app name "SankofaFresh". That screen can appear because the message files themselves failed to load, so there may be no message to read the label or title from. Every other visible or spoken string comes from the message files.
 
 ## tree.json
 
