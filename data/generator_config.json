@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "evidence_mode": "SYNTHETIC_DEMO",
+  "description": "Parameters for data/gen_batches.py (Spec v2 section 6). Every parameter has a value and a source: FAO, Codex or ASSUMPTION. ASSUMPTION values are ours and should be replaced if a better source turns up.",
+  "seed": {"value": 20261003, "source": "ASSUMPTION", "note": "Fixed so the same config always gives a byte-identical dataset."},
+  "weather_table": {"value": "web/weather.json", "source": "ASSUMPTION", "note": "NASA POWER 2025 daily means for Bepong, Ghana (issue #5)."},
+
+  "main_farms": {"value": 60, "source": "ASSUMPTION"},
+  "stress_farms": {"value": 12, "source": "ASSUMPTION", "note": "Extra farms whose checks all fall in the held-out season."},
+  "batches_per_farm": {"value": 80, "source": "ASSUMPTION"},
+  "split_shares": {"value": {"train": 0.6, "validation": 0.2, "test": 0.2}, "source": "ASSUMPTION", "note": "Spec v2 section 6, item 7: split by farm, never by row."},
+  "stress_season_months": {"value": [9, 10, 11], "source": "ASSUMPTION", "note": "September to November, the minor rainy season at the site. Main farms never check in these months; stress farms only do. January and February can't be held out because they hold every dry fortnight in the weather year."},
+
+  "days_drying_mean": {"value": 10.0, "source": "ASSUMPTION"},
+  "days_drying_sd": {"value": 4.5, "source": "ASSUMPTION", "note": "Rounded and clipped to the contract range 0 to 30."},
+  "rewetted_probability": {"value": 0.2, "source": "ASSUMPTION"},
+  "floor_probability": {"value": 0.35, "source": "ASSUMPTION"},
+  "days_stored_max": {"value": 180, "source": "ASSUMPTION", "note": "Days stored is uniform from 0 to this value, the contract maximum."},
+  "farm_drying_offset_sd": {"value": 0.4, "source": "ASSUMPTION", "note": "Each farm's own small drying offset, added to latent moisture after drying."},
+
+  "mc_dry_base": {"value": 16.0, "source": "ASSUMPTION", "note": "Latent moisture after drying, percent wet basis: base minus slope times min(days_drying, cap), plus noise."},
+  "mc_dry_slope_per_day": {"value": 0.5, "source": "ASSUMPTION"},
+  "mc_dry_day_cap": {"value": 10, "source": "ASSUMPTION"},
+  "mc_dry_noise_sd": {"value": 0.8, "source": "ASSUMPTION"},
+  "rewetted_moisture_add": {"value": 1.5, "source": "ASSUMPTION"},
+
+  "emc_at_reference_rh": {"value": 12.0, "source": "ASSUMPTION", "note": "Equilibrium moisture in storage, chosen so 70 percent RH sits near 12 percent moisture. Replace with a cited sorption curve if one is found."},
+  "emc_reference_rh": {"value": 70.0, "source": "ASSUMPTION"},
+  "emc_slope_per_rh_point": {"value": 0.2, "source": "ASSUMPTION"},
+  "floor_moisture_add": {"value": 1.0, "source": "ASSUMPTION"},
+  "storage_time_constant_days": {"value": 120.0, "source": "ASSUMPTION", "note": "Moisture now moves from the after-drying value toward equilibrium as 1 minus exp(-days_stored / this): about 22 percent of the way after 30 days, 53 percent after 90 and 78 percent after 180. Changed from the spec's 20; see changes."},
+
+  "green_below": {"value": 12.0, "source": "FAO", "note": "FAO Guidelines for the Prevention of Mould Formation in Coffee: 12 percent moisture (wet basis) is the recommended maximum for dry parchment."},
+  "red_from": {"value": 13.0, "source": "ASSUMPTION", "note": "Amber covers 12.0 to below 13.0, the boundary region that contains the Codex safe level for parchment (below 12.5 percent, CAC/RCP 69-2009)."},
+  "codex_safe_parchment_moisture": {"value": 12.5, "source": "Codex", "note": "CAC/RCP 69-2009. Recorded for reference; it falls inside the amber band and is not a separate cut."},
+
+  "dryness_check_matches": {"value": 0.7, "source": "ASSUMPTION", "note": "The farmer's hand or bite test reports the reading that matches the true band."},
+  "dryness_check_unsure": {"value": 0.2, "source": "ASSUMPTION"},
+  "dryness_check_wrong": {"value": 0.1, "source": "ASSUMPTION"},
+  "dryness_reading_by_band": {"value": {"green": {"match": "dry", "wrong": "damp"}, "amber": {"match": "damp", "wrong": "dry"}, "red": {"match": "damp", "wrong": "dry"}}, "source": "ASSUMPTION", "note": "Amber parchment is above the 12 percent maximum, so its matching reading is damp."},
+
+  "musty_probability_below_green_limit": {"value": 0.05, "source": "ASSUMPTION"},
+  "musty_probability_amber": {"value": 0.25, "source": "ASSUMPTION"},
+  "musty_probability_red": {"value": 0.6, "source": "ASSUMPTION"},
+
+  "changes": {"value": [
+    {"parameter": "storage_time_constant_days", "from": 20.0, "to": 120.0,
+     "reason": "With the spec 6 starting values the main splits were 67 percent red, above the 50 percent limit set for training. The site is humid (daily mean RH 79 percent over 2025), so equilibrium moisture from the spec formula is about 14.4 percent for most of the year and a 20-day constant drives almost every long-stored batch past 13 percent. The storage constant is the least anchored assumption: bagged parchment plausibly takes months, not weeks, to equilibrate. Changing only it gives 48 percent red, 29 percent amber and 23 percent green, and leaves the FAO 12 percent limit, the 13 percent red cut and the 70 percent RH anchor untouched. This is a choice for a usable class mix, not evidence about real storage."}
+  ], "source": "ASSUMPTION", "note": "Every change from the spec 6 starting values, with the reason."}
+}
