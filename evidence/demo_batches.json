@@ -1,0 +1,92 @@
+{
+  "evidence_mode": "SYNTHETIC_DEMO",
+  "model_version": "tree-v2-b7a4e1c",
+  "note": "Hand-built demo batches for the video, run through the shipped tree with the Bepong 2025 weather. documented_rule_band is the spec 6 rule with no noise; it is what the synthetic labels follow, not a measurement.",
+  "batches": [
+    {
+      "id": "clearly_safe",
+      "description": "Dried 12 days, never rewetted, raised, no musty smell, dry by the hand test, 20 days in store.",
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 20,
+        "storage_start": "2025-03-01"
+      },
+      "features": [
+        12,
+        0,
+        0,
+        0,
+        0,
+        20,
+        74.48857142857143,
+        78.24,
+        28.12714285714286
+      ],
+      "tree": "green",
+      "tree_probabilities": {
+        "green": 0.9759702582798148,
+        "amber": 0.020058359256250474,
+        "red": 0.003971382463934814
+      },
+      "baseline": "green",
+      "documented_rule_moisture": 11.29,
+      "documented_rule_band": "green"
+    },
+    {
+      "id": "rewetted_dry_weeks",
+      "description": "Dried 8 days and rained on during drying, damp by the hand test, then 10 days in store in dry January weeks.",
+      "inputs": {
+        "batch_label": "Batch 2",
+        "days_drying": 8,
+        "rewetted": "yes",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "damp",
+        "days_stored": 10,
+        "storage_start": "2025-01-15"
+      },
+      "features": [
+        8,
+        1,
+        0,
+        0,
+        2,
+        10,
+        62.06642857142857,
+        80.0,
+        26.784999999999997
+      ],
+      "tree": "amber",
+      "tree_probabilities": {
+        "green": 0.13106394639824812,
+        "amber": 0.6233499910036694,
+        "red": 0.24558606259806504
+      },
+      "baseline": "green",
+      "documented_rule_moisture": 13.25,
+      "documented_rule_band": "red"
+    },
+    {
+      "id": "missing_input",
+      "description": "Same as the first batch, but the farmer did not do the hand test and answered \"Don't know\".",
+      "inputs": {
+        "batch_label": "Batch 3",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dont_know",
+        "days_stored": 20,
+        "storage_start": "2025-03-01"
+      },
+      "tree": "not_sure",
+      "reason": "reason_missing_input",
+      "baseline": null
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "evidence_mode": "SYNTHETIC_DEMO",
+  "note": "Results on synthetic labels from the spec 6 rule. They show how well the tree recovers that rule compared with a one-variable humidity rule. They are not field accuracy.",
+  "model_version": "tree-v2-b7a4e1c",
+  "tree_sha256": "b7a4e1c115e6ab57f6f1b82a75cd18fb6f86f30dea45ad3f79cb785049a38854",
+  "abstain_cut": 0.45,
+  "dataset_sha256": "be3a60ad80cc597ea3a78a9d38023d71a2711d9cc538852b5990c0ed38f3b7f4",
+  "definitions": {
+    "coverage": "share of batches that get a green, amber or red result (not not_sure)",
+    "abstain_rate": "share of batches that get not_sure; 1 minus coverage",
+    "accuracy": "share of covered batches whose result equals the synthetic label",
+    "macro_f1": "mean F1 over green, amber and red, on covered batches; a class never predicted scores 0",
+    "red_recall": "share of all truly red batches shown as red; a red batch shown as not_sure counts as not recalled",
+    "false_reassurance_rate": "share of all truly red batches shown as green"
+  },
+  "tree_pipeline": "model/contract.py encode with tree feature_ranges (rule 2), then tree.json, then the band rule; the same steps as the app",
+  "baseline": "red if rh14_mean is above 80, otherwise green (spec 7)",
+  "splits": {
+    "test": {
+      "rows": 960,
+      "labels": {
+        "green": 226,
+        "amber": 254,
+        "red": 480
+      },
+      "tree": {
+        "accuracy": 0.7049941927990708,
+        "macro_f1": 0.7022542007509244,
+        "red_recall": 0.6083333333333333,
+        "false_reassurance_rate": 0.0625,
+        "abstain_rate": 0.10312500000000002,
+        "coverage": 0.896875
+      },
+      "baseline": {
+        "accuracy": 0.5072916666666667,
+        "macro_f1": 0.3839864565341083,
+        "red_recall": 0.6416666666666667,
+        "false_reassurance_rate": 0.35833333333333334,
+        "abstain_rate": 0.0,
+        "coverage": 1.0
+      },
+      "tree_confusion": {
+        "green": {
+          "green": 153,
+          "amber": 32,
+          "red": 5,
+          "not_sure": 36
+        },
+        "amber": {
+          "green": 32,
+          "amber": 162,
+          "red": 31,
+          "not_sure": 29
+        },
+        "red": {
+          "green": 30,
+          "amber": 124,
+          "red": 292,
+          "not_sure": 34
+        }
+      },
+      "baseline_confusion": {
+        "green": {
+          "green": 179,
+          "amber": 0,
+          "red": 47,
+          "not_sure": 0
+        },
+        "amber": {
+          "green": 190,
+          "amber": 0,
+          "red": 64,
+          "not_sure": 0
+        },
+        "red": {
+          "green": 172,
+          "amber": 0,
+          "red": 308,
+          "not_sure": 0
+        }
+      },
+      "tree_abstain_reasons": {
+        "reason_low_confidence": 99
+      },
+      "tree_red_shown_red_or_not_sure": 0.6791666666666667,
+      "rewetted_in_dry_weeks": {
+        "rule": "rewetted is yes and rh14_mean below 70",
+        "rows": 27,
+        "labels": {
+          "green": 11,
+          "amber": 13,
+          "red": 3
+        },
+        "tree": {
+          "green": 11,
+          "amber": 10,
+          "red": 2,
+          "not_sure": 4
+        },
+        "baseline": {
+          "green": 27
+        },
+        "amber_or_red_rows": 16,
+        "tree_green_on_amber_or_red": 3,
+        "baseline_green_on_amber_or_red": 16
+      }
+    },
+    "season_stress": {
+      "rows": 960,
+      "labels": {
+        "green": 106,
+        "amber": 181,
+        "red": 673
+      },
+      "tree": {
+        "accuracy": 0.6858457997698504,
+        "macro_f1": 0.6395276752261232,
+        "red_recall": 0.62555720653789,
+        "false_reassurance_rate": 0.06092124814264487,
+        "abstain_rate": 0.09479166666666672,
+        "coverage": 0.9052083333333333
+      },
+      "baseline": {
+        "accuracy": 0.5979166666666667,
+        "macro_f1": 0.3374295711371156,
+        "red_recall": 0.787518573551263,
+        "false_reassurance_rate": 0.212481426448737,
+        "abstain_rate": 0.0,
+        "coverage": 1.0
+      },
+      "tree_confusion": {
+        "green": {
+          "green": 68,
+          "amber": 11,
+          "red": 2,
+          "not_sure": 25
+        },
+        "amber": {
+          "green": 15,
+          "amber": 107,
+          "red": 32,
+          "not_sure": 27
+        },
+        "red": {
+          "green": 41,
+          "amber": 172,
+          "red": 421,
+          "not_sure": 39
+        }
+      },
+      "baseline_confusion": {
+        "green": {
+          "green": 44,
+          "amber": 0,
+          "red": 62,
+          "not_sure": 0
+        },
+        "amber": {
+          "green": 75,
+          "amber": 0,
+          "red": 106,
+          "not_sure": 0
+        },
+        "red": {
+          "green": 143,
+          "amber": 0,
+          "red": 530,
+          "not_sure": 0
+        }
+      },
+      "tree_abstain_reasons": {
+        "reason_low_confidence": 91
+      },
+      "tree_red_shown_red_or_not_sure": 0.6835066864784547,
+      "rewetted_in_dry_weeks": {
+        "rule": "rewetted is yes and rh14_mean below 70",
+        "rows": 0,
+        "labels": {},
+        "tree": {},
+        "baseline": {},
+        "amber_or_red_rows": 0,
+        "tree_green_on_amber_or_red": 0,
+        "baseline_green_on_amber_or_red": 0
+      }
+    }
+  }
+}
