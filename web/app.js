@@ -15,6 +15,8 @@ const FIXTURE_FILES = ['../tests/fixtures/demo_batches.json', '../tests/fixtures
 // Like the fixtures it is only reachable when the repository root is served.
 const SAMPLE_TREE_URL = '../tests/fixtures/sample_tree.json';
 const SECONDS_TO_SHOW_COPIED = 2;
+// Must match CACHE_PREFIX in sw.js; tests/sw.test.mjs checks that it does.
+export const CACHE_PREFIX = 'sankofafresh-';
 
 export async function fetchJson(url, fetchImplementation = globalThis.fetch) {
   const response = await fetchImplementation(url);
@@ -25,7 +27,11 @@ export async function fetchJson(url, fetchImplementation = globalThis.fetch) {
 // null only when the file is not there (HTTP 404); any other failure is an error.
 export async function fetchOptionalText(url, fetchImplementation = globalThis.fetch) {
   const response = await fetchImplementation(url);
-  if (response.status === 404) return null;
+  // Reading the 404 body keeps an abandoned response from showing as a failed request in devtools.
+  if (response.status === 404) {
+    await response.text();
+    return null;
+  }
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
   return response.text();
 }
@@ -858,10 +864,31 @@ class App {
     };
   }
 
-  // Resource timing names every app file this page loaded, but its sizes read 0 for memory-cache hits
-  // and count 404 bodies, so each file is measured from a cached copy and failures are left out.
+  // The offline cache holds every app file, audio included, so its sizes are the app's size on the phone.
+  async cachedFileSizes(base) {
+    if (!('caches' in window)) return null;
+    try {
+      const names = (await caches.keys()).filter(name => name.startsWith(CACHE_PREFIX));
+      // None yet, or an update is replacing the old version: use the files this page loaded instead.
+      if (names.length !== 1) return null;
+      const cache = await caches.open(names[0]);
+      const sizes = await Promise.all((await cache.keys()).map(async request => {
+        const response = await cache.match(request);
+        return [request.url.slice(base.length), response ? (await response.arrayBuffer()).byteLength : 0];
+      }));
+      return sizes.sort(([a], [b]) => a.localeCompare(b));
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  // Without the offline cache, resource timing names the files this page loaded. Its sizes read 0 for
+  // memory-cache hits and count 404 bodies, so each file is measured from a cached copy instead.
   async measureAppFiles() {
     const base = new URL('.', location.href).href;
+    const cached = await this.cachedFileSizes(base);
+    if (cached) return cached;
     const names = new Set();
     for (const entry of [...performance.getEntriesByType('navigation'), ...performance.getEntriesByType('resource')]) {
       const url = new URL(entry.name, location.href);
@@ -956,7 +983,13 @@ function renderFatal(error) {
     h('button', { class: 'button button-secondary', type: 'button', onclick: () => location.reload() }, icon('reload'))));
 }
 
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js').catch(error => console.error(error));
+}
+
 export async function boot() {
+  registerServiceWorker();
   try {
     const contract = await fetchJson('contract.json');
     const problems = requireContract(contract);
