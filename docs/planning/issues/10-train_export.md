@@ -1,5 +1,5 @@
 ## Context
-Specification sections 5.4, 6: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 5.4, 6: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,7 +7,7 @@ Specification sections 5.4, 6: [docs/SankofaFresh_Spec_v2.md](https://github.com
 - Task key: `train_export`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/9
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/9
 
 ## Scope and implementation notes
 - `model/train.py`: DecisionTreeClassifier(max_depth=4, class_weight="balanced") on the training farms.

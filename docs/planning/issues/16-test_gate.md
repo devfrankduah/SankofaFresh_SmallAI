@@ -1,5 +1,5 @@
 ## Context
-Specification sections 9: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 9: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 9: [docs/SankofaFresh_Spec_v2.md](https://github.com/Geor
 - Task key: `test_gate`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/11
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/9
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/11
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/9
 
 ## Scope and implementation notes
 - Leakage, determinism, parity and size tests all run in CI: test_leakage, test_determinism, test_parity and test_size.

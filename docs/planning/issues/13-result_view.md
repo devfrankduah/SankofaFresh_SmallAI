@@ -1,5 +1,5 @@
 ## Context
-Specification sections 4, 5.5: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 4, 5.5: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 4, 5.5: [docs/SankofaFresh_Spec_v2.md](https://github.com
 - Task key: `result_view`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/12
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/19
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/12
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/19
 
 ## Scope and implementation notes
 - Render the band with icon and text, up to two reasons from the decision path, one action, a Play audio button when clips exist, and the SYNTHETIC_DEMO label.

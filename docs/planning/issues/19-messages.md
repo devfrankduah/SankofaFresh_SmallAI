@@ -1,5 +1,5 @@
 ## Context
-Specification sections 5.5: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 5.5: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 5.5: [docs/SankofaFresh_Spec_v2.md](https://github.com/Ge
 - Task key: `messages`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/2
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/1
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/2
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/1
 
 ## Scope and implementation notes
 - Write every spec 5.5 key in English and in the chosen language, in `web/messages.en.json` and `web/messages.<lang>.json`.

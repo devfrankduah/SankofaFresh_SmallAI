@@ -1,5 +1,5 @@
 ## Context
-Specification sections 1, 7, 11: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 1, 7, 11: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 1, 7, 11: [docs/SankofaFresh_Spec_v2.md](https://github.c
 - Task key: `video`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/14
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/15
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/14
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/15
 
 ## Scope and implementation notes
 - Script and record one 2 to 5 minute video covering the five required parts: the problem sentence; the AI and why a simpler tool would not do the same job, with its guardrails; the demo (airplane mode, the three demo batches, the not_sure moment and the SMS draft); where it sits in the user's week, plus the tech stack; and the team's take on localizing AI.

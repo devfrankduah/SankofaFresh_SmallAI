@@ -1,5 +1,5 @@
 ## Context
-Specification sections 5.3, 7: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 5.3, 7: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,7 +7,7 @@ Specification sections 5.3, 7: [docs/SankofaFresh_Spec_v2.md](https://github.com
 - Task key: `bands_baseline`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/2
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/2
 
 ## Scope and implementation notes
 - Map class probabilities to green, amber and red.

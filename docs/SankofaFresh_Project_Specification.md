@@ -358,4 +358,4 @@ Alternative 1: rules-only monitoring is simpler and serves as the comparator, bu
 
 ## 18. Codex handoff instruction
 
-Use this document as the product and technical specification for GeorgeDavidson2/SankofaFresh_SmallAI. First create repository documentation and detailed task issues without a project board. Preserve the agreed stack and scope. Record unresolved competition checks without inventing answers. Then implement in the build order above when authorized. Distinguish specification, implemented behavior and verified evidence in all documentation. Do not mark acceptance criteria complete until the required checks pass.
+Use this document as the product and technical specification for devfrankduah/SankofaFresh_SmallAI. First create repository documentation and detailed task issues without a project board. Preserve the agreed stack and scope. Record unresolved competition checks without inventing answers. Then implement in the build order above when authorized. Distinguish specification, implemented behavior and verified evidence in all documentation. Do not mark acceptance criteria complete until the required checks pass.

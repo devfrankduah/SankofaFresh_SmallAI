@@ -1,5 +1,5 @@
 ## Context
-Specification sections 3, 11: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 3, 11: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 3, 11: [docs/SankofaFresh_Spec_v2.md](https://github.com/
 - Task key: `device_records`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/2
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/3
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/2
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/3
 
 ## Scope and implementation notes
 - localStorage wrapper for batches and recorded actions, with every read and write wrapped in try/catch so the app still runs when storage is blocked or empty.

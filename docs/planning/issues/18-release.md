@@ -1,5 +1,5 @@
 ## Context
-Specification sections 10 to 12: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 10 to 12: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,11 +7,11 @@ Specification sections 10 to 12: [docs/SankofaFresh_Spec_v2.md](https://github.c
 - Task key: `release`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/1
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/15
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/16
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/17
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/24
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/1
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/15
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/16
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/17
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/24
 
 ## Scope and implementation notes
 - README: problem sentence, how to run and test offline, dataset table, data limits list (spec 10), tree paths, metrics, Responsible AI (spec 11), claims (spec 12) and licences.

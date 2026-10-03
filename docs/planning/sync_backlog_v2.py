@@ -8,11 +8,10 @@ import json
 import shlex
 import subprocess
 import sys
-from prepare_backlog import (CLOSED_NOT_PLANNED, NOT_PLANNED_COMMENT, OPEN, ROOT, TASKS, body,
+from prepare_backlog import (CLOSED_NOT_PLANNED, NOT_PLANNED_COMMENT, OPEN, REPO, REPO_NAME, REPO_OWNER, ROOT, TASKS, body,
                              closed_tasks, open_tasks, validate_tasks, write_issue_files)
 
-OWNER, NAME = 'GeorgeDavidson2', 'SankofaFresh_SmallAI'
-REPO = f'{OWNER}/{NAME}'
+OWNER, NAME = REPO_OWNER, REPO_NAME
 STATE = ROOT / 'docs/planning/published.json'
 INDEX = ROOT / 'docs/planning/ISSUE_INDEX.md'
 PRIORITY_PREFIX = 'priority:'

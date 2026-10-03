@@ -35,7 +35,7 @@ This evidence is for the problem, not for our tool: we have not measured any eff
 
 ## Try it
 
-**Offline test on a phone:** open [the live app](https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection and let it load. Turn on airplane mode, then reload the page. Open Settings, tap "Load demo batches" and open each batch. Results, reasons, the SMS draft and the evidence screen ("About this check") all work with no connection. Our own check so far was in a desktop browser with the server stopped ([evidence/offline-check.md](evidence/offline-check.md)); the real-phone check is still to do ([#17](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/17)).
+**Offline test on a phone:** open [the live app](https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection and let it load. Turn on airplane mode, then reload the page. Open Settings, tap "Load demo batches" and open each batch. Results, reasons, the SMS draft and the evidence screen ("About this check") all work with no connection. Our own check so far was in a desktop browser with the server stopped ([evidence/offline-check.md](evidence/offline-check.md)); the real-phone check is still to do ([#17](https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/17)).
 
 **The three demo batches** ([evidence/demo_batches.json](evidence/demo_batches.json), loaded by the Settings button):
 
@@ -103,7 +103,7 @@ No audio ships yet. The whole app (`web/`) is about 200 KB; [evidence/sizes.json
 
 **Weather citation, in the wording the POWER project asks for:** "The data was obtained from National Aeronautics and Space Administration (NASA) Langley Research Center's Prediction Of Worldwide Energy Resources (POWER) project funded through the NASA Earth Science Division." Request URL: https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M,RH2M&community=AG&longitude=-0.7121&latitude=6.6034&start=20250101&end=20251231&format=CSV&time-standard=LST
 
-**Demo location: Bepong, Kwahu South District, Eastern Region, Ghana (6.6034, -0.7121), language Twi.** The Ministry of Food and Agriculture's [Kwahu South district profile](https://mofa.gov.gh/site/directorates/district-directorates/eastern-region/197-kwahu-south) lists Bepong under coffee in its crops table and gives the district's people as 66% Kwahu and 17% Ashanti, both Twi-speaking. Afrifa, Ofori-Frimpong and Abekoe (2009), *West African Journal of Applied Ecology* 11, [doi:10.4314/wajae.v11i1.45717](https://doi.org/10.4314/wajae.v11i1.45717), sampled "Cocobod coffee plantations at ... Bepong". The decision and its sources are recorded in [issue #1](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/1).
+**Demo location: Bepong, Kwahu South District, Eastern Region, Ghana (6.6034, -0.7121), language Twi.** The Ministry of Food and Agriculture's [Kwahu South district profile](https://mofa.gov.gh/site/directorates/district-directorates/eastern-region/197-kwahu-south) lists Bepong under coffee in its crops table and gives the district's people as 66% Kwahu and 17% Ashanti, both Twi-speaking. Afrifa, Ofori-Frimpong and Abekoe (2009), *West African Journal of Applied Ecology* 11, [doi:10.4314/wajae.v11i1.45717](https://doi.org/10.4314/wajae.v11i1.45717), sampled "Cocobod coffee plantations at ... Bepong". The decision and its sources are recorded in [issue #1](https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/1).
 
 **Synthetic labels.** Each batch's label comes from a documented moisture rule tied to the FAO 12% limit (`data/generator_config.json`, where every parameter names its source: FAO, Codex or ASSUMPTION). There are 60 farms of 80 batches, split 36, 12 and 12 by farm, plus 12 stress farms whose checks all fall in September to November, a season the main farms never see. One assumption changed from the spec's starting values (the storage time constant, from 20 to 120 days), and the config records why.
 
@@ -177,5 +177,5 @@ GitHub: GeorgeDavidson2, devfrankduah.
 - [Specification v2](docs/SankofaFresh_Spec_v2.md), the source of truth for the product, and the [contracts](docs/contracts_v2.md) it defines
 - [Video script](docs/video_script.md)
 - [Acceptance evidence register](docs/ACCEPTANCE.md) and [team execution guide](docs/TEAM_EXECUTION.md)
-- [GitHub issues](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues) and the [issue index](docs/planning/ISSUE_INDEX.md)
+- [GitHub issues](https://github.com/devfrankduah/SankofaFresh_SmallAI/issues) and the [issue index](docs/planning/ISSUE_INDEX.md)
 - [Specification v1](docs/SankofaFresh_Project_Specification.md), superseded and kept as history

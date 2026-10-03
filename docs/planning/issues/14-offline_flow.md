@@ -1,5 +1,5 @@
 ## Context
-Specification sections 3: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 3: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,11 +7,11 @@ Specification sections 3: [docs/SankofaFresh_Spec_v2.md](https://github.com/Geor
 - Task key: `offline_flow`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/11
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/13
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/4
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/8
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/5
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/11
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/13
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/4
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/8
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/5
 
 ## Scope and implementation notes
 - Wire the form, features, tree, bands, messages and records together.

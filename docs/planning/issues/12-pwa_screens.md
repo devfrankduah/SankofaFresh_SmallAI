@@ -1,5 +1,5 @@
 ## Context
-Specification sections 3, 4: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 3, 4: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 3, 4: [docs/SankofaFresh_Spec_v2.md](https://github.com/G
 - Task key: `pwa_screens`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/2
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/3
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/2
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/3
 
 ## Scope and implementation notes
 - Batch list with each batch's last band, the date of the last check and an Add batch button.

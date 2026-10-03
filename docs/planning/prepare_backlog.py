@@ -5,7 +5,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ISSUES_DIR = ROOT / 'docs/planning/issues'
-SPEC_URL = 'https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md'
+# The one place the repository is named; the publish, sync and verify scripts import it.
+REPO_OWNER, REPO_NAME = 'devfrankduah', 'SankofaFresh_SmallAI'
+REPO = f'{REPO_OWNER}/{REPO_NAME}'
+REPO_URL = f'https://github.com/{REPO}'
+# Issue bodies written before the repository moved still link here; GitHub redirects these links.
+LEGACY_REPO_URL = 'https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI'
+SPEC_URL = f'{REPO_URL}/blob/main/docs/SankofaFresh_Spec_v2.md'
 OPEN = 'open'
 CLOSED_NOT_PLANNED = 'closed_not_planned'
 NOT_PLANNED_COMMENT = ('Closed as not planned under Spec v2 (docs/SankofaFresh_Spec_v2.md). v2 removes the server API, '
