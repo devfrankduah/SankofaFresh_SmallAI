@@ -97,6 +97,7 @@ The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to
 | `abstain_cut` | the tuned cut for rule 3, between 0 and 1 |
 | `nodes` | the tree, described below |
 | `sha256` | the hash of `nodes`, described below |
+| `training` | provenance written by `model/train.py`: seed, dataset sha256, depth, class weighting, training rows and scikit-learn version. The app ignores it. |
 
 `nodes` is an array where each node's `id` equals its position and node 0 is the root. A split node has `feature` (an index into `feature_names`), `threshold`, `left` and `right`. A leaf has only `id` and `value`, the class probabilities in `classes` order, which sum to 1. Every node is reachable from the root exactly once.
 

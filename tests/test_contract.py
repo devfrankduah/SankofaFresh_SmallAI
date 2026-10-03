@@ -10,6 +10,8 @@ from pathlib import Path
 
 import pytest
 
+from model.tree_format import validate_tree
+
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/fixtures'
 SPEC = (ROOT / 'docs/SankofaFresh_Spec_v2.md').read_text()
@@ -53,36 +55,7 @@ def tree_hash(nodes):
 
 
 def check_tree(tree):
-    assert tree['schema_version'] == 2
-    assert tree['evidence_mode'] == CONTRACT['evidence_mode']
-    assert re.fullmatch(r'tree-v2-\w+', tree['model_version'])
-    assert tree['feature_names'] == FEATURE_NAMES
-    assert tree['classes'] == CONTRACT['classes']
-    assert 0 < tree['abstain_cut'] <= 1
-    assert set(tree['feature_ranges']) == set(FEATURE_NAMES)
-    for low, high in tree['feature_ranges'].values():
-        assert low <= high
-    nodes = tree['nodes']
-    for position, node in enumerate(nodes):
-        assert node['id'] == position
-        if 'value' in node:
-            assert set(node) == {'id', 'value'}
-            assert len(node['value']) == len(tree['classes'])
-            assert all(0 <= p <= 1 for p in node['value'])
-            assert abs(sum(node['value']) - 1) < 1e-9
-        else:
-            assert set(node) == {'id', 'feature', 'threshold', 'left', 'right'}
-            assert type(node['feature']) is int and 0 <= node['feature'] < len(FEATURE_NAMES)
-            assert type(node['threshold']) in (int, float)
-            assert all(type(node[side]) is int and 0 < node[side] < len(nodes) for side in ('left', 'right'))
-    visited, stack = [], [0]
-    while stack:
-        node = nodes[stack.pop()]
-        visited.append(node['id'])
-        if 'value' not in node:
-            stack += [node['left'], node['right']]
-    assert sorted(visited) == list(range(len(nodes))), 'every node must be reachable from the root exactly once'
-    assert tree['sha256'] == tree_hash(nodes)
+    validate_tree(tree)
 
 
 def test_contract_loads_with_every_section():
@@ -336,5 +309,5 @@ def test_sample_tree_fixture():
 def test_tree_check_rejects_a_tampered_tree():
     tree = load('tests/fixtures/sample_tree.json')
     tree['nodes'][2]['value'] = [0.1, 0.2, 0.7]
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match='sha256'):
         check_tree(tree)
