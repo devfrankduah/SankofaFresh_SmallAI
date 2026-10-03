@@ -13,8 +13,8 @@ from prepare_backlog import (CLOSED_NOT_PLANNED, NOT_PLANNED_COMMENT, OPEN, REPO
                              closed_tasks, open_tasks, validate_tasks, write_issue_files)
 
 OWNER, NAME = REPO_OWNER, REPO_NAME
-STATE = ROOT / 'docs/planning/published.json'
-INDEX = ROOT / 'docs/planning/ISSUE_INDEX.md'
+STATE = ROOT / 'archive/planning/published.json'
+INDEX = ROOT / 'archive/planning/ISSUE_INDEX.md'
 PRIORITY_PREFIX = 'priority:'
 ISSUES_QUERY = '''query($owner:String!,$name:String!){repository(owner:$owner,name:$name){
 issues(first:100){totalCount nodes{id number url title body state stateReason closedAt
@@ -258,7 +258,7 @@ def write_index(state, live):
     backlog_numbers = {info['number'] for info in issues.values()}
     others = [issue for number, issue in sorted(live.items()) if number not in backlog_numbers]
     lines = ['# Issue index', '',
-             f'Generated from live GitHub state on {date.today().isoformat()} by `python docs/planning/sync_backlog_v2.py --write-index`. '
+             f'Generated from live GitHub state on {date.today().isoformat()} by `python archive/planning/sync_backlog_v2.py --write-index`. '
              f'{len(groups["open"])} open, {len(groups["completed"])} completed, {len(groups["not_planned"])} closed as not planned.', '',
              '## Open', '', 'Either teammate can pick an open issue whose blockers are all done.', '',
              '| Issue | Priority | Blocked by |', '|---|---|---|', *(groups['open'] or ['| None | | |']),
@@ -274,7 +274,7 @@ def write_index(state, live):
     return {name: len(rows) for name, rows in groups.items()} | {'outside_backlog': len(others)}
 
 def regenerate_files(state):
-    print('\nStep 5 of 5: regenerate docs/planning/issues and ISSUE_INDEX.md', flush=True)
+    print('\nStep 5 of 5: regenerate archive/planning/issues and ISSUE_INDEX.md', flush=True)
     write_issue_files(state['issues'])
     write_index(state, fetch_live())
     print(f'  wrote {len(open_tasks())} issue files and the index')
@@ -301,7 +301,7 @@ def main():
     sync_blockers(state)
     close_removed(state)
     regenerate_files(state)
-    print('\nDone. Run python docs/planning/verify_backlog.py to check the result.')
+    print('\nDone. Run python archive/planning/verify_backlog.py to check the result.')
 
 if __name__ == '__main__':
     main()

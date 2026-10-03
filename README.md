@@ -29,7 +29,7 @@ This evidence is for the problem, not for our tool: we have not measured any eff
 2. **Local weather.** The app carries NASA POWER daily humidity and temperature for 2025 at the demo location. For each batch it takes the 14 days ending on the check date (storage start plus days stored) and computes average humidity, peak daily humidity and average temperature.
 3. **The tree.** A decision tree six levels deep, trained offline in Python (scikit-learn) on synthetic batches, exported as a 12 KB JSON file and run in the browser. The app checks the file's SHA-256 hash before using it. Python and the browser give identical answers on all 2,880 held-out batches and 228 threshold edge cases (`tests/test_parity.mjs`).
 4. **Four results.** Green, amber, red or not sure. Not sure appears when an answer is "Don't know", when an answer is outside what the tree saw in training, or when the tree's top probability is below a cut chosen on validation farms.
-5. **Fixed messages.** Each result shows its band message, up to two reasons from the tree's decision path (for example "The bags are on the floor."), and one action: dry it again, move the bags onto a pallet or rack, or take a sample to the cooperative's moisture meter. English and Twi ship; switch language in Settings. The Twi strings were machine-drafted, then checked by one fluent speaker on the team, who approved all 83 without changes. Unreviewed drafts (`*.draft.json`) are never shipped or cached.
+5. **Fixed messages.** Each result shows its band message, up to two reasons from the tree's decision path (for example "The bags are on the floor."), and one action: dry it again, move the bags onto a pallet or rack, or take a sample to the cooperative's moisture meter. English and Twi ship; switch language in Settings. The Twi strings were machine-drafted, then checked line by line by a fluent Twi speaker on the team, who approved all 83. Unreviewed drafts (`*.draft.json`) are never shipped or cached.
 6. **SMS draft.** Amber, red and not sure results show a short message to the cooperative, labelled SIMULATED_NOT_SENT, with a copy button. The app has no way to send it.
 7. **Records stay on the phone.** Batches live in the browser's local storage. There is no account, name, phone number or location, and Settings has a one-tap delete with a confirmation.
 
@@ -96,7 +96,7 @@ After changing any file in `web/`, update `PRECACHE` and `CACHE_VERSION` in `web
 | Weather, `web/weather.json` and `data/raw/power_6.6034_-0.7121_2025.csv` | NASA POWER Hourly API v2.10.2 (MERRA-2), T2M and RH2M for 2025, accessed 3 October 2026 | "There are no restrictions on the use, access, and/or download of data from the NASA POWER Project", with a request to cite it ([AWS Registry of Open Data listing for NASA POWER](https://registry.opendata.aws/nasa-power/)) | 24 KB (raw CSV 214 KB) |
 | Synthetic batches, `data/batches.csv` | Generated here by `data/gen_batches.py` from `data/generator_config.json`, seed 20261003 | MIT (this repository) | 894 KB, 5,760 batches |
 | Model, `web/tree.json` | Trained here by `model/train.py` | MIT (this repository) | 12 KB, 115 nodes |
-| Messages, `web/messages.en.json` and `web/messages.tw.json` | English written by the team; Twi machine-drafted, all 83 strings approved unchanged by one fluent speaker on the team | MIT (this repository) | about 4 KB each |
+| Messages, `web/messages.en.json` and `web/messages.tw.json` | English written by the team; Twi machine-drafted, then checked line by line by a fluent Twi speaker on the team, who approved all 83 | MIT (this repository) | about 4 KB each |
 | Demo location point | OpenStreetMap (village point) and GeoNames (ID 2303145) | OpenStreetMap: ODbL, © OpenStreetMap contributors. GeoNames: CC BY 4.0 | one coordinate pair |
 
 No audio ships yet. The whole app (`web/`) is about 200 KB; [evidence/sizes.json](evidence/sizes.json) lists every file.
@@ -164,6 +164,8 @@ We do not claim reduced losses, higher income, food safety, real-world accuracy 
 
 SankofaFresh existed as an idea before the event. All code in this repository was written during the event; the repository history starts on 3 October 2026.
 
+The original plan (a tomato storage hub, before the team moved to coffee) and the event-weekend planning material are in [archive/](archive/README.md).
+
 ## Licence
 
 MIT, copyright (c) 2026 The SankofaFresh contributors; see [LICENSE](LICENSE). The NASA POWER, OpenStreetMap and GeoNames data keep their own terms, listed under [Data](#data).
@@ -174,8 +176,8 @@ GitHub: GeorgeDavidson2, devfrankduah.
 
 ## Project documents
 
-- [Specification v2](docs/SankofaFresh_Spec_v2.md), the source of truth for the product, and the [contracts](docs/contracts_v2.md) it defines
-- [Video script](docs/video_script.md)
-- [Acceptance evidence register](docs/ACCEPTANCE.md) and [team execution guide](docs/TEAM_EXECUTION.md)
-- [GitHub issues](https://github.com/devfrankduah/SankofaFresh_SmallAI/issues) and the [issue index](docs/planning/ISSUE_INDEX.md)
-- [Specification v1](docs/SankofaFresh_Project_Specification.md), superseded and kept as history
+- [Specification v2](docs/SankofaFresh_Spec_v2.md): the design record
+- [Contracts](docs/contracts_v2.md): inputs, features, bands, messages and the tree.json format shared by Python and JavaScript
+- [Tree rules](docs/tree_rules.md): the shipped decision tree written out as readable rules
+- [Acceptance evidence](docs/ACCEPTANCE.md): each acceptance criterion with its evidence
+- [Archive](archive/README.md): superseded planning material, kept for transparency

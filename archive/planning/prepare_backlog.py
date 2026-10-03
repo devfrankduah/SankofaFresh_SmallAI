@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-ISSUES_DIR = ROOT / 'docs/planning/issues'
+ISSUES_DIR = ROOT / 'archive/planning/issues'
 # The one place the repository is named; the publish, sync and verify scripts import it.
 REPO_OWNER, REPO_NAME = 'devfrankduah', 'SankofaFresh_SmallAI'
 REPO = f'{REPO_OWNER}/{REPO_NAME}'
@@ -293,7 +293,7 @@ Specification sections {task['sections']}: [docs/SankofaFresh_Spec_v2.md]({SPEC_
 '''
 
 def write_issue_files(links):
-    """Replace every file in docs/planning/issues with the open v2 bodies, named by issue number."""
+    """Replace every file in archive/planning/issues with the open v2 bodies, named by issue number."""
     unpublished = [t['key'] for t in open_tasks() if t['key'] not in links]
     if unpublished:
         raise ValueError(f'tasks without a published issue: {unpublished}')
@@ -308,7 +308,7 @@ if __name__ == '__main__':
     parser.add_argument('--show', action='store_true', help='print every rendered body in full')
     args = parser.parse_args()
     validate_tasks()
-    published = ROOT / 'docs/planning/published.json'
+    published = ROOT / 'archive/planning/published.json'
     links = json.loads(published.read_text())['issues'] if published.exists() else None
     for task in open_tasks():
         rendered = body(task, links)
@@ -318,5 +318,5 @@ if __name__ == '__main__':
             print(rendered)
     for task in closed_tasks():
         print(f'{"#" + str(task["number"]):>4}  {task["key"]:<15} closed as not planned')
-    (ROOT / 'docs/planning/backlog.json').write_text(json.dumps(TASKS, indent=2)+'\n')
+    (ROOT / 'archive/planning/backlog.json').write_text(json.dumps(TASKS, indent=2)+'\n')
     print(f'Rendered {len(open_tasks())} open issue bodies; {len(closed_tasks())} issues close as not planned. Wrote backlog.json.')

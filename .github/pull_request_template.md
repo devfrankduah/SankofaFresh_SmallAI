@@ -8,7 +8,7 @@ Closes #
 - Checks not run and why:
 - Evidence files / screenshots:
 
-## Integration handoff
+## Integration notes
 
 - Dependencies satisfied:
 - Shared contracts changed (note effects on dependent issues):

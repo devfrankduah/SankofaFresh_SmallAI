@@ -1,4 +1,4 @@
-**Superseded by [docs/SankofaFresh_Spec_v2.md](SankofaFresh_Spec_v2.md).** This v1 specification is kept unchanged as history.
+**Superseded by [docs/SankofaFresh_Spec_v2.md](../docs/SankofaFresh_Spec_v2.md).** This v1 specification is kept unchanged as history.
 # SankofaFresh Small AI
 ## Project overview and implementation specification
 

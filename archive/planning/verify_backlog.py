@@ -15,7 +15,7 @@ result = json.loads(subprocess.check_output(['gh','api','graphql','-f',f'query={
 assert not result.get('errors'), result
 repo = result['data']['repository']
 assert repo['issues']['totalCount'] <= len(repo['issues']['nodes']), 'more than 100 issues; add pagination'
-published = json.loads((ROOT/'docs/planning/published.json').read_text())
+published = json.loads((ROOT/'archive/planning/published.json').read_text())
 actual = {i['number']:i for i in repo['issues']['nodes']}
 edges = 0
 for task in TASKS:

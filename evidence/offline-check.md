@@ -3,10 +3,10 @@
 | Part | Status |
 |---|---|
 | Local browser check: load once, stop the server, reload and use the app | PASSED on 3 October 2026, on the current build, steps below |
-| Deploy to the static host | NOT DONE: the public link isn't live yet |
-| Real phone in airplane mode, including a reload | NOT DONE: waits for the public link |
+| Deploy to the static host | DONE: live at https://devfrankduah.github.io/SankofaFresh_SmallAI/, deployed by GitHub Pages from main (`.github/workflows/pages.yml`) |
+| Real phone in airplane mode, including a reload | NOT DONE: phone steps 2 to 5 below |
 
-AC06 and AC07 stay NOT VERIFIED until the phone steps are done. The local check shows the service worker works in one desktop browser.
+AC06 stays PENDING until the phone steps are done. AC07 is verified by the desktop network log below; the phone log comes with step 5. The local check shows the service worker works in one desktop browser.
 
 ## Local browser check
 
@@ -40,7 +40,7 @@ Earlier runs the same day passed the same way: on cache `sankofafresh-53bcc1757d
 
 ## Phone check (NOT DONE)
 
-1. NOT DONE: deploy `web/` to the static host over https, once the public link exists.
+1. DONE: `web/` is deployed over https at https://devfrankduah.github.io/SankofaFresh_SmallAI/ by GitHub Pages from main.
 2. NOT DONE: on the phone, open the app once online. Open About this check; File sizes shows a total only once the offline cache is complete.
 3. NOT DONE: turn on airplane mode, close the browser completely, reopen the app and reload.
 4. NOT DONE: load the demo batches, run a check that gives each band and a "Don't know" check, and switch to Twi.
