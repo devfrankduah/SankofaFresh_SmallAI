@@ -26,6 +26,7 @@ function batch(overrides = {}) {
     checkedAt: '2026-10-03T12:00:00.000Z',
     result: { band: 'not_sure', reasons: [REASON], demo: false, weatherYear: null },
     actions: [{ action: ACTION, at: '2026-10-04T08:00:00.000Z' }],
+    demoData: false,
     ...overrides,
   };
 }

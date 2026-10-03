@@ -1,0 +1,45 @@
+{
+  "source": "evidence/demo_batches.json",
+  "note": "Example answers for the demo, not a farm's batches. The app runs them through the shipped tree when they are loaded; tests/demo.test.mjs keeps these inputs equal to the source file.",
+  "batches": [
+    {
+      "id": "clearly_safe",
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 20,
+        "storage_start": "2025-03-01"
+      }
+    },
+    {
+      "id": "rewetted_dry_weeks",
+      "inputs": {
+        "batch_label": "Batch 2",
+        "days_drying": 8,
+        "rewetted": "yes",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "damp",
+        "days_stored": 10,
+        "storage_start": "2025-01-15"
+      }
+    },
+    {
+      "id": "missing_input",
+      "inputs": {
+        "batch_label": "Batch 3",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dont_know",
+        "days_stored": 20,
+        "storage_start": "2025-03-01"
+      }
+    }
+  ]
+}

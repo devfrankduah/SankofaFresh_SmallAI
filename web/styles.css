@@ -251,6 +251,20 @@ main:focus {
   line-height: 1.35;
 }
 
+.batch-demo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--jute);
+}
+
+.batch-demo .icon {
+  width: 18px;
+  height: 18px;
+}
+
 .batch-date {
   font-size: 15px;
   color: var(--ink-soft);

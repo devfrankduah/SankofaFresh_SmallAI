@@ -131,6 +131,28 @@ export function audioKeys(contract, index, code) {
   return new Set(index[code].filter(key => contract.message_keys.includes(key)));
 }
 
+// The bundled demo batches (web/demo_batches.json) must each be a complete set of allowed answers.
+export function demoBatchAnswers(contract, demoFile) {
+  if (!isPlainObject(demoFile) || !Array.isArray(demoFile.batches)) return [];
+  return demoFile.batches
+    .map(batch => (isPlainObject(batch) && isPlainObject(batch.inputs) ? { ...batch.inputs } : null))
+    .filter(answers => answers !== null && firstUnanswered(contract, answers) === null);
+}
+
+// Demo batches never take a label a real batch uses: each keeps its own label when that is free and
+// otherwise takes the first free one. null when there aren't enough free labels for all of them.
+export function placeDemoBatches(contract, demoAnswers, usedLabels) {
+  const free = freeBatchLabels(contract, usedLabels);
+  if (free.length < demoAnswers.length) return null;
+  const placed = demoAnswers.map(answers => (free.includes(answers[BATCH_LABEL_INPUT]) ? answers[BATCH_LABEL_INPUT] : null));
+  const claimed = new Set(placed.filter(Boolean));
+  const spare = free.filter(label => !claimed.has(label));
+  return demoAnswers.map((answers, index) => {
+    const label = placed[index] ?? spare.shift();
+    return { label, answers: { ...answers, [BATCH_LABEL_INPUT]: label } };
+  });
+}
+
 // The SMS asks the cooperative to check the batch, so it only fits results that come with an action.
 export function offersSms(contract, band) {
   return Object.hasOwn(contract.actions.band_default, band) && contract.actions.band_default[band] !== null;
@@ -310,13 +332,14 @@ function icon(name, className = '') {
 }
 
 class App {
-  constructor({ contract, languages, store, model, metrics, audioIndex }) {
+  constructor({ contract, languages, store, model, metrics, audioIndex, demoAnswers }) {
     this.contract = contract;
     this.languages = languages;
     this.store = store;
     this.model = model;
     this.metrics = metrics;
     this.audioIndex = audioIndex;
+    this.demoAnswers = demoAnswers;
     this.player = null;
     this.storageWorks = store.available;
     this.previousView = null;
@@ -391,7 +414,7 @@ class App {
     const fixtures = await Promise.all(FIXTURE_FILES.map(file => fetchJson(file)));
     const checkedAt = new Date().toISOString();
     for (const { label, answers } of answersFromFixtures(this.contract, fixtures)) {
-      this.batches.set(label, { label, answers, checkedAt, result: this.runCheck(answers), actions: [] });
+      this.batches.set(label, { label, answers, checkedAt, result: this.runCheck(answers), actions: [], demoData: false });
     }
   }
 
@@ -520,8 +543,14 @@ class App {
         h('span', { class: 'batch-badge' }, icon(band ? `band-${band}` : 'pending')),
         h('span', { class: 'batch-text' },
           h('span', { class: 'batch-label', text: batch.label }),
+          this.demoDataTag(batch),
           messageKey ? h('span', { class: 'batch-band', text: this.t(messageKey) }) : null,
           h('time', { class: 'batch-date', datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) }))));
+  }
+
+  demoDataTag(batch) {
+    const text = batch.demoData ? this.optionalText('demo_data_note') : null;
+    return text ? h('span', { class: 'batch-demo' }, icon('demo'), h('span', { text })) : null;
   }
 
   checkScreen(label) {
@@ -708,7 +737,8 @@ class App {
     const previous = this.batches.get(label);
     const answers = { ...draft.answers };
     const result = this.runCheck(answers);
-    this.batches.set(label, { label, answers, checkedAt: new Date().toISOString(), result, actions: previous ? previous.actions : [] });
+    // A check the farmer submits is their own, so it is no longer demo data even on a demo batch's label.
+    this.batches.set(label, { label, answers, checkedAt: new Date().toISOString(), result, actions: previous ? previous.actions : [], demoData: false });
     this.persist();
     location.hash = result ? routeHash('result', label) : routeHash('batches');
   }
@@ -736,6 +766,8 @@ class App {
       body.push(h('button', { class: 'button button-secondary play', type: 'button', onclick: () => this.playAudio(spoken, playable) },
         icon('play'), h('span', { text: this.t('button_play') })));
     }
+    const demoData = batch.demoData ? this.optionalText('demo_data_note') : null;
+    if (demoData) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: demoData })));
     if (batch.result.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
     if (shownReasons.length > 0) {
       body.push(h('ul', { class: 'reasons' }, shownReasons.map(reason => h('li', {}, icon('reason'), h('span', { text: this.t(reason) })))));
@@ -857,14 +889,41 @@ class App {
   settingsScreen() {
     const evidence = h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('evidence')),
       h('a', { class: 'button button-secondary', href: routeHash('evidence') }, h('span', { text: this.t('title_evidence') })));
+    const loadDemo = this.demoSetting();
     const deleteAll = h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('trash')),
       h('button', { class: 'button button-danger', type: 'button', onclick: () => this.deleteAll() },
         h('span', { text: this.t('button_delete_all') })));
     return {
       title: this.t('title_settings'),
       back: this.backToBatches(),
-      body: [this.languageChoices(), evidence, deleteAll],
+      body: [this.languageChoices(), evidence, loadDemo, deleteAll].filter(Boolean),
     };
+  }
+
+  // Shown only once the contract has the button and label keys, and only with demo batches to load.
+  demoSetting() {
+    const label = this.optionalText('button_load_demo');
+    if (!label || !this.optionalText('demo_data_note') || this.demoAnswers.length === 0) return null;
+    const realLabels = [...this.batches.values()].filter(batch => !batch.demoData).map(batch => batch.label);
+    const fits = placeDemoBatches(this.contract, this.demoAnswers, realLabels) !== null;
+    return h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('demo')),
+      h('button', { class: 'button button-secondary', type: 'button', disabled: !fits, onclick: () => this.loadDemoBatches() },
+        h('span', { text: label })));
+  }
+
+  // Loading again replaces the earlier demo batches instead of adding a second set.
+  loadDemoBatches() {
+    for (const batch of [...this.batches.values()]) {
+      if (batch.demoData) this.batches.delete(batch.label);
+    }
+    const placed = placeDemoBatches(this.contract, this.demoAnswers, this.batches.keys());
+    if (!placed) return;
+    const checkedAt = new Date().toISOString();
+    for (const { label, answers } of placed) {
+      this.batches.set(label, { label, answers, checkedAt, result: this.runCheck(answers), actions: [], demoData: true });
+    }
+    this.persist();
+    location.hash = routeHash('batches');
   }
 
   // The offline cache holds every app file, audio included, so its sizes are the app's size on the phone.
@@ -1003,12 +1062,14 @@ export async function boot() {
     // Fixture previews never read or write the phone's real records.
     const fixtureMode = new URLSearchParams(location.search).has('fixtures');
     const store = new RecordStore(fixtureMode ? memoryStorage() : browserStorage());
-    const [model, metrics, audioIndex] = await Promise.all([
+    const [model, metrics, audioIndex, demoFile] = await Promise.all([
       loadModel(contract),
       loadOptionalJson('metrics.json'),
       loadOptionalJson('audio/index.json'),
+      loadOptionalJson('demo_batches.json'),
     ]);
-    const app = new App({ contract, languages, store, model, metrics, audioIndex });
+    const demoAnswers = demoBatchAnswers(contract, demoFile);
+    const app = new App({ contract, languages, store, model, metrics, audioIndex, demoAnswers });
     if (fixtureMode) await app.loadFixtures();
     window.addEventListener('hashchange', () => app.render());
     if (!fixtureMode) {
