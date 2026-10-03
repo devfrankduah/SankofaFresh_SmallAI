@@ -1,19 +1,133 @@
 // SankofaFresh screens. Everything the farmer reads comes from messages.<lang>.json, and every
 // question, option, band and rule comes from contract.json at runtime.
 
+import { encode, validatedDays } from './features.js';
 import { BATCH_LABEL_INPUT, RecordStore, STORAGE_KEY, browserStorage, emptyRecords, memoryStorage } from './storage.js';
+import { TreeIntegrityError, predict, verifyTree } from './tree.js';
 
-const VIEWS = new Set(['batches', 'check', 'result', 'settings']);
+const VIEWS = new Set(['batches', 'check', 'result', 'settings', 'evidence']);
 const LANGUAGE_CODE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})$/;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 // Only reachable when the repository root is served; the deployed web/ folder has no tests/.
 const FIXTURE_FILES = ['../tests/fixtures/demo_batches.json', '../tests/fixtures/out_of_range.json'];
+// Stands in for web/tree.json until the trained tree ships, with demo_model_note on every result it gives.
+// Like the fixtures it is only reachable when the repository root is served.
+const SAMPLE_TREE_URL = '../tests/fixtures/sample_tree.json';
+const SECONDS_TO_SHOW_COPIED = 2;
 
 export async function fetchJson(url, fetchImplementation = globalThis.fetch) {
   const response = await fetchImplementation(url);
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
   return response.json();
+}
+
+// null only when the file is not there (HTTP 404); any other failure is an error.
+export async function fetchOptionalText(url, fetchImplementation = globalThis.fetch) {
+  const response = await fetchImplementation(url);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+  return response.text();
+}
+
+// Metrics and the audio index are optional: anything other than readable JSON means "not there".
+export async function loadOptionalJson(url, fetchImplementation = globalThis.fetch) {
+  try {
+    const text = await fetchOptionalText(url, fetchImplementation);
+    return text === null ? null : JSON.parse(text);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+// A tree.json that exists but is broken is an integrity failure, never a reason to fall back to the
+// sample tree; only a missing tree.json does that.
+export async function loadModel(contract, { fetchImplementation = globalThis.fetch, subtle = globalThis.crypto?.subtle } = {}) {
+  const model = { tree: null, treeBytes: 0, demo: false, weather: null, weatherYear: null, error: null };
+  try {
+    const weather = await fetchJson('weather.json', fetchImplementation);
+    validatedDays(weather, contract);
+    model.weather = weather;
+    model.weatherYear = Number.isInteger(weather.year) ? weather.year : null;
+  } catch (error) {
+    console.error(error);
+    model.error = 'error_files';
+  }
+  try {
+    let text = await fetchOptionalText('tree.json', fetchImplementation);
+    let demo = false;
+    if (text === null) {
+      text = await fetchOptionalText(SAMPLE_TREE_URL, fetchImplementation);
+      demo = true;
+    }
+    if (text === null) throw new Error('tree.json is missing and the sample tree is not reachable');
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new TreeIntegrityError('tree.json is not valid JSON');
+    }
+    model.tree = await verifyTree(parsed, subtle);
+    model.treeBytes = new TextEncoder().encode(text).length;
+    model.demo = demo;
+  } catch (error) {
+    console.error(error);
+    model.error = error instanceof TreeIntegrityError ? 'error_model_check' : model.error ?? 'error_files';
+  }
+  return model;
+}
+
+// Spec 5.5: reasons come from splits on the decision path that pushed toward risk, so each one is
+// true of this batch. A feature's "risk" says which side of a split its reason describes.
+export function reasonsFromPath(contract, path, limit = 2) {
+  const reasons = [];
+  for (const step of path) {
+    const feature = contract.features.find(candidate => candidate.name === step.name);
+    if (!feature || typeof feature.reason !== 'string') continue;
+    const onRiskSide = (feature.risk === 'higher' && !step.left) || (feature.risk === 'lower' && step.left);
+    if (onRiskSide && !reasons.includes(feature.reason)) reasons.push(feature.reason);
+    if (reasons.length === limit) break;
+  }
+  return reasons;
+}
+
+// Rules 1 and 2 (features.js), then the tree with rule 3 (tree.js). Throws when the answers need a
+// model the app could not load; the caller saves the answers without a result.
+export function assessAnswers(contract, answers, { tree, weather }) {
+  const { band: abstainBand, rules } = contract.abstention;
+  const encoded = encode(contract, answers, weather, tree);
+  if (encoded.abstainReason) return { band: abstainBand, reasons: [encoded.abstainReason], predicted: false };
+  if (!tree) throw new Error('no verified tree to run');
+  const prediction = predict(tree, encoded.features);
+  if (prediction.abstained) {
+    return { band: abstainBand, reasons: [rules.find(rule => rule.id === 'low_confidence').reason], predicted: true };
+  }
+  // Spec 5.6: the band with no default action (green) shows no reasons, since every reason describes a risk.
+  const showsReasons = contract.actions.band_default[prediction.band] !== null;
+  return { band: prediction.band, reasons: showsReasons ? reasonsFromPath(contract, prediction.path) : [], predicted: true };
+}
+
+export function metricCell(metrics, column, name, treeSha256) {
+  if (!isPlainObject(metrics) || !isPlainObject(metrics[column])) return null;
+  // Tree numbers describe one specific model; for any other tree they are not evaluated.
+  if (column === 'tree' && metrics.tree_sha256 !== treeSha256) return null;
+  const value = metrics[column][name];
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 ? value : null;
+}
+
+export function audioKeys(contract, index, code) {
+  if (!isPlainObject(index) || !Array.isArray(index[code])) return new Set();
+  return new Set(index[code].filter(key => contract.message_keys.includes(key)));
+}
+
+// The SMS asks the cooperative to check the batch, so it only fits results that come with an action.
+export function offersSms(contract, band) {
+  return Object.hasOwn(contract.actions.band_default, band) && contract.actions.band_default[band] !== null;
 }
 
 export function requireContract(contract) {
@@ -28,6 +142,7 @@ export function requireContract(contract) {
   }
   if (typeof contract.dont_know_value !== 'string') problems.push('dont_know_value missing');
   if (!Array.isArray(contract.recorded_actions)) problems.push('recorded_actions missing');
+  if (!Array.isArray(contract.features) || !Array.isArray(contract.metrics)) problems.push('features or metrics missing');
   const label = Array.isArray(contract.inputs) ? contract.inputs.find(input => input.name === BATCH_LABEL_INPUT) : null;
   if (!label || label.type !== 'choice' || !Array.isArray(label.values) || label.values.length === 0) {
     problems.push(`${BATCH_LABEL_INPUT} must be a choice input with values`);
@@ -146,26 +261,17 @@ export function localDateString(date) {
   return `${String(date.getFullYear()).padStart(4, '0')}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-// Until the result pipeline is wired (#13), fixture batches carry only the abstention outcome
-// the fixtures already state; a batch the fixtures expect to reach the tree stays unchecked.
-export function batchesFromFixtures(contract, fixtures, checkedAt) {
+// Fixture previews take only the answers; results come from the same pipeline a farmer's check uses.
+export function answersFromFixtures(contract, fixtures) {
   const labels = new Set(batchLabels(contract));
-  const batches = [];
+  const found = [];
   for (const fixture of fixtures) {
     for (const fixtureCase of Array.isArray(fixture?.cases) ? fixture.cases : []) {
       const label = fixtureCase?.inputs?.[BATCH_LABEL_INPUT];
-      if (!labels.has(label)) continue;
-      const reason = fixtureCase.expected?.abstain_reason ?? null;
-      batches.push({
-        label,
-        answers: { ...fixtureCase.inputs },
-        checkedAt,
-        result: reason ? { band: contract.abstention.band, reasons: [reason] } : null,
-        actions: [],
-      });
+      if (labels.has(label)) found.push({ label, answers: { ...fixtureCase.inputs } });
     }
   }
-  return batches;
+  return found;
 }
 
 function h(tag, props = {}, ...children) {
@@ -195,10 +301,14 @@ function icon(name, className = '') {
 }
 
 class App {
-  constructor({ contract, languages, store }) {
+  constructor({ contract, languages, store, model, metrics, audioIndex }) {
     this.contract = contract;
     this.languages = languages;
     this.store = store;
+    this.model = model;
+    this.metrics = metrics;
+    this.audioIndex = audioIndex;
+    this.player = null;
     this.storageWorks = store.available;
     this.previousView = null;
     this.recordOpen = false;
@@ -252,10 +362,42 @@ class App {
     }
   }
 
+  formatShare(value) {
+    try {
+      return new Intl.NumberFormat(this.language.code, { style: 'percent', maximumFractionDigits: 1 }).format(value);
+    } catch {
+      return `${Math.round(value * 1000) / 10}%`;
+    }
+  }
+
+  formatBytes(bytes) {
+    try {
+      return new Intl.NumberFormat(this.language.code, { style: 'unit', unit: 'kilobyte', maximumFractionDigits: 1 }).format(bytes / 1000);
+    } catch {
+      return `${Math.round(bytes / 100) / 10} kB`;
+    }
+  }
+
   async loadFixtures() {
     const fixtures = await Promise.all(FIXTURE_FILES.map(file => fetchJson(file)));
-    for (const batch of batchesFromFixtures(this.contract, fixtures, new Date().toISOString())) {
-      this.batches.set(batch.label, batch);
+    const checkedAt = new Date().toISOString();
+    for (const { label, answers } of answersFromFixtures(this.contract, fixtures)) {
+      this.batches.set(label, { label, answers, checkedAt, result: this.runCheck(answers), actions: [] });
+    }
+  }
+
+  runCheck(answers) {
+    try {
+      const outcome = assessAnswers(this.contract, answers, this.model);
+      return {
+        band: outcome.band,
+        reasons: outcome.reasons,
+        demo: this.model.demo,
+        weatherYear: outcome.predicted ? this.model.weatherYear : null,
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
     }
   }
 
@@ -269,13 +411,14 @@ class App {
     document.documentElement.lang = this.language.code;
     document.title = screen.title;
     this.bar.replaceChildren(...this.renderBar(screen));
-    this.main.replaceChildren(...this.storageNotice(), ...screen.body);
+    this.main.replaceChildren(...this.notices(), ...screen.body);
     this.dock.replaceChildren(...(screen.dock ?? []));
     this.dock.hidden = !screen.dock || screen.dock.length === 0;
     const routeKey = this.consent ? `${route.view}/${route.param ?? ''}` : 'consent';
     if (this.previousView !== routeKey) {
       if (this.previousView !== null) window.scrollTo(0, 0);
       this.recordOpen = false;
+      this.stopAudio();
     }
     const target = focusSelector ? document.querySelector(focusSelector) : null;
     if (target) target.focus();
@@ -283,10 +426,14 @@ class App {
     this.previousView = routeKey;
   }
 
-  storageNotice() {
-    if (this.storageWorks) return [];
-    const text = this.optionalText('error_storage');
-    return [h('p', { class: 'storage-notice', role: 'status' }, icon('alert'), text ? h('span', { text }) : null)];
+  notices() {
+    const keys = [];
+    if (!this.storageWorks) keys.push('error_storage');
+    if (this.model.error) keys.push(this.model.error);
+    return keys.map(key => {
+      const text = this.optionalText(key);
+      return h('p', { class: 'notice', role: 'status' }, icon('alert'), text ? h('span', { text }) : null);
+    });
   }
 
   consentScreen() {
@@ -317,6 +464,8 @@ class App {
         return this.resultScreen(route.param);
       case 'settings':
         return this.settingsScreen();
+      case 'evidence':
+        return this.evidenceScreen();
       default:
         return this.batchesScreen();
     }
@@ -548,15 +697,11 @@ class App {
     }
     const label = draft.answers[BATCH_LABEL_INPUT];
     const previous = this.batches.get(label);
-    this.batches.set(label, {
-      label,
-      answers: { ...draft.answers },
-      checkedAt: new Date().toISOString(),
-      result: null,
-      actions: previous ? previous.actions : [],
-    });
+    const answers = { ...draft.answers };
+    const result = this.runCheck(answers);
+    this.batches.set(label, { label, answers, checkedAt: new Date().toISOString(), result, actions: previous ? previous.actions : [] });
     this.persist();
-    location.hash = routeHash('batches');
+    location.hash = result ? routeHash('result', label) : routeHash('batches');
   }
 
   resultScreen(label) {
@@ -568,6 +713,7 @@ class App {
     if (!messageKey) return { redirect: routeHash('check', label) };
     const shownReasons = reasons.slice(0, 2);
     const action = pickAction(this.contract, band, shownReasons);
+    const spoken = [messageKey, ...shownReasons, ...(action ? [action] : [])];
     const body = [
       h('p', { class: 'result-batch' },
         h('span', { class: 'result-label', text: batch.label }),
@@ -576,11 +722,23 @@ class App {
         icon(`band-${band}`, 'band-icon'),
         h('p', { class: 'band-text', text: this.t(messageKey) })),
     ];
+    const playable = audioKeys(this.contract, this.audioIndex, this.language.code);
+    if (spoken.some(key => playable.has(key))) {
+      body.push(h('button', { class: 'button button-secondary play', type: 'button', onclick: () => this.playAudio(spoken, playable) },
+        icon('play'), h('span', { text: this.t('button_play') })));
+    }
+    if (batch.result.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
     if (shownReasons.length > 0) {
       body.push(h('ul', { class: 'reasons' }, shownReasons.map(reason => h('li', {}, icon('reason'), h('span', { text: this.t(reason) })))));
     }
     if (action) body.push(h('p', { class: 'action' }, icon('action'), h('span', { text: this.t(action) })));
-    body.push(h('p', { class: 'synthetic', text: this.t('synthetic_label') }));
+    if (Number.isInteger(batch.result.weatherYear)) {
+      body.push(h('p', { class: 'weather-note', text: this.t('weather_note', { year: batch.result.weatherYear }) }));
+    }
+    body.push(h('p', { class: 'synthetic' },
+      h('span', { text: this.t('synthetic_label') }),
+      h('a', { class: 'synthetic-link', href: routeHash('evidence') }, icon('evidence'), h('span', { text: this.t('title_evidence') }))));
+    if (offersSms(this.contract, band)) body.push(this.smsSection(batch));
     body.push(this.recordSection(batch));
     return {
       title: this.t('title_result'),
@@ -589,6 +747,58 @@ class App {
       dock: [h('a', { class: 'button button-secondary', href: routeHash('check', batch.label) },
         icon('reload'), h('span', { text: this.t('button_check') }))],
     };
+  }
+
+  // A draft only: the app never sends it (spec 2). Copying falls back to selecting the text.
+  smsSection(batch) {
+    const text = this.t('sms_template', { batch_label: batch.label });
+    const draft = h('textarea', { class: 'sms-text', readonly: true, rows: 4, 'aria-labelledby': 'sms-label' });
+    draft.value = text;
+    const copy = h('button', { class: 'button button-primary sms-copy', type: 'button' },
+      icon('copy', 'when-ready'), icon('check', 'when-copied'), h('span', { text: this.t('button_copy_sms') }));
+    copy.addEventListener('click', () => this.copySms(text, copy, draft));
+    return h('section', { class: 'sms' },
+      h('p', { class: 'sms-label', id: 'sms-label' }, icon('message'), h('span', { text: this.t('sms_not_sent') })),
+      draft,
+      copy);
+  }
+
+  async copySms(text, button, draft) {
+    try {
+      if (!navigator.clipboard) throw new Error('clipboard unavailable');
+      await navigator.clipboard.writeText(text);
+      button.classList.add('copied');
+      setTimeout(() => button.classList.remove('copied'), SECONDS_TO_SHOW_COPIED * 1000);
+    } catch {
+      draft.focus();
+      draft.select();
+    }
+  }
+
+  playAudio(keys, playable) {
+    this.stopAudio();
+    const queue = keys.filter(key => playable.has(key)).map(key => `audio/${this.language.code}/${key}.mp3`);
+    const playNext = () => {
+      const url = queue.shift();
+      if (!url) {
+        this.player = null;
+        return;
+      }
+      const player = new Audio(url);
+      this.player = player;
+      player.addEventListener('ended', playNext);
+      player.play().catch(error => {
+        console.error(error);
+        if (this.player === player) this.player = null;
+      });
+    };
+    playNext();
+  }
+
+  stopAudio() {
+    if (!this.player) return;
+    this.player.pause();
+    this.player = null;
   }
 
   // Recording what was done never touches batch.result (spec 3, step 5).
@@ -636,14 +846,80 @@ class App {
   }
 
   settingsScreen() {
+    const evidence = h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('evidence')),
+      h('a', { class: 'button button-secondary', href: routeHash('evidence') }, h('span', { text: this.t('title_evidence') })));
     const deleteAll = h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('trash')),
       h('button', { class: 'button button-danger', type: 'button', onclick: () => this.deleteAll() },
         h('span', { text: this.t('button_delete_all') })));
     return {
       title: this.t('title_settings'),
       back: this.backToBatches(),
-      body: [this.languageChoices(), deleteAll],
+      body: [this.languageChoices(), evidence, deleteAll],
     };
+  }
+
+  // Resource timing names every app file this page loaded, but its sizes read 0 for memory-cache hits
+  // and count 404 bodies, so each file is measured from a cached copy and failures are left out.
+  async measureAppFiles() {
+    const base = new URL('.', location.href).href;
+    const names = new Set();
+    for (const entry of [...performance.getEntriesByType('navigation'), ...performance.getEntriesByType('resource')]) {
+      const url = new URL(entry.name, location.href);
+      url.search = '';
+      url.hash = '';
+      if (url.href.startsWith(base)) names.add(url.href.slice(base.length) || 'index.html');
+    }
+    const measured = await Promise.all([...names].map(async name => {
+      try {
+        const response = await fetch(name, { cache: 'force-cache' });
+        return response.ok ? [name, (await response.arrayBuffer()).byteLength] : null;
+      } catch {
+        return null;
+      }
+    }));
+    return measured.filter(Boolean).sort(([a], [b]) => a.localeCompare(b));
+  }
+
+  fillFileSizes(totalElement, listElement) {
+    this.measureAppFiles().then(files => {
+      if (!totalElement.isConnected) return;
+      const total = files.reduce((sum, [, bytes]) => sum + bytes, 0);
+      totalElement.textContent = total > 0 ? this.formatBytes(total) : this.t('not_evaluated');
+      totalElement.removeAttribute('aria-busy');
+      listElement.replaceChildren(...files.map(([name, bytes]) => h('li', {}, h('span', { text: name }), h('span', { text: this.formatBytes(bytes) }))));
+    });
+  }
+
+  evidenceScreen() {
+    const { tree } = this.model;
+    const notEvaluated = this.t('not_evaluated');
+    const fact = (labelKey, value, className = '') => [
+      h('dt', { text: this.t(labelKey) }),
+      h('dd', { class: className, text: value ?? notEvaluated }),
+    ];
+    const sizesTotal = h('dd', { 'aria-busy': 'true' });
+    const fileList = h('ul', { class: 'file-sizes' });
+    const facts = h('dl', { class: 'facts' },
+      fact('evidence_model_version', tree ? tree.model_version : null),
+      fact('evidence_tree_hash', tree ? tree.sha256 : null, 'hash'),
+      h('dt', { text: this.t('evidence_file_sizes') }), sizesTotal);
+    this.fillFileSizes(sizesTotal, fileList);
+    const cell = (column, name) => {
+      const value = metricCell(this.metrics, column, name, tree ? tree.sha256 : null);
+      return h('td', { class: value === null ? 'not-evaluated' : '', text: value === null ? notEvaluated : this.formatShare(value) });
+    };
+    const metrics = h('table', { class: 'metrics' },
+      h('thead', {}, h('tr', {}, h('td', {}), h('th', { scope: 'col', text: this.t('evidence_tree') }), h('th', { scope: 'col', text: this.t('evidence_baseline') }))),
+      h('tbody', {}, this.contract.metrics.map(name => h('tr', {},
+        h('th', { scope: 'row', text: this.t(`metric_${name}`) }), cell('tree', name), cell('baseline', name)))));
+    const sources = [h('li', { text: this.t('source_labels') })];
+    if (Number.isInteger(this.model.weatherYear)) sources.unshift(h('li', { text: this.t('source_weather', { year: this.model.weatherYear }) }));
+    const body = [h('p', { class: 'synthetic', text: this.t('synthetic_label') })];
+    if (this.model.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
+    body.push(facts, fileList,
+      h('h2', { class: 'section-title', text: this.t('evidence_metrics') }), metrics,
+      h('h2', { class: 'section-title', text: this.t('evidence_sources') }), h('ul', { class: 'sources' }, sources));
+    return { title: this.t('title_evidence'), back: this.backToBatches(), body };
   }
 
   chooseLanguage(code) {
@@ -691,7 +967,12 @@ export async function boot() {
     // Fixture previews never read or write the phone's real records.
     const fixtureMode = new URLSearchParams(location.search).has('fixtures');
     const store = new RecordStore(fixtureMode ? memoryStorage() : browserStorage());
-    const app = new App({ contract, languages, store });
+    const [model, metrics, audioIndex] = await Promise.all([
+      loadModel(contract),
+      loadOptionalJson('metrics.json'),
+      loadOptionalJson('audio/index.json'),
+    ]);
+    const app = new App({ contract, languages, store, model, metrics, audioIndex });
     if (fixtureMode) await app.loadFixtures();
     window.addEventListener('hashchange', () => app.render());
     if (!fixtureMode) {

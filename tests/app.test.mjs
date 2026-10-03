@@ -1,11 +1,15 @@
 // Unit tests for the pure parts of web/app.js. Run with: node --test tests/*.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash, webcrypto } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 import {
-  batchesFromFixtures,
+  answersFromFixtures,
+  assessAnswers,
+  audioKeys,
   fetchJson,
+  fetchOptionalText,
   fillPlaceholders,
   firstUnanswered,
   freeBatchLabels,
@@ -15,12 +19,20 @@ import {
   keepValidAnswers,
   languageCandidates,
   loadLanguages,
+  loadModel,
+  loadOptionalJson,
   localDateString,
+  metricCell,
+  offersSms,
   parseRoute,
   pickAction,
+  reasonsFromPath,
   requireContract,
   routeHash,
 } from '../web/app.js';
+import { canonicalNodes } from '../web/canonical.js';
+import { encode } from '../web/features.js';
+import { verifyTree } from '../web/tree.js';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const json = path => JSON.parse(read(path));
@@ -30,6 +42,33 @@ const DEMO = json('tests/fixtures/demo_batches.json');
 const OUT_OF_RANGE = json('tests/fixtures/out_of_range.json');
 const INPUTS = Object.fromEntries(CONTRACT.inputs.map(input => [input.name, input]));
 const DONT_KNOW = CONTRACT.dont_know_value;
+const WEATHER = json('web/weather.json');
+const SAMPLE_TREE_TEXT = read('tests/fixtures/sample_tree.json');
+const SUBTLE = webcrypto.subtle;
+const reasonOf = name => CONTRACT.features.find(feature => feature.name === name).reason;
+const ruleReason = id => CONTRACT.abstention.rules.find(rule => rule.id === id).reason;
+
+// A fetch stand-in that serves the given files and answers 404 for anything else.
+function fakeFetch(files) {
+  return async url => {
+    if (!Object.hasOwn(files, url)) return { ok: false, status: 404, text: async () => '', json: async () => ({}) };
+    const text = typeof files[url] === 'string' ? files[url] : JSON.stringify(files[url]);
+    return { ok: true, status: 200, text: async () => text, json: async () => JSON.parse(text) };
+  };
+}
+
+// Sample-tree metadata with new nodes; the ranges are widened because they are not hashed and the
+// sample's illustrative ranges exclude part of the real weather year.
+async function verifiedTree(nodes, extra = {}) {
+  const base = JSON.parse(SAMPLE_TREE_TEXT);
+  const ranges = Object.fromEntries(Object.keys(base.feature_ranges).map(name => [name, [-1000, 1000]]));
+  const tree = { ...base, feature_ranges: ranges, ...extra, nodes };
+  tree.sha256 = createHash('sha256').update(canonicalNodes(nodes), 'utf8').digest('hex');
+  return verifyTree(tree, SUBTLE);
+}
+
+const featureIndex = name => CONTRACT.features.findIndex(feature => feature.name === name);
+const CLEAR_ANSWERS = { ...DEMO.cases[0].inputs };
 
 test('the shipped contract has everything the screens read', () => {
   assert.deepEqual(requireContract(CONTRACT), []);
@@ -181,16 +220,163 @@ test('local dates are written YYYY-MM-DD in the phone time zone', () => {
   assert.equal(localDateString(new Date(2026, 11, 31, 0, 0)), '2026-12-31');
 });
 
-test('fixture batches carry only the abstentions the fixtures state', () => {
-  const batches = batchesFromFixtures(CONTRACT, [DEMO, OUT_OF_RANGE], '2026-10-03T12:00:00.000Z');
-  const byLabel = Object.fromEntries(batches.map(batch => [batch.label, batch]));
-  assert.deepEqual(Object.keys(byLabel), ['Batch 1', 'Batch 2', 'Batch 3', 'Batch 4']);
-  assert.equal(byLabel['Batch 1'].result, null);
-  assert.equal(byLabel['Batch 2'].result, null);
-  assert.deepEqual(byLabel['Batch 3'].result, { band: 'not_sure', reasons: ['reason_missing_input'] });
-  assert.deepEqual(byLabel['Batch 4'].result, { band: 'not_sure', reasons: ['reason_out_of_range'] });
-  assert.deepEqual(batchesFromFixtures(CONTRACT, [{ cases: [{ inputs: { batch_label: 'Batch 99' } }] }], ''), []);
-  assert.deepEqual(batchesFromFixtures(CONTRACT, [null, {}], ''), []);
+test('fixture previews take only the answers, never the expected results', () => {
+  const found = answersFromFixtures(CONTRACT, [DEMO, OUT_OF_RANGE]);
+  assert.deepEqual(found.map(entry => entry.label), ['Batch 1', 'Batch 2', 'Batch 3', 'Batch 4']);
+  assert.deepEqual(found[0].answers, DEMO.cases[0].inputs);
+  assert.ok(found.every(entry => !Object.hasOwn(entry, 'result')));
+  assert.deepEqual(answersFromFixtures(CONTRACT, [{ cases: [{ inputs: { batch_label: 'Batch 99' } }] }]), []);
+  assert.deepEqual(answersFromFixtures(CONTRACT, [null, {}]), []);
+});
+
+test('reasons are risk-side splits on the path, in path order, at most two, without repeats', () => {
+  const step = (name, left) => ({ name, left });
+  assert.deepEqual(reasonsFromPath(CONTRACT, [step('rh14_mean', false), step('days_drying', true), step('rewetted', false)]),
+    [reasonOf('rh14_mean'), reasonOf('days_drying')]);
+  assert.deepEqual(reasonsFromPath(CONTRACT, [step('rh14_mean', false), step('rh14_max', false), step('musty', false)]),
+    [reasonOf('rh14_mean'), reasonOf('musty')], 'the two humidity features share one reason');
+  assert.deepEqual(reasonsFromPath(CONTRACT, [step('rh14_mean', true), step('days_drying', false), step('t14_mean', false)]), [],
+    'the safe side of a split, and a feature with no reason, give nothing');
+  assert.deepEqual(reasonsFromPath(CONTRACT, [step('floor', false)], 1), [reasonOf('floor')]);
+});
+
+test('every feature with a reason says which side of a split is the risk', () => {
+  for (const feature of CONTRACT.features) {
+    if (feature.reason) assert.ok(['higher', 'lower'].includes(feature.risk), feature.name);
+  }
+});
+
+test('"Don\'t know" and out-of-range answers abstain without needing a model', () => {
+  const unknown = { ...CLEAR_ANSWERS, musty_smell: DONT_KNOW };
+  assert.deepEqual(assessAnswers(CONTRACT, unknown, { tree: null, weather: null }),
+    { band: CONTRACT.abstention.band, reasons: [ruleReason('dont_know')], predicted: false });
+  assert.deepEqual(assessAnswers(CONTRACT, OUT_OF_RANGE.cases[0].inputs, { tree: null, weather: null }),
+    { band: CONTRACT.abstention.band, reasons: [ruleReason('out_of_range')], predicted: false });
+  assert.throws(() => assessAnswers(CONTRACT, CLEAR_ANSWERS, { tree: null, weather: WEATHER }), /no verified tree/);
+  assert.throws(() => assessAnswers(CONTRACT, CLEAR_ANSWERS, { tree: null, weather: null }));
+});
+
+test('a check runs encode, the tree and rule 3, and the band matches the sample tree split', async () => {
+  const tree = await verifyTree(JSON.parse(SAMPLE_TREE_TEXT), SUBTLE);
+  for (const day of ['2025-01-10', '2025-03-01', '2025-06-20', '2025-08-15', '2025-11-30']) {
+    const answers = { ...CLEAR_ANSWERS, storage_start: day, days_stored: 10 };
+    const encoded = encode(CONTRACT, answers, WEATHER, tree);
+    const outcome = assessAnswers(CONTRACT, answers, { tree, weather: WEATHER });
+    if (encoded.abstainReason) {
+      assert.deepEqual(outcome.reasons, [encoded.abstainReason], day);
+      continue;
+    }
+    const humid = Math.fround(encoded.features[featureIndex('rh14_mean')]) > 80.5;
+    // The right leaf's 0.6 equals the cut, so it keeps red; red's reason is the humidity split.
+    assert.deepEqual(outcome, humid
+      ? { band: 'red', reasons: [reasonOf('rh14_mean')], predicted: true }
+      : { band: 'green', reasons: [], predicted: true }, day);
+  }
+});
+
+test('low confidence abstains with its own reason, and green never shows reasons', async () => {
+  const rewetted = featureIndex('rewetted');
+  const nodes = [
+    { id: 0, feature: rewetted, threshold: 0.5, left: 1, right: 2 },
+    { id: 1, value: [0.5, 0.3, 0.2] },
+    { id: 2, value: [0.9, 0.05, 0.05] },
+  ];
+  const tree = await verifiedTree(nodes);
+  const unsure = assessAnswers(CONTRACT, { ...CLEAR_ANSWERS, rewetted: 'no' }, { tree, weather: WEATHER });
+  assert.deepEqual(unsure, { band: CONTRACT.abstention.band, reasons: [ruleReason('low_confidence')], predicted: true });
+  const green = assessAnswers(CONTRACT, { ...CLEAR_ANSWERS, rewetted: 'yes' }, { tree, weather: WEATHER });
+  assert.deepEqual(green, { band: 'green', reasons: [], predicted: true }, 'rewetted went right, but green shows no reasons');
+});
+
+test('an amber result names the risk it went through and picks the matching action', async () => {
+  const rewetted = featureIndex('rewetted');
+  const floor = featureIndex('floor');
+  const nodes = [
+    { id: 0, feature: rewetted, threshold: 0.5, left: 1, right: 2 },
+    { id: 1, value: [0.9, 0.05, 0.05] },
+    { id: 2, feature: floor, threshold: 0.5, left: 3, right: 4 },
+    { id: 3, value: [0.1, 0.8, 0.1] },
+    { id: 4, value: [0.0, 0.1, 0.9] },
+  ];
+  const tree = await verifiedTree(nodes);
+  const amber = assessAnswers(CONTRACT, { ...CLEAR_ANSWERS, rewetted: 'yes', storage_surface: 'raised' }, { tree, weather: WEATHER });
+  assert.deepEqual(amber.reasons, [reasonOf('rewetted')]);
+  assert.equal(pickAction(CONTRACT, amber.band, amber.reasons), CONTRACT.actions.reason_action[reasonOf('rewetted')]);
+  const red = assessAnswers(CONTRACT, { ...CLEAR_ANSWERS, rewetted: 'yes', storage_surface: 'floor' }, { tree, weather: WEATHER });
+  assert.deepEqual([red.band, red.reasons], ['red', [reasonOf('rewetted'), reasonOf('floor')]]);
+});
+
+test('the model loads tree.json when present and the sample tree only when it is missing', async () => {
+  const options = files => ({ fetchImplementation: fakeFetch(files), subtle: SUBTLE });
+  const trained = await loadModel(CONTRACT, options({ 'weather.json': WEATHER, 'tree.json': SAMPLE_TREE_TEXT }));
+  assert.equal(trained.demo, false);
+  assert.equal(trained.error, null);
+  assert.equal(trained.weatherYear, WEATHER.year);
+  assert.equal(trained.treeBytes, Buffer.byteLength(SAMPLE_TREE_TEXT));
+  const demo = await loadModel(CONTRACT, options({ 'weather.json': WEATHER, '../tests/fixtures/sample_tree.json': SAMPLE_TREE_TEXT }));
+  assert.equal(demo.demo, true);
+  assert.ok(demo.tree);
+});
+
+test('a broken or tampered tree.json is refused, never replaced by the sample tree', async () => {
+  const tampered = JSON.parse(SAMPLE_TREE_TEXT);
+  tampered.nodes[2].value = [0.1, 0.2, 0.7];
+  for (const treeText of ['{not json', JSON.stringify(tampered)]) {
+    const model = await loadModel(CONTRACT, {
+      fetchImplementation: fakeFetch({ 'weather.json': WEATHER, 'tree.json': treeText, '../tests/fixtures/sample_tree.json': SAMPLE_TREE_TEXT }),
+      subtle: SUBTLE,
+    });
+    assert.equal(model.tree, null);
+    assert.equal(model.demo, false);
+    assert.equal(model.error, 'error_model_check');
+  }
+});
+
+test('missing app files are reported, and Web Crypto is required', async () => {
+  const noWeather = await loadModel(CONTRACT, { fetchImplementation: fakeFetch({ 'tree.json': SAMPLE_TREE_TEXT }), subtle: SUBTLE });
+  assert.equal(noWeather.error, 'error_files');
+  assert.ok(noWeather.tree, 'the tree still loads, so "Don\'t know" checks still work');
+  const nothing = await loadModel(CONTRACT, { fetchImplementation: fakeFetch({ 'weather.json': WEATHER }), subtle: SUBTLE });
+  assert.equal(nothing.tree, null);
+  assert.equal(nothing.error, 'error_files');
+  const insecure = await loadModel(CONTRACT, { fetchImplementation: fakeFetch({ 'weather.json': WEATHER, 'tree.json': SAMPLE_TREE_TEXT }), subtle: null });
+  assert.equal(insecure.error, 'error_model_check');
+});
+
+test('optional files read as null when missing or unreadable', async () => {
+  assert.equal(await fetchOptionalText('x.json', fakeFetch({})), null);
+  await assert.rejects(fetchOptionalText('x.json', async () => ({ ok: false, status: 500, text: async () => '' })), /HTTP 500/);
+  assert.equal(await loadOptionalJson('metrics.json', fakeFetch({ 'metrics.json': '{oops' })), null);
+  assert.equal(await loadOptionalJson('metrics.json', async () => {
+    throw new TypeError('offline');
+  }), null);
+  assert.deepEqual(await loadOptionalJson('metrics.json', fakeFetch({ 'metrics.json': { a: 1 } })), { a: 1 });
+});
+
+test('metrics show only real shares, and tree numbers only for the loaded tree', () => {
+  const metrics = { tree_sha256: 'abc', tree: { accuracy: 0.9, coverage: null, macro_f1: 1.2 }, baseline: { accuracy: 0, red_recall: 'high' } };
+  assert.equal(metricCell(metrics, 'tree', 'accuracy', 'abc'), 0.9);
+  assert.equal(metricCell(metrics, 'tree', 'accuracy', 'other tree'), null);
+  assert.equal(metricCell(metrics, 'tree', 'coverage', 'abc'), null);
+  assert.equal(metricCell(metrics, 'tree', 'macro_f1', 'abc'), null);
+  assert.equal(metricCell(metrics, 'baseline', 'accuracy', 'other tree'), 0, 'a real zero stays zero');
+  assert.equal(metricCell(metrics, 'baseline', 'red_recall', 'abc'), null);
+  assert.equal(metricCell(null, 'baseline', 'accuracy', 'abc'), null);
+  assert.equal(metricCell({ baseline: [] }, 'baseline', 'accuracy', 'abc'), null);
+});
+
+test('audio is offered only for listed clips of known message keys', () => {
+  assert.deepEqual([...audioKeys(CONTRACT, { en: ['band_green', 'not_a_key', 7] }, 'en')], ['band_green']);
+  assert.equal(audioKeys(CONTRACT, { en: ['band_green'] }, 'tw').size, 0);
+  assert.equal(audioKeys(CONTRACT, null, 'en').size, 0);
+  assert.equal(audioKeys(CONTRACT, { en: 'band_green' }, 'en').size, 0);
+});
+
+test('the SMS draft comes only with results that carry an action', () => {
+  for (const band of CONTRACT.bands) {
+    assert.equal(offersSms(CONTRACT, band.name), CONTRACT.actions.band_default[band.name] !== null, band.name);
+  }
+  assert.equal(offersSms(CONTRACT, 'purple'), false);
 });
 
 test('every message key app.js names exists in the contract', () => {

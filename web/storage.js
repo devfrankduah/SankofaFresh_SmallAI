@@ -64,7 +64,13 @@ export function sanitizeRecords(contract, raw) {
       const resultReasons = batch.result.reasons;
       const validReasons = Array.isArray(resultReasons) && resultReasons.every(reason => reasons.has(reason));
       if (!bands.has(batch.result.band) || !validReasons) continue;
-      result = { band: batch.result.band, reasons: [...resultReasons] };
+      const { demo, weatherYear } = batch.result;
+      result = {
+        band: batch.result.band,
+        reasons: [...resultReasons],
+        demo: demo === true,
+        weatherYear: Number.isInteger(weatherYear) ? weatherYear : null,
+      };
     } else if (batch.result !== null) {
       continue;
     }
