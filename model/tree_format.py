@@ -8,7 +8,9 @@ import hashlib
 import json
 import math
 import re
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
+
+import numpy as np
 
 from model.contract import CONTRACT
 
@@ -70,3 +72,11 @@ def validate_tree(tree: Mapping[str, Any], contract: Mapping[str, Any] = CONTRAC
             stack += [node['left'], node['right']]
     require(sorted(seen) == list(range(len(nodes))), 'every node must be reachable from the root exactly once')
     require(tree.get('sha256') == nodes_sha256(nodes), 'sha256 does not match the canonical nodes')
+
+
+def leaf_for(tree: Mapping[str, Any], features: Sequence[float]) -> Mapping[str, Any]:
+    """The leaf a feature vector reaches, walking tree.json the way web/tree.js does (float32 input, x <= threshold)."""
+    node = tree['nodes'][0]
+    while 'value' not in node:
+        node = tree['nodes'][node['left'] if np.float32(features[node['feature']]) <= node['threshold'] else node['right']]
+    return node

@@ -1,0 +1,20 @@
+{
+  "model_version": "tree-v2-b7a4e1c",
+  "tree_sha256": "b7a4e1c115e6ab57f6f1b82a75cd18fb6f86f30dea45ad3f79cb785049a38854",
+  "tree": {
+    "accuracy": 0.705,
+    "macro_f1": 0.7023,
+    "red_recall": 0.6083,
+    "false_reassurance_rate": 0.0625,
+    "abstain_rate": 0.1031,
+    "coverage": 0.8969
+  },
+  "baseline": {
+    "accuracy": 0.5073,
+    "macro_f1": 0.384,
+    "red_recall": 0.6417,
+    "false_reassurance_rate": 0.3583,
+    "abstain_rate": 0.0,
+    "coverage": 1.0
+  }
+}

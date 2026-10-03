@@ -140,6 +140,7 @@ test('activate removes older app caches only, then takes control of open pages',
 });
 
 test('app files come from the cache, navigations get the shell, and nothing goes to the network', async () => {
+  assert.ok(!worker.PRECACHE.includes('not-shipped.json') && !worker.PRECACHE.includes('audio/en/band_red.mp3'));
   const caches = fakeCaches({
     [worker.CACHE_NAME]: {
       [at('index.html')]: { body: '<!doctype html>shell' },
@@ -152,7 +153,7 @@ test('app files come from the cache, navigations get the shell, and nothing goes
     [fetchEvent(at('contract.json?v=2#x')), 200, '{"ok":true}'],
     [fetchEvent(at('index.html?fixtures#/batches'), { mode: 'navigate' }), 200, '<!doctype html>shell'],
     [fetchEvent(at('./'), { mode: 'navigate' }), 200, '<!doctype html>shell'],
-    [fetchEvent(at('metrics.json')), 404, ''],
+    [fetchEvent(at('not-shipped.json')), 404, ''],
     [fetchEvent(at('audio/en/band_red.mp3')), 404, ''],
   ];
   for (const [event, status, body] of cases) {
