@@ -29,7 +29,7 @@ Either teammate, GeorgeDavidson2 or devfrankduah, can pick any unblocked issue a
 
 ## Development setup
 
-Requires Python 3.12 (tested with 3.12.14). The pinned numpy has no Python 3.11 build. Node 18 or later runs the JavaScript tests (`node tests/test_encode_parity.mjs`). `package.json` only marks `.js` files as ES modules for Node 18; it has no dependencies, and there is no build step.
+Requires Python 3.12 (tested with 3.12.14). The pinned numpy has no Python 3.11 build. Node 18 or later runs the JavaScript tests: `for f in tests/test_*.mjs; do node "$f"; done` for the data and model checks (including tree.js parity with scikit-learn), and `node --test tests/*.test.mjs` for the app. `package.json` only marks `.js` files as ES modules for Node 18; it has no dependencies, and there is no build step.
 
 ```sh
 python3.12 -m venv .venv
