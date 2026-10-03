@@ -171,6 +171,29 @@ export function reasonIcon(key) {
   return Object.hasOwn(REASON_ICONS, key) ? REASON_ICONS[key] : 'reason';
 }
 
+// Pictures for the one-question-per-screen form: one per question, one per answer.
+export const QUESTION_ART = {
+  batch_label: 'sack',
+  days_drying: 'sun',
+  rewetted: 'rain',
+  storage_surface: 'raised',
+  musty_smell: 'smell',
+  dryness_check: 'hand',
+  days_stored: 'sack',
+  storage_start: 'storage',
+};
+
+export const OPTION_ICONS = {
+  yes: 'check',
+  no: 'cross',
+  floor: 'floor',
+  raised: 'raised',
+  dry: 'sun',
+  unsure: 'half',
+  damp: 'humid',
+  dont_know: 'question',
+};
+
 const MS_PER_DAY = 86400000;
 
 // The daily humidity values behind this batch's weather features, oldest first: the window rule in
@@ -422,6 +445,7 @@ class App {
     this.storageWorks = store.available;
     this.previousView = null;
     this.recordOpen = false;
+    this.wizard = null;
     this.bar = document.getElementById('bar');
     this.main = document.getElementById('main');
     this.dock = document.getElementById('dock');
@@ -514,8 +538,18 @@ class App {
     }
   }
 
+  // Screen and step changes cross-fade where the browser has View Transitions and motion is welcome.
+  transition(update) {
+    if (typeof document.startViewTransition !== 'function' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      update();
+      return;
+    }
+    document.startViewTransition(update);
+  }
+
   render(focusSelector = null) {
     const route = parseRoute(location.hash);
+    if (route.view !== 'check') this.wizard = null;
     const screen = this.consent ? this.screenFor(route) : this.consentScreen();
     if (screen.redirect) {
       location.replace(screen.redirect);
@@ -535,7 +569,7 @@ class App {
       this.recordOpen = false;
       this.stopAudio();
     }
-    const target = focusSelector ? document.querySelector(focusSelector) : null;
+    const target = [].concat(focusSelector ?? []).map(selector => document.querySelector(selector)).find(Boolean) ?? null;
     if (target) target.focus();
     else if (this.previousView !== null && this.previousView !== routeKey) this.main.focus({ preventScroll: true });
     this.previousView = routeKey;
@@ -624,9 +658,20 @@ class App {
         icon('plus'), h('span', { text: this.t('button_add_batch') }));
     return {
       title: this.t('title_batches'),
-      body: labels.length > 0 ? [list] : [h('div', { class: 'empty' }, icon('sack', 'empty-mark'))],
+      body: labels.length > 0 ? [list] : [this.emptyBatches()],
       dock: [add],
     };
+  }
+
+  // An empty list invites the two ways in: Add batch in the dock, and the demo batches here.
+  emptyBatches() {
+    const demoLabel = this.optionalText('button_load_demo');
+    const offerDemo = demoLabel && this.optionalText('demo_data_note') && this.demoAnswers.length > 0;
+    return h('div', { class: 'empty' },
+      icon('sack', 'empty-mark'),
+      offerDemo
+        ? h('button', { class: 'button button-secondary', type: 'button', onclick: () => this.loadDemoBatches() }, icon('demo'), h('span', { text: demoLabel }))
+        : null);
   }
 
   batchRow(batch) {
@@ -634,8 +679,10 @@ class App {
     const messageKey = band ? bandMessage(this.contract, band) : null;
     const href = batch.result ? routeHash('result', batch.label) : routeHash('check', batch.label);
     return h('li', {},
-      h('a', { class: `batch${band ? ` band-${band}` : ' batch-unchecked'}`, href },
-        h('span', { class: 'batch-badge' }, icon(band ? `band-${band}` : 'pending')),
+      h('a', { class: `batch${band ? '' : ' batch-unchecked'}`, href },
+        h('span', { class: 'batch-sack' },
+          icon('sack', 'sack-art'),
+          h('span', { class: `mini-stamp ${band ? `band-${band}` : 'is-pending'}` }, icon(band ? `band-${band}` : 'pending'))),
         h('span', { class: 'batch-text' },
           h('span', { class: 'batch-label', text: batch.label }),
           this.demoDataTag(batch),
@@ -655,18 +702,93 @@ class App {
     if (label === null && freeBatchLabels(this.contract, this.batches.keys()).length === 0) {
       return { redirect: routeHash('batches') };
     }
-    const answers = existing ? keepValidAnswers(this.contract, existing.answers) : {};
-    if (label !== null) answers[BATCH_LABEL_INPUT] = label;
-    const draft = { answers, fixedLabel: label };
+    // Answers live here for as long as the form is open, so going back a step never loses one.
+    const key = label ?? '';
+    if (!this.wizard || this.wizard.key !== key) {
+      const answers = existing ? keepValidAnswers(this.contract, existing.answers) : {};
+      if (label !== null) answers[BATCH_LABEL_INPUT] = label;
+      this.wizard = { key, answers, fixedLabel: label, step: 0 };
+    }
+    const draft = this.wizard;
+    const back = existing && existing.result
+      ? { href: routeHash('result', label), label: this.t('title_result') }
+      : this.backToBatches();
+    const backLabel = this.optionalText('button_back');
+    return backLabel ? this.stepScreen(draft, back, backLabel) : this.wholeForm(draft, back);
+  }
+
+  // One question per screen; a re-check skips the batch label, which is already known.
+  stepScreen(draft, back, backLabel) {
+    const steps = this.contract.inputs.filter(input => !(input.name === BATCH_LABEL_INPUT && draft.fixedLabel !== null));
+    draft.step = Math.min(Math.max(draft.step, 0), steps.length - 1);
+    const input = steps[draft.step];
+    const last = draft.step === steps.length - 1;
+    const form = h('form', { class: 'check wizard', id: 'check-form', novalidate: true },
+      this.stepMarkers(steps, draft),
+      this.question(input, draft));
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      this.nextStep(form, steps, input);
+    });
+    const focusQuestion = ['.question input:checked', '.question input:not([disabled])'];
+    const previous = draft.step > 0
+      ? h('button', {
+        class: 'button button-secondary', type: 'button',
+        onclick: () => {
+          draft.step -= 1;
+          this.transition(() => this.render(focusQuestion));
+        },
+      }, icon('back'), h('span', { text: backLabel }))
+      : null;
+    const next = h('button', { class: 'button button-primary', type: 'submit', form: 'check-form' },
+      icon(last ? 'check' : 'action'), h('span', { text: this.t(last ? 'button_check' : 'button_continue') }));
+    return { title: this.t('title_check'), back, body: [form], dock: [h('div', { class: 'dock-row' }, previous, next)] };
+  }
+
+  // A sequence, so numbered markers: done ones show a tick, the current one is filled.
+  stepMarkers(steps, draft) {
+    return h('ol', { class: 'markers' }, steps.map((input, index) => {
+      const current = index === draft.step;
+      const done = !current && isValidAnswer(input, draft.answers[input.name], this.contract.dont_know_value);
+      return h('li', {
+        class: `marker${current ? ' is-current' : ''}${done ? ' is-done' : ''}`,
+        'aria-current': current ? 'step' : null,
+        'aria-label': this.t(`question_${input.name}`),
+      }, done ? icon('check') : h('span', { text: this.formatNumber(index + 1) }));
+    }));
+  }
+
+  nextStep(form, steps, input) {
+    const draft = this.wizard;
+    if (!isValidAnswer(input, draft.answers[input.name], this.contract.dont_know_value)) {
+      const fieldset = form.querySelector('fieldset');
+      setMissing(fieldset, true);
+      const control = fieldset.querySelector('input:not([disabled])');
+      if (control) control.focus();
+      return;
+    }
+    if (draft.step < steps.length - 1) {
+      draft.step += 1;
+      this.transition(() => this.render(['.question input:checked', '.question input:not([disabled])']));
+      return;
+    }
+    const missing = firstUnanswered(this.contract, draft.answers);
+    if (missing) {
+      draft.step = Math.max(0, steps.findIndex(step => step.name === missing));
+      this.render(['.question input:checked', '.question input:not([disabled])']);
+      return;
+    }
+    this.saveCheck(draft.answers);
+  }
+
+  // The single-page form, used until the contract has button_back.
+  wholeForm(draft, back) {
     const form = h('form', { class: 'check', id: 'check-form', novalidate: true });
     for (const input of this.contract.inputs) form.append(this.question(input, draft));
     form.addEventListener('submit', event => {
       event.preventDefault();
       this.submitCheck(form, draft);
     });
-    const back = existing && existing.result
-      ? { href: routeHash('result', label), label: this.t('title_result') }
-      : this.backToBatches();
     return {
       title: this.t('title_check'),
       back,
@@ -678,8 +800,10 @@ class App {
 
   question(input, draft) {
     const legendId = `q-${input.name}`;
+    const art = Object.hasOwn(QUESTION_ART, input.name) ? icon(QUESTION_ART[input.name], 'question-art') : null;
     const fieldset = h('fieldset', { class: `question question-${input.type}`, 'data-name': input.name },
       h('legend', { id: legendId },
+        art,
         icon('alert', 'missing-mark'),
         h('span', { text: this.t(`question_${input.name}`) })));
     const markAnswered = () => {
@@ -692,10 +816,10 @@ class App {
     return fieldset;
   }
 
-  optionTile({ type, name, value, checked, text, extraClass = '', onchange }) {
+  optionTile({ type, name, value, checked, text, extraClass = '', onchange, art = null }) {
     return h('label', { class: `option ${extraClass}`.trim() },
       h('input', { type, name, value, checked, onchange }),
-      h('span', { class: 'option-face' }, icon('check', 'option-tick'), h('span', { text })));
+      h('span', { class: 'option-face' }, art ? icon(art, 'option-art') : null, icon('check', 'option-tick'), h('span', { text })));
   }
 
   choiceOptions(input, draft, markAnswered) {
@@ -717,6 +841,7 @@ class App {
       checked: draft.answers[input.name] === choice.value,
       text: choice.text,
       extraClass: choice.dontKnow ? 'option-dont-know' : '',
+      art: Object.hasOwn(OPTION_ICONS, choice.value) ? OPTION_ICONS[choice.value] : null,
       onchange,
     })));
   }
@@ -729,6 +854,7 @@ class App {
       checked: draft.answers[input.name] === this.contract.dont_know_value,
       text: this.t('option_dont_know'),
       extraClass: 'option-dont-know',
+      art: OPTION_ICONS.dont_know,
       onchange: event => onToggle(event.target.checked),
     });
   }
@@ -824,13 +950,18 @@ class App {
       if (control) control.focus({ preventScroll: true });
       return;
     }
-    const label = draft.answers[BATCH_LABEL_INPUT];
+    this.saveCheck(draft.answers);
+  }
+
+  saveCheck(draftAnswers) {
+    const label = draftAnswers[BATCH_LABEL_INPUT];
     const previous = this.batches.get(label);
-    const answers = { ...draft.answers };
+    const answers = { ...draftAnswers };
     const result = this.runCheck(answers);
     // A check the farmer submits is their own, so it is no longer demo data even on a demo batch's label.
     this.batches.set(label, { label, answers, checkedAt: new Date().toISOString(), result, actions: previous ? previous.actions : [], demoData: false });
     this.persist();
+    this.wizard = null;
     location.hash = result ? routeHash('result', label) : routeHash('batches');
   }
 
@@ -1203,7 +1334,7 @@ export async function boot() {
     const demoAnswers = demoBatchAnswers(contract, demoFile);
     const app = new App({ contract, languages, store, model, metrics, audioIndex, demoAnswers });
     if (fixtureMode) await app.loadFixtures();
-    window.addEventListener('hashchange', () => app.render());
+    window.addEventListener('hashchange', () => app.transition(() => app.render()));
     if (!fixtureMode) {
       // Another open tab changed or deleted the records; show what is actually stored now.
       window.addEventListener('storage', event => {

@@ -239,17 +239,43 @@ main:focus {
   overflow: hidden;
 }
 
-.batch-badge {
+/* Each batch is a sack with its latest stamp pressed on it. */
+.batch-sack {
+  position: relative;
   display: grid;
   place-items: center;
   flex: none;
-  width: 60px;
-  color: #ffffff;
+  width: 76px;
+  background: var(--parchment);
 }
 
-.batch-badge .icon {
+.sack-art {
+  width: 50px;
+  height: 50px;
+  color: var(--jute);
+  stroke-width: 1.5;
+}
+
+.mini-stamp {
+  position: absolute;
+  right: 6px;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
   width: 32px;
   height: 32px;
+  transform: rotate(-8deg);
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
+}
+
+.mini-stamp .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.mini-stamp.is-pending {
+  background: var(--page);
+  color: var(--jute);
 }
 
 .batch-text {
@@ -289,30 +315,25 @@ main:focus {
   color: var(--ink-soft);
 }
 
-.batch-unchecked .batch-badge {
-  background: var(--parchment);
-  color: var(--jute);
-}
-
-.band-green .batch-badge,
+.band-green.mini-stamp,
 .band.band-green {
   background: var(--green);
   color: #ffffff;
 }
 
-.band-amber .batch-badge,
+.band-amber.mini-stamp,
 .band.band-amber {
   background: var(--amber);
   color: var(--amber-ink);
 }
 
-.band-red .batch-badge,
+.band-red.mini-stamp,
 .band.band-red {
   background: var(--red);
   color: #ffffff;
 }
 
-.band-not_sure .batch-badge,
+.band-not_sure.mini-stamp,
 .band.band-not_sure {
   background: var(--unsure);
   color: #ffffff;
@@ -321,8 +342,15 @@ main:focus {
 .empty {
   display: grid;
   place-items: center;
+  align-content: center;
+  gap: 24px;
   min-height: 40vh;
   color: var(--line);
+}
+
+.empty .button {
+  width: auto;
+  min-width: 70%;
 }
 
 .empty-mark {
@@ -335,6 +363,132 @@ main:focus {
 .check {
   display: grid;
   gap: 32px;
+}
+
+/* The pictures belong to the one-question-per-screen form; the single-page fallback stays plain. */
+.check:not(.wizard) .question-art,
+.check:not(.wizard) .option-art {
+  display: none;
+}
+
+.wizard {
+  gap: 20px;
+}
+
+.markers {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marker {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--control-edge);
+  border-radius: 50%;
+  background: var(--page);
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.marker.is-done {
+  border-color: var(--tarp);
+  background: var(--tarp-soft);
+  color: var(--tarp);
+}
+
+.marker.is-done .icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 3;
+}
+
+.marker.is-current {
+  border-color: var(--tarp);
+  background: var(--tarp);
+  color: #ffffff;
+}
+
+.wizard .question legend {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 24px;
+}
+
+.question-art {
+  width: 92px;
+  height: 92px;
+  padding: 18px;
+  border-radius: 50%;
+  background: var(--parchment);
+  color: var(--jute);
+  stroke-width: 1.6;
+}
+
+.wizard .options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wizard .option-face {
+  position: relative;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 108px;
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 19px;
+}
+
+.wizard .options-labels .option-face {
+  min-height: 64px;
+}
+
+.option-art {
+  width: 40px;
+  height: 40px;
+  color: var(--jute);
+}
+
+.option input:checked + .option-face .option-art {
+  color: #ffffff;
+}
+
+.wizard .option-tick {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.wizard .option-dont-know {
+  grid-column: 1 / -1;
+}
+
+.wizard .option-dont-know .option-face {
+  flex-direction: row;
+  min-height: var(--tap);
+}
+
+.wizard .option-dont-know .option-art {
+  width: 28px;
+  height: 28px;
+}
+
+.dock-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 10px;
+}
+
+.dock-row > .button:only-child {
+  grid-column: 1 / -1;
 }
 
 .question {
@@ -398,6 +552,7 @@ main:focus {
 
 .option input {
   position: absolute;
+  z-index: 1;
   inset: 0;
   width: 100%;
   height: 100%;
