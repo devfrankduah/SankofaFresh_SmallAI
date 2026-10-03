@@ -32,7 +32,7 @@ The answers must be an object with exactly these eight fields. A missing field, 
 - `encoding: map` replaces the input value with the number in `map`, for example `no` becomes 0 and `yes` becomes 1.
 - Weather features name the NASA POWER variable (`RH2M` or `T2M`), how it is aggregated over the window, and its unit.
 
-Each feature also names the message key used when that feature is a reason for the result (spec 5.5). `t14_mean` has no reason key, because spec 5.5 defines none for it. `reason_long_drying` is the `days_drying` reason; its message says the coffee did not dry for long enough, since fewer drying days means wetter parchment in the spec 6 model.
+Each feature also names the message key used when that feature is a reason for the result (spec 5.5), and its `risk` direction: `higher` means larger values push toward a riskier result, `lower` means smaller values do. `days_drying` is the only `lower` feature, because fewer drying days means wetter parchment in the spec 6 model; its reason is `reason_short_drying`. `t14_mean` has no reason key, because spec 5.5 defines none for it, so its `risk` is `null`. A split on the decision path supports a reason only when the sample went the risky way: right of the threshold (`x > threshold`) for a `higher` feature, left (`x <= threshold`) for a `lower` one.
 
 ### Weather window
 
@@ -65,15 +65,16 @@ Both encoders add the 14 values one by one, oldest first, and divide by 14. That
 
 ## Messages
 
-`message_keys` is the full key list from spec 5.5. Every `web/messages.<lang>.json` file must contain exactly these keys. They come in two groups: result messages, and interface strings for the screens. Interface keys follow fixed patterns so the app can find them without a lookup table:
+`languages` lists the shipped language codes in order; the first is the default. Each code has a file `web/messages.<code>.json`, and every listed file must contain exactly the keys in `message_keys`, the full list from spec 5.5. A file with a top-level `_status` field is a draft and must not be listed. `web/messages.tw.draft.json` is an unreviewed, machine-written Twi draft: a fluent speaker checks it, removes `_status`, renames it to `messages.tw.json` and adds `tw` to `languages`. They come in two groups: result messages, and interface strings for the screens. Interface keys follow fixed patterns so the app can find them without a lookup table:
 
 - `question_<input>` for each input in `inputs`.
 - `option_<value>` for each choice value except batch labels, plus `option_dont_know`.
 - `record_<value>` for each value in `recorded_actions`.
 - `button_*` and `title_*` for buttons and screen titles.
+- `error_*` for problems the app reports, `evidence_*` and `source_*` for the evidence screen, and `metric_<name>` for each name in `metrics`.
 - `language_name` is the language's own name for itself, shown in the language toggle.
 
-`message_placeholders` lists the placeholders each message may contain, written `{name}`. `sms_template` has `{batch_label}` and `weather_note` has `{year}`, the bundled weather year. Translators must keep placeholders unchanged. Interface strings stay at 40 characters or fewer so they fit a 360 px screen and are quick to translate.
+`message_placeholders` lists the placeholders each message may contain, written `{name}`. `sms_template` has `{batch_label}`, and `weather_note` and `source_weather` have `{year}`, the bundled weather year. Translators must keep placeholders unchanged. Interface strings (`question_`, `option_`, `button_`, `record_`, `title_`, `error_`, `evidence_`, `source_` and `metric_` keys, plus `sms_not_sent` and `demo_model_note`) stay at 40 characters or fewer, so they fit a 360 px screen and are quick to translate.
 
 The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to "Batch 10") are stored values and are shown as stored; they have no message key.
 
@@ -84,7 +85,7 @@ The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to
 | Field | Meaning |
 |---|---|
 | `schema_version` | 2 |
-| `model_version` | `tree-v2-` followed by the short commit hash of the training code |
+| `model_version` | `tree-v2-` followed by the first 7 characters of `sha256`, so the same tree always has the same version |
 | `evidence_mode` | `SYNTHETIC_DEMO` |
 | `feature_names` | the contract feature names, in contract order |
 | `feature_ranges` | for every feature, `[min, max]` seen in training, inclusive |
@@ -105,9 +106,38 @@ A sample goes left when `x <= threshold`, and right otherwise. Inputs are cast t
 hashlib.sha256(json.dumps(nodes, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 ```
 
-The hash is computed in Python only. The app displays the stored `sha256` and does not recompute it. Recomputing it in JavaScript with `JSON.stringify` gives a different string: it doesn't sort keys, and it writes the float `1.0` as `1`, while Python writes `1.0`, and scikit-learn leaves often hold exactly 1.0.
+The app verifies this hash in JavaScript before it trusts the tree, and refuses the tree if it doesn't match. It needs the exact string Python hashed, which `JSON.stringify` doesn't give: it doesn't sort keys, and it writes the float `1.0` as `1` and `0.00001` as `1e-5`, where Python writes `1.0` and `1e-05`. `web/canonical.js` exports `canonicalNodes(nodes)`, which rebuilds Python's string:
 
+- keys sorted, no spaces, `,` between items and `:` after keys;
+- `id`, `feature`, `left` and `right` written as integers;
+- `threshold` and every `value` entry written as Python `repr()` writes a float: the same shortest digits as JavaScript, always with a `.0` or a fraction, and in exponent form (`1e-05`, `1.5e+16`) below 0.0001 or from 10 to the 16th up.
 
+The export (#10) writes those fields as floats even when they are whole numbers, so the rule holds. Hash the result as UTF-8 with SHA-256 (`crypto.subtle.digest` in the browser). `tests/fixtures/canonical_nodes.json` holds Python's output for awkward nodes and 1,000 floats, and `tests/test_canonical.mjs` checks `web/canonical.js` against it.
+
+## web/metrics.json
+
+The evidence screen reads `web/metrics.json`, which the evaluation (#15) writes:
+
+```json
+{
+  "model_version": "tree-v2-1a2b3c4",
+  "tree_sha256": "<the sha256 in tree.json>",
+  "tree": {"accuracy": 0.91, "macro_f1": 0.88, "red_recall": 0.93, "false_reassurance_rate": 0.01, "abstain_rate": 0.07, "coverage": 0.93},
+  "baseline": {"accuracy": 0.55, "macro_f1": 0.40, "red_recall": 0.80, "false_reassurance_rate": 0.20, "abstain_rate": 0.0, "coverage": 1.0}
+}
+```
+
+The numbers above are placeholders, not results. The metric names are the `metrics` list in the contract, each a share from 0 to 1, computed on the held-out synthetic farms. A missing file, a missing metric or `null` shows `not_evaluated` ("Not evaluated"), never zero. If `tree_sha256` doesn't match the loaded tree, the screen shows `not_evaluated` for the tree, because the numbers describe a different model. `evidence/metrics.json` holds the full detail (definitions, confusion matrices, the season stress set) and is not shipped in the app.
+
+## Audio
+
+Audio is optional (spec 5.5). Clips live at `web/audio/<lang>/<key>.mp3`, one per message key, and `web/audio/index.json` lists which keys have a clip in each language:
+
+```json
+{"en": ["band_green", "band_amber"], "tw": ["band_green"]}
+```
+
+The app shows the Play button only for keys listed there. A missing `index.json`, or a language or key not in it, means no audio, and the text still shows. Each clip's source and licence are recorded in the messages issue (#19).
 
 ## Fixtures
 
