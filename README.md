@@ -4,6 +4,8 @@ An offline phone web app (PWA) that helps a smallholder coffee farmer decide wha
 
 **Status: scaffold and shared contracts only. The app itself isn't built yet, and nothing has been verified on a phone.**
 
+**Live app:** LIVE_LINK_PLACEHOLDER (published by `.github/workflows/pages.yml` once the repository is public). Two steps need a repository admin: make the repository public, and in Settings, Pages, set Source to "GitHub Actions". Until then the deploy job skips itself.
+
 Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Development, Agriculture sector.
 
 - [Specification v2](docs/SankofaFresh_Spec_v2.md), the source of truth for the product
