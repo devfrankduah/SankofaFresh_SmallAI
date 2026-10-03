@@ -19,7 +19,6 @@ CATEGORICAL_ENCODING = re.compile(r'\d+ \w+(, \d+ \w+)*')
 SHORT_KEY_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_', 'error_', 'evidence_', 'source_', 'metric_')
 SHORT_KEYS = ('sms_not_sent', 'demo_model_note', 'demo_data_note', 'sms_copied')
 SHORT_MAX_CHARACTERS = 40
-DRAFT_STATUS = 'UNREVIEWED DRAFT, machine-written, not for release'
 
 
 def load(relative_path):
@@ -246,12 +245,9 @@ def test_message_placeholders_are_declared(code):
     check_placeholders(MESSAGE_FILES[code])
 
 
-def test_twi_draft_is_complete_and_unlisted():
-    draft = load('web/messages.tw.draft.json')
-    assert draft['_status'] == DRAFT_STATUS
-    assert 'tw' not in LANGUAGES, 'review the draft and rename it to messages.tw.json before listing tw'
-    assert set(draft) - {'_status'} == set(CONTRACT['message_keys'])
-    check_placeholders(draft)
+def test_twi_is_listed_after_english():
+    assert LANGUAGES[:2] == ['en', 'tw']
+    assert not (ROOT / 'web' / 'messages.tw.draft.json').exists(), 'the reviewed Twi file replaced the draft'
 
 
 def test_canonical_fixture_matches_python():

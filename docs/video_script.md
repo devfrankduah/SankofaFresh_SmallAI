@@ -44,11 +44,11 @@ Do:
 
 > This one was rained on while drying, and it's checked in dry January weeks. A rule that only looks at humidity calls it green. Our tree says amber: the hand test found it damp, so dry it again before selling.
 
-7. **Record only after tw is live** (Twi listed in `web/contract.json` languages). Tap Settings, choose Twi, go back and reopen Batch 2. Hold on the Twi result for three seconds, then switch back to English in Settings.
+7. Twi is live (`web/contract.json` lists `tw`). Tap Settings, choose Twi, go back and reopen Batch 2. Hold on the Twi result for three seconds, then switch back to English in Settings.
 
 > In Twi, the same result reads: "Hwɛ kɔfe kuw yi ntɛm. Hata kuw yi bio ansa na woakora anaa woatɔn." Check this batch soon; dry it again before you store or sell it.
 
-Before recording this step, replace the quoted Twi with the reviewed `band_amber` and `action_redry` from `web/messages.tw.json`; the words above are from the unreviewed draft.
+The quoted Twi is the reviewed `band_amber` and `action_redry` from `web/messages.tw.json`.
 
 8. Scroll down to the SMS draft labelled SIMULATED_NOT_SENT, and tap Copy SMS.
 
@@ -79,6 +79,5 @@ Numbers: about two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, 20
 ## Checks before recording
 
 - Read the numbers again from `web/metrics.json`, `evidence/metrics.json`, `evidence/sizes.json` and `web/contract.json` if anything has changed since this script was written (model `tree-v2-9b83270`, 81 message keys).
-- Record step 7 only once Twi is live, and say the Part 5 line about the Twi check only once the reviewed file has shipped.
 - If the form asks for more than one video, cut at the part headings above.
 - Data limits from spec section 10 that the video must not contradict: labels are synthetic, the weather is one coarse grid cell for one year, and there has been no field test.
