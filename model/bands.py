@@ -10,8 +10,8 @@ from typing import Any, Mapping, Sequence
 
 from model.contract import CONTRACT
 
-# Spec section 7: red when the 14-day mean RH is above 80 percent, otherwise green. The 80 percent figure comes
-# from the ochratoxin A storage literature (little OTA at 80 percent RH, significant at 87 and 95 percent).
+# Spec section 7: red when the 14-day mean RH is above 80 percent, otherwise green. FAO (2006, p. 20) and Codex
+# CAC/RCP 69-2009 (p. 12) both say stored coffee starts to absorb water above about 80 percent relative humidity.
 BASELINE_FEATURE = 'rh14_mean'
 BASELINE_RED_ABOVE = 80.0
 
