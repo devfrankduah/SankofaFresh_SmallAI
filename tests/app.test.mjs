@@ -101,8 +101,9 @@ test('a messages file counts only when it has every contract key with text', () 
 });
 
 test('an unreviewed draft is never offered, even when listed or renamed', async () => {
-  const draft = json('web/messages.tw.draft.json');
-  assert.ok(Object.hasOwn(draft, '_status'), 'the Twi draft is marked with _status');
+  // Built here, not read from web/: a draft is only there until it is reviewed. It has every key, so
+  // only the _status marker can make the app refuse it.
+  const draft = { ...MESSAGES, _status: 'UNREVIEWED DRAFT, machine-written, not for release' };
   assert.equal(hasEveryMessage(CONTRACT, draft), false);
   assert.equal(hasEveryMessage(CONTRACT, { ...MESSAGES, _status: 'draft' }), false);
   assert.deepEqual(languageCandidates({ languages: ['tw.draft', 'en'] }, 'en'), ['en'], 'no code can name a .draft.json file');
