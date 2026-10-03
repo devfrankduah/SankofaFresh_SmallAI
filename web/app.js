@@ -287,6 +287,19 @@ export function routeHash(view, param = null) {
   return param === null ? `#/${view}` : `#/${view}/${encodeURIComponent(param)}`;
 }
 
+// Day first, as dates are written in Ghana, and with no month names, so no language is needed.
+export function numericDate(date) {
+  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+}
+
+export function hasDateFormats(code) {
+  try {
+    return Intl.DateTimeFormat.supportedLocalesOf([code]).length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export function localDateString(date) {
   const pad = number => String(number).padStart(2, '0');
   return `${String(date.getFullYear()).padStart(4, '0')}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -397,6 +410,9 @@ class App {
   formatDate(isoTimestamp) {
     const date = new Date(isoTimestamp);
     if (Number.isNaN(date.getTime())) return '';
+    // Browsers ship no date formats for some languages (Twi among them) and would fall back to English
+    // month names, so those languages get a numeric date instead.
+    if (!hasDateFormats(this.language.code)) return numericDate(date);
     try {
       return new Intl.DateTimeFormat(this.language.code, { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
     } catch {
@@ -801,21 +817,32 @@ class App {
     const text = this.t('sms_template', { batch_label: batch.label });
     const draft = h('textarea', { class: 'sms-text', readonly: true, rows: 4, 'aria-labelledby': 'sms-label' });
     draft.value = text;
+    const label = h('span', { text: this.t('button_copy_sms') });
     const copy = h('button', { class: 'button button-primary sms-copy', type: 'button' },
-      icon('copy', 'when-ready'), icon('check', 'when-copied'), h('span', { text: this.t('button_copy_sms') }));
-    copy.addEventListener('click', () => this.copySms(text, copy, draft));
+      icon('copy', 'when-ready'), icon('check', 'when-copied'), label);
+    // Present before anything is copied, so a screen reader is already listening when it changes.
+    const announcement = h('p', { class: 'visually-hidden', role: 'status', 'aria-live': 'polite' });
+    copy.addEventListener('click', () => this.copySms(text, { button: copy, label, announcement, draft }));
     return h('section', { class: 'sms' },
       h('p', { class: 'sms-label', id: 'sms-label' }, icon('message'), h('span', { text: this.t('sms_not_sent') })),
       draft,
-      copy);
+      copy,
+      announcement);
   }
 
-  async copySms(text, button, draft) {
+  async copySms(text, { button, label, announcement, draft }) {
     try {
       if (!navigator.clipboard) throw new Error('clipboard unavailable');
       await navigator.clipboard.writeText(text);
+      const copied = this.t('sms_copied');
       button.classList.add('copied');
-      setTimeout(() => button.classList.remove('copied'), SECONDS_TO_SHOW_COPIED * 1000);
+      label.textContent = copied;
+      announcement.textContent = copied;
+      setTimeout(() => {
+        button.classList.remove('copied');
+        label.textContent = this.t('button_copy_sms');
+        announcement.textContent = '';
+      }, SECONDS_TO_SHOW_COPIED * 1000);
     } catch {
       draft.focus();
       draft.select();
@@ -1038,7 +1065,10 @@ class App {
 }
 
 // Without a messages file there is no approved text to show, so the failure screen is an icon
-// and a reload button only.
+// and a reload button. The button's hard-coded "Reload" label is the one documented exception to the
+// messages rule: docs/contracts_v2.md#messages.
+const RELOAD_LABEL = 'Reload';
+
 function renderFatal(error) {
   console.error(error);
   const main = document.getElementById('main');
@@ -1048,7 +1078,9 @@ function renderFatal(error) {
   dock.hidden = true;
   main.replaceChildren(h('div', { class: 'fatal' },
     icon('alert', 'fatal-mark'),
-    h('button', { class: 'button button-secondary', type: 'button', onclick: () => location.reload() }, icon('reload'))));
+    h('button', {
+      class: 'button button-secondary', type: 'button', 'aria-label': RELOAD_LABEL, lang: 'en', onclick: () => location.reload(),
+    }, icon('reload'))));
 }
 
 function registerServiceWorker() {

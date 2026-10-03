@@ -58,6 +58,19 @@ body {
   overflow-wrap: anywhere;
 }
 
+/* Read by screen readers, not shown: used for the Copy SMS announcement. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .sprite {
   position: absolute;
   width: 0;
@@ -761,6 +774,8 @@ main:focus {
   width: 100%;
   border-collapse: collapse;
   font-size: 16px;
+  /* "anywhere" would let the table squeeze a column below one word and split it mid-word. */
+  overflow-wrap: break-word;
 }
 
 .metrics th,
