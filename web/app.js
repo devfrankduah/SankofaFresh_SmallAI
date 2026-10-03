@@ -1,7 +1,7 @@
 // SankofaFresh screens. Everything the farmer reads comes from messages.<lang>.json, and every
 // question, option, band and rule comes from contract.json at runtime.
 
-import { encode, validatedDays } from './features.js';
+import { encode, parseIsoDate, validatedDays } from './features.js';
 import { BATCH_LABEL_INPUT, RecordStore, STORAGE_KEY, browserStorage, emptyRecords, memoryStorage } from './storage.js';
 import { TreeIntegrityError, predict, verifyTree } from './tree.js';
 
@@ -151,6 +151,55 @@ export function placeDemoBatches(contract, demoAnswers, usedLabels) {
     const label = placed[index] ?? spare.shift();
     return { label, answers: { ...answers, [BATCH_LABEL_INPUT]: label } };
   });
+}
+
+// Icons for the "why" chips, by reason message key. A reason without one keeps the generic mark.
+export const REASON_ICONS = {
+  reason_rewetted: 'rain',
+  reason_damp_check: 'hand',
+  reason_floor: 'floor',
+  reason_humid_weeks: 'humid',
+  reason_musty: 'smell',
+  reason_short_drying: 'sun',
+  reason_long_storage: 'storage',
+  reason_missing_input: 'question',
+  reason_out_of_range: 'range',
+  reason_low_confidence: 'scale',
+};
+
+export function reasonIcon(key) {
+  return Object.hasOwn(REASON_ICONS, key) ? REASON_ICONS[key] : 'reason';
+}
+
+const MS_PER_DAY = 86400000;
+
+// The daily humidity values behind this batch's weather features, oldest first: the window rule in
+// docs/contracts_v2.md, which features.js applies too. tests/result.test.mjs holds the two to the same
+// rh14_mean and rh14_max for every day of the year. null when the answers or the table can't give one.
+export function humiditySeries(contract, answers, weather) {
+  const rule = contract.weather_window;
+  const start = parseIsoDate(answers?.[rule.start_input]);
+  const daysStored = answers?.[rule.days_input];
+  const days = weather?.days;
+  if (!start || !Number.isInteger(daysStored) || daysStored < 0 || !Array.isArray(days) || days.length === 0) return null;
+  const check = new Date(start.getTime() + daysStored * MS_PER_DAY);
+  const firstOfYear = new Date(0);
+  firstOfYear.setUTCFullYear(check.getUTCFullYear(), 0, 1);
+  const endIndex = Math.round((check.getTime() - firstOfYear.getTime()) / MS_PER_DAY) % days.length;
+  const column = rule.columns.RH2M;
+  const values = [];
+  for (let offset = rule.days - 1; offset >= 0; offset -= 1) {
+    const row = days[(((endIndex - offset) % days.length) + days.length) % days.length];
+    values.push(row?.[column]);
+  }
+  return values.every(value => typeof value === 'number' && Number.isFinite(value)) ? values : null;
+}
+
+// Points for an axis-free line: values outside low..high sit on the edge instead of leaving the box.
+export function sparklinePoints(values, { width, height, low, high }) {
+  const step = values.length > 1 ? width / (values.length - 1) : 0;
+  const y = value => height - ((Math.min(high, Math.max(low, value)) - low) / (high - low)) * height;
+  return values.map((value, index) => [Number((index * step).toFixed(1)), Number(y(value).toFixed(1))]);
 }
 
 // The SMS asks the cooperative to check the batch, so it only fits results that come with an action.
@@ -333,6 +382,12 @@ function h(tag, props = {}, ...children) {
   return element;
 }
 
+function svg(tag, attributes = {}) {
+  const element = document.createElementNS(SVG_NS, tag);
+  for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, String(value));
+  return element;
+}
+
 function icon(name, className = '') {
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('class', `icon ${className}`.trim());
@@ -395,8 +450,8 @@ class App {
   }
 
   // For keys the contract may add later; until it lists them the app shows no text for them.
-  optionalText(key) {
-    return this.contract.message_keys.includes(key) ? this.t(key) : null;
+  optionalText(key, values) {
+    return this.contract.message_keys.includes(key) ? this.t(key, values) : null;
   }
 
   formatNumber(value) {
@@ -473,6 +528,8 @@ class App {
     this.dock.replaceChildren(...(screen.dock ?? []));
     this.dock.hidden = !screen.dock || screen.dock.length === 0;
     const routeKey = this.consent ? `${route.view}/${route.param ?? ''}` : 'consent';
+    const arriving = this.previousView !== routeKey;
+    if (arriving && route.view === 'result' && this.consent) this.landStamp();
     if (this.previousView !== routeKey) {
       if (this.previousView !== null) window.scrollTo(0, 0);
       this.recordOpen = false;
@@ -482,6 +539,18 @@ class App {
     if (target) target.focus();
     else if (this.previousView !== null && this.previousView !== routeKey) this.main.focus({ preventScroll: true });
     this.previousView = routeKey;
+  }
+
+  // The one bold moment: the result stamp lands on the batch card. Never under reduced motion.
+  landStamp() {
+    const stamp = this.main.querySelector('.stamp');
+    if (!stamp || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    stamp.classList.add('is-landing');
+    try {
+      navigator.vibrate?.(30);
+    } catch {
+      // Vibration is a nicety; browsers that refuse it (no user gesture yet) just skip it.
+    }
   }
 
   notices() {
@@ -776,12 +845,14 @@ class App {
     const action = pickAction(this.contract, band, shownReasons);
     const spoken = [messageKey, ...shownReasons, ...(action ? [action] : [])];
     const body = [
-      h('p', { class: 'result-batch' },
-        h('span', { class: 'result-label', text: batch.label }),
-        h('time', { datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) })),
-      h('section', { class: `band band-${band}` },
-        icon(`band-${band}`, 'band-icon'),
-        h('p', { class: 'band-text', text: this.t(messageKey) })),
+      h('section', { class: 'result-card' },
+        h('p', { class: 'result-card-head' },
+          icon('sack'),
+          h('span', { class: 'result-label', text: batch.label }),
+          h('time', { datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) })),
+        h('div', { class: `band band-${band} stamp` },
+          icon(`band-${band}`, 'band-icon'),
+          h('p', { class: 'band-text', text: this.t(messageKey) }))),
     ];
     const playable = audioKeys(this.contract, this.audioIndex, this.language.code);
     if (spoken.some(key => playable.has(key))) {
@@ -792,12 +863,10 @@ class App {
     if (demoData) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: demoData })));
     if (batch.result.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
     if (shownReasons.length > 0) {
-      body.push(h('ul', { class: 'reasons' }, shownReasons.map(reason => h('li', {}, icon('reason'), h('span', { text: this.t(reason) })))));
+      body.push(h('ul', { class: 'why' }, shownReasons.map(reason => h('li', {}, icon(reasonIcon(reason)), h('span', { text: this.t(reason) })))));
     }
     if (action) body.push(h('p', { class: 'action' }, icon('action'), h('span', { text: this.t(action) })));
-    if (Number.isInteger(batch.result.weatherYear)) {
-      body.push(h('p', { class: 'weather-note', text: this.t('weather_note', { year: batch.result.weatherYear }) }));
-    }
+    if (Number.isInteger(batch.result.weatherYear)) body.push(this.humidityStrip(batch));
     body.push(h('p', { class: 'synthetic' },
       h('span', { text: this.t('synthetic_label') }),
       h('a', { class: 'synthetic-link', href: routeHash('evidence') }, icon('evidence'), h('span', { text: this.t('title_evidence') }))));
@@ -810,6 +879,31 @@ class App {
       dock: [h('a', { class: 'button button-secondary', href: routeHash('check', batch.label) },
         icon('reload'), h('span', { text: this.t('button_check') }))],
     };
+  }
+
+  // The 14 daily humidity values as a small line with the 80 percent mark from the OTA literature
+  // (spec 7). Drawn only when weather_strip can give it a text alternative; the note always shows.
+  humidityStrip(batch) {
+    const note = h('p', { class: 'weather-note', text: this.t('weather_note', { year: batch.result.weatherYear }) });
+    const values = humiditySeries(this.contract, batch.answers, this.model.weather);
+    const label = values
+      ? this.optionalText('weather_strip', { low: this.formatShare(Math.min(...values) / 100), high: this.formatShare(Math.max(...values) / 100) })
+      : null;
+    if (!label) return note;
+    // 50 to 100 percent covers the bundled year's daily means (about 54 to 91) with room to read the shape.
+    const [width, height, low, high, mark] = [300, 64, 50, 100, 80];
+    const points = sparklinePoints(values, { width, height, low, high });
+    const markY = sparklinePoints([mark], { width, height, low, high })[0][1];
+    const [lastX, lastY] = points[points.length - 1];
+    const chart = svg('svg', { viewBox: `-4 -4 ${width + 8} ${height + 8}`, role: 'img', 'aria-label': label, class: 'humidity-chart' });
+    chart.append(
+      svg('line', { x1: 0, x2: width, y1: markY, y2: markY, class: 'humidity-mark' }),
+      svg('polyline', { points: points.map(point => point.join(',')).join(' '), class: 'humidity-line' }),
+      svg('circle', { cx: lastX, cy: lastY, r: 4, class: 'humidity-end' }));
+    const markLabel = svg('text', { x: 0, y: markY - 5, class: 'humidity-mark-label' });
+    markLabel.textContent = this.formatShare(mark / 100);
+    chart.append(markLabel);
+    return h('figure', { class: 'humidity' }, chart, h('figcaption', {}, note));
   }
 
   // A draft only: the app never sends it (spec 2). Copying falls back to selecting the text.
