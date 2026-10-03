@@ -90,3 +90,14 @@ test('the stamp only lands, and only vibrates, when reduced motion is off', () =
   assert.match(body, /prefers-reduced-motion: reduce/);
   assert.ok(body.indexOf('prefers-reduced-motion') < body.indexOf('vibrate'), 'the motion check comes before vibrating');
 });
+
+test('every question and every answer the contract offers has a drawn picture', async () => {
+  const { OPTION_ICONS, QUESTION_ART } = await import('../web/app.js');
+  const drawn = new Set([...HTML.matchAll(/<symbol id="i-([a-z_-]+)"/g)].map(match => match[1]));
+  for (const input of CONTRACT.inputs) {
+    assert.ok(drawn.has(QUESTION_ART[input.name]), `question ${input.name}`);
+    if (input.type !== 'choice' || input.name === 'batch_label') continue;
+    for (const value of input.values) assert.ok(drawn.has(OPTION_ICONS[value]), `answer ${value}`);
+  }
+  assert.ok(drawn.has(OPTION_ICONS[CONTRACT.dont_know_value]), "Don't know");
+});
