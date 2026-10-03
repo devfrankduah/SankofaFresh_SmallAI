@@ -22,6 +22,8 @@ import {
   loadModel,
   loadOptionalJson,
   localDateString,
+  hasDateFormats,
+  numericDate,
   metricCell,
   offersSms,
   parseRoute,
@@ -231,6 +233,13 @@ test('routes parse back from the hashes the app writes', () => {
   assert.deepEqual(parseRoute(routeHash('check')), { view: 'check', param: null });
 });
 
+test('without browser date formats a date is numeric, day first, with no month names', () => {
+  assert.equal(numericDate(new Date(2026, 9, 3, 23, 59)), '3/10/2026');
+  assert.equal(numericDate(new Date(2026, 0, 31)), '31/1/2026');
+  assert.equal(hasDateFormats('en'), true);
+  assert.equal(hasDateFormats('not a locale!'), false);
+});
+
 test('local dates are written YYYY-MM-DD in the phone time zone', () => {
   assert.equal(localDateString(new Date(2026, 0, 5, 23, 59)), '2026-01-05');
   assert.equal(localDateString(new Date(2026, 11, 31, 0, 0)), '2026-12-31');
@@ -407,6 +416,15 @@ test('every message key app.js names exists in the contract', () => {
     for (const value of input.values) assert.ok(keys.has(`option_${value}`), value);
   }
   for (const band of CONTRACT.bands) assert.ok(keys.has(band.message), band.name);
+});
+
+test('the only hard-coded label is the documented "Reload" on the error screen', () => {
+  const source = read('web/app.js');
+  assert.deepEqual([...source.matchAll(/'aria-label':\s*'([^']*)'/g)].map(match => match[1]), [],
+    'labels come from the messages files');
+  assert.equal([...source.matchAll(/'Reload'/g)].length, 1, 'only RELOAD_LABEL spells it out');
+  assert.match(source, /const RELOAD_LABEL = 'Reload';/);
+  assert.ok(read('docs/contracts_v2.md').includes('hard-coded aria-label "Reload"'), 'the exception is documented');
 });
 
 test('every icon app.js asks for is drawn in index.html', () => {

@@ -12,6 +12,8 @@ Captured on 3 October 2026 from `web/` at main 815d1d7 (identical to the capture
 | `06-result-not-sure.png` | Batch 3, hand test "Don't know": not sure, reason and action to take a sample |
 | `07-sms-draft.png` | Batch 2's SMS draft labelled SIMULATED_NOT_SENT, with Copy SMS |
 | `08-evidence-top.png`, `09-evidence-full.png` | About this check: model version, tree hash, file sizes and the held-out metrics against the humidity-only baseline |
+| `10-consent-tw.png` | First-run consent in Twi (added later from branch `19-twi-pass`, same tree) |
+| `11-result-amber-tw.png` | Batch 2 in Twi: amber, the demo data label, the reason and the action; dates in Twi mode are numeric (3/10/2026) because browsers have no Twi date formats |
 | `demo-flow.mp4` | Screen recording, 30.6 s, H.264, no audio: from Settings, Load demo batches, then the three results, the SMS draft and Copy SMS, the check form and the evidence screen |
 
 The answers behind the three demo batches are in `evidence/demo_batches.json`, and the app loads them from `web/demo_batches.json`. For the voice-over: the reason shown on the amber batch is the damp hand test. The app shows reasons from the tree's decision path, so it doesn't claim the rain caused the result.
