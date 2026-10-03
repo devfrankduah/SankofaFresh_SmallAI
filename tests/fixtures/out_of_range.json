@@ -1,0 +1,31 @@
+{
+  "description": "One input outside the contract range: days_stored is 240, above the 0 to 180 limit, so it is also outside any tree trained on valid inputs.",
+  "weather_note": "Weather values are illustrative, not NASA POWER data; the demo location is not chosen yet (issue #1).",
+  "cases": [
+    {
+      "id": "days_stored_too_long",
+      "description": "Otherwise ordinary batch reported as stored for 240 days.",
+      "spec_expectation": "Returns not_sure with reason_out_of_range (spec 5.3, rule 2).",
+      "inputs": {
+        "batch_label": "Batch 4",
+        "days_drying": 11,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 240,
+        "storage_start": "2025-01-20"
+      },
+      "weather": {
+        "rh14_mean": 70.0,
+        "rh14_max": 76.0,
+        "t14_mean": 20.0
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null,
+        "baseline_band": "green"
+      }
+    }
+  ]
+}

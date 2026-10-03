@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "model_version": "tree-v2-sample",
+  "evidence_mode": "SYNTHETIC_DEMO",
+  "feature_names": [
+    "days_drying",
+    "rewetted",
+    "floor",
+    "musty",
+    "dryness_check",
+    "days_stored",
+    "rh14_mean",
+    "rh14_max",
+    "t14_mean"
+  ],
+  "feature_ranges": {
+    "days_drying": [
+      0,
+      30
+    ],
+    "rewetted": [
+      0,
+      1
+    ],
+    "floor": [
+      0,
+      1
+    ],
+    "musty": [
+      0,
+      1
+    ],
+    "dryness_check": [
+      0,
+      2
+    ],
+    "days_stored": [
+      0,
+      180
+    ],
+    "rh14_mean": [
+      55.0,
+      95.0
+    ],
+    "rh14_max": [
+      60.0,
+      98.0
+    ],
+    "t14_mean": [
+      14.0,
+      28.0
+    ]
+  },
+  "classes": [
+    "green",
+    "amber",
+    "red"
+  ],
+  "abstain_cut": 0.6,
+  "nodes": [
+    {
+      "id": 0,
+      "feature": 6,
+      "threshold": 80.5,
+      "left": 1,
+      "right": 2
+    },
+    {
+      "id": 1,
+      "value": [
+        0.8,
+        0.15,
+        0.05
+      ]
+    },
+    {
+      "id": 2,
+      "value": [
+        0.1,
+        0.3,
+        0.6
+      ]
+    }
+  ],
+  "sha256": "24cbf6fe15504d75c8eb4e33ab50ba1950780968d22bc66f80adccae9b6762d3"
+}

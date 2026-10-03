@@ -13,3 +13,4 @@ __pycache__/
 .DS_Store
 tmp/
 exports/
+node_modules/

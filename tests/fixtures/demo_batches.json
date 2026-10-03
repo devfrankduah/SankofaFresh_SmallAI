@@ -1,0 +1,101 @@
+{
+  "description": "The three hand-built demo batches from spec section 7. Inputs use contract.json values; expected features are in contract feature order.",
+  "weather_note": "Weather values are illustrative, not NASA POWER data; the demo location is not chosen yet (issue #1).",
+  "cases": [
+    {
+      "id": "clearly_safe",
+      "description": "Dried 12 days, never rewetted, stored raised, no musty smell, dry by the hand test, 30 days in store during dry weeks.",
+      "spec_expectation": "A clearly safe batch for the demo (spec 7).",
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-01"
+      },
+      "weather": {
+        "rh14_mean": 63.5,
+        "rh14_max": 69.0,
+        "t14_mean": 20.5
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          30,
+          63.5,
+          69.0,
+          20.5
+        ],
+        "baseline_band": "green"
+      }
+    },
+    {
+      "id": "rewetted_dry_weeks",
+      "description": "Dried 8 days and rained on during drying, unsure by the hand test, then stored raised for a week in dry weather.",
+      "spec_expectation": "The humidity-only baseline calls it green; the tree should not (spec 7).",
+      "inputs": {
+        "batch_label": "Batch 2",
+        "days_drying": 8,
+        "rewetted": "yes",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "unsure",
+        "days_stored": 7,
+        "storage_start": "2025-07-10"
+      },
+      "weather": {
+        "rh14_mean": 61.0,
+        "rh14_max": 66.5,
+        "t14_mean": 21.0
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          8,
+          1,
+          0,
+          0,
+          1,
+          7,
+          61.0,
+          66.5,
+          21.0
+        ],
+        "baseline_band": "green"
+      }
+    },
+    {
+      "id": "missing_input",
+      "description": "Stored on the floor for 45 days; the farmer did not do the hand test and answered \"Don't know\".",
+      "spec_expectation": "Returns not_sure with reason_missing_input (spec 5.3, rule 1).",
+      "inputs": {
+        "batch_label": "Batch 3",
+        "days_drying": 10,
+        "rewetted": "no",
+        "storage_surface": "floor",
+        "musty_smell": "no",
+        "dryness_check": "dont_know",
+        "days_stored": 45,
+        "storage_start": "2025-06-15"
+      },
+      "weather": {
+        "rh14_mean": 72.0,
+        "rh14_max": 78.5,
+        "t14_mean": 19.5
+      },
+      "expected": {
+        "abstain_reason": "reason_missing_input",
+        "features": null,
+        "baseline_band": "green"
+      }
+    }
+  ]
+}

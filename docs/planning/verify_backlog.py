@@ -1,9 +1,11 @@
 """Read GitHub state and verify the Spec v2 backlog: open issues, closures and blocker edges."""
 import json
+import re
 import subprocess
 from prepare_backlog import CLOSED_NOT_PLANNED, ROOT, TASKS, body, closed_tasks, open_tasks, validate_tasks
 
 validate_tasks()
+UNTICK = re.compile(r'^- \[[xX]\]', re.MULTILINE)
 query = '''{repository(owner:"GeorgeDavidson2",name:"SankofaFresh_SmallAI"){
 isPrivate url issues(first:100){totalCount nodes{id number title state stateReason assignees(first:10){totalCount}
 labels(first:20){nodes{name}} body blockedBy(first:100){nodes{id number}}}}}}'''
@@ -27,11 +29,13 @@ for task in TASKS:
         assert issue['stateReason'] == 'NOT_PLANNED', (task['key'], issue['stateReason'])
         assert not issue['blockedBy']['nodes'], (task['key'], 'closed issue still has blockers')
         continue
-    assert issue['state'] == 'OPEN', task['key']
+    assert issue['state'] == 'OPEN' or (issue['state'] == 'CLOSED' and issue['stateReason'] == 'COMPLETED'), \
+        (task['key'], issue['state'], issue['stateReason'])
     assert issue['title'] == task['title'], task['key']
     assert issue['assignees']['totalCount'] == 0, task['key']
     assert {x for x in labels if x.startswith('priority:')} == {f'priority:{task["priority"]}'}, (task['key'], labels)
-    assert issue['body'] == body(task, published['issues']), task['key']
+    # Ticking acceptance boxes is how evidence gets recorded, so checkbox state is not drift.
+    assert UNTICK.sub('- [ ]', issue['body']) == body(task, published['issues']), task['key']
     expected = {published['issues'][d]['id'] for d in task['deps']}
     assert {x['id'] for x in issue['blockedBy']['nodes']} == expected, task['key']
     for heading in ['## Context','## Priority','## Dependencies','## Scope','## Acceptance criteria','## Required evidence']:
@@ -40,6 +44,6 @@ for task in TASKS:
         assert published['issues'][d]['url'] in issue['body']
     edges += len(expected)
 visibility = 'private' if repo['isPrivate'] else 'public'
-print(f'VERIFIED: {visibility} repository; {len(open_tasks())} open issues with exact titles, bodies and one priority label each, '
+print(f'VERIFIED: {visibility} repository; {len(open_tasks())} open or completed issues with exact titles, bodies and one priority label each, '
       f'no assignees or role labels; {edges} exact native blocker links; '
       f'{len(closed_tasks())} issues closed as not planned with no blockers.')
