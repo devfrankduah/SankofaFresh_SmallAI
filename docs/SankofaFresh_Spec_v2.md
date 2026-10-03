@@ -146,7 +146,7 @@ One JSON file per language, `web/messages.<lang>.json`, with the same keys. The 
 
 Results: `band_green`, `band_amber`, `band_red`, `band_not_sure`, `reason_rewetted`, `reason_short_drying`, `reason_damp_check`, `reason_humid_weeks`, `reason_floor`, `reason_musty`, `reason_long_storage`, `reason_missing_input`, `reason_out_of_range`, `reason_low_confidence`, `action_test_sample`, `action_redry`, `action_raise_bags`, `consent_text`, `sms_template`, `synthetic_label`.
 
-Interface: `question_batch_label`, `question_days_drying`, `question_rewetted`, `question_storage_surface`, `question_musty_smell`, `question_dryness_check`, `question_days_stored`, `question_storage_start`, `option_yes`, `option_no`, `option_dont_know`, `option_floor`, `option_raised`, `option_dry`, `option_unsure`, `option_damp`, `button_add_batch`, `button_check`, `button_play`, `button_copy_sms`, `button_record_action`, `button_delete_all`, `button_continue`, `record_redried`, `record_moved_off_floor`, `record_took_sample`, `record_sold`, `record_other`, `title_consent`, `title_batches`, `title_check`, `title_result`, `title_settings`, `title_evidence`, `weather_note`, `not_evaluated`, `language_name`, `confirm_delete_all`, `sms_not_sent`, `demo_model_note`, `error_storage`, `error_model_check`, `error_files`, `evidence_model_version`, `evidence_tree_hash`, `evidence_file_sizes`, `evidence_metrics`, `evidence_tree`, `evidence_baseline`, `evidence_sources`, `source_weather`, `source_labels`, `metric_accuracy`, `metric_macro_f1`, `metric_red_recall`, `metric_false_reassurance_rate`, `metric_abstain_rate`, `metric_coverage`, `button_load_demo`, `demo_data_note`.
+Interface: `question_batch_label`, `question_days_drying`, `question_rewetted`, `question_storage_surface`, `question_musty_smell`, `question_dryness_check`, `question_days_stored`, `question_storage_start`, `option_yes`, `option_no`, `option_dont_know`, `option_floor`, `option_raised`, `option_dry`, `option_unsure`, `option_damp`, `button_add_batch`, `button_check`, `button_play`, `button_copy_sms`, `button_record_action`, `button_delete_all`, `button_continue`, `record_redried`, `record_moved_off_floor`, `record_took_sample`, `record_sold`, `record_other`, `title_consent`, `title_batches`, `title_check`, `title_result`, `title_settings`, `title_evidence`, `weather_note`, `not_evaluated`, `language_name`, `confirm_delete_all`, `sms_not_sent`, `demo_model_note`, `error_storage`, `error_model_check`, `error_files`, `evidence_model_version`, `evidence_tree_hash`, `evidence_file_sizes`, `evidence_metrics`, `evidence_tree`, `evidence_baseline`, `evidence_sources`, `source_weather`, `source_labels`, `metric_accuracy`, `metric_macro_f1`, `metric_red_recall`, `metric_false_reassurance_rate`, `metric_abstain_rate`, `metric_coverage`, `button_load_demo`, `demo_data_note`, `sms_copied`.
 
 Placeholders in braces, {batch_label} in the SMS template and {year} in the weather note and weather source line, are filled in by the app and must be kept unchanged in every language. Keep interface strings short: each one is translated and checked by a person.
 
@@ -177,7 +177,7 @@ Fixed seed. Same seed and config must produce a byte-identical dataset.
 
 ## 7. Baseline and evaluation
 
-Baseline: red if rh14_mean is above 80 percent, otherwise green. The 80 percent figure comes from the ochratoxin A storage literature (little OTA at 80 percent RH, significant OTA at 87 and 95 percent).
+Baseline: red if rh14_mean is above 80 percent, otherwise green. The 80 percent figure follows FAO (2006, p. 20) and Codex CAC/RCP 69-2009 (p. 12), which both say stored coffee starts to absorb water above about 80 percent relative humidity.
 
 Report on held-out farms, for both the tree and the baseline: accuracy, macro F1, red recall, false reassurance rate (true red predicted green), abstain rate and coverage. Report weaker tree results if that is what happens.
 
@@ -232,7 +232,7 @@ All are requirements, not achieved results, until evidence is attached.
 
 ## 10. Data we cite and data we lack
 
-Problem evidence (cite source, year and country in the README and video): FAO Guidelines for the Prevention of Mould Formation in Coffee; Codex CAC/RCP 69-2009; ILO Uganda coffee value chain mapping (2024); Arslan and co-authors, American Journal of Agricultural Economics (2024), Mount Elgon, Uganda; Uganda Ministry of Agriculture coffee price press brief (June 2025); World Bank "Small AI, Big Impact".
+Problem evidence (cite source, year and country in the README and video): FAO Guidelines for the Prevention of Mould Formation in Coffee (2006); Codex CAC/RCP 69-2009; ILO Uganda coffee value chain mapping (2024); Arslan, Gregg and Wollni, American Journal of Agricultural Economics 106(1) (2024; published online 2023), eastern Uganda; Uganda Ministry of Agriculture coffee price press brief (June 2025); World Bank "Small AI, Big Impact".
 
 Data we build with: NASA POWER (cite as the POWER project asks), the synthetic batches (team-generated, labelled), the message set (team-written, speaker-checked), and audio clips (source and licence recorded per clip; Meta MMS-TTS is CC-BY-NC 4.0).
 
@@ -272,11 +272,11 @@ Not allowed: reduced losses, higher income, food safety, real-world accuracy, re
 
 ## 14. References
 
-- FAO, Guidelines for the Prevention of Mould Formation in Coffee: https://www.fao.org/fileadmin/user_upload/agns/pdf/coffee/guidelines_final_en.pdf
+- FAO (2006), Guidelines for the Prevention of Mould Formation in Coffee: https://www.fao.org/fileadmin/user_upload/agns/pdf/coffee/guidelines_final_en.pdf
 - Codex Alimentarius, CAC/RCP 69-2009: https://www.fao.org/input/download/standards/11250/CXP_069e.pdf
-- Conditions of formation of ochratoxin A in drying, transport and in different commodities, Food Additives and Contaminants: https://www.tandfonline.com/doi/full/10.1080/02652030500412154
+- Magan, N. and Aldred, D. (2005), Conditions of formation of ochratoxin A in drying, transport and in different commodities, Food Additives and Contaminants 22(sup1), 10 to 16: https://doi.org/10.1080/02652030500412154. Background on the temperature and humidity conditions for ochratoxin A only; its abstract does not give the 80, 87 and 95 percent figures that earlier versions of this spec attributed to it.
 - ILO, Mapping the coffee value chain in Uganda: https://www.ilo.org/sites/default/files/2024-07/Uganda_Coffee_Value_Chain_Mapping.pdf
-- Arslan et al. (2024), American Journal of Agricultural Economics: https://onlinelibrary.wiley.com/doi/full/10.1111/ajae.12389
+- Arslan, C., Gregg, D. and Wollni, M. (2024), Paying more to make less: value degrading in the coffee value chain in eastern Uganda, American Journal of Agricultural Economics 106(1), 96 to 117, published online 2023: https://doi.org/10.1111/ajae.12389
 - Uganda Ministry of Agriculture, coffee price press brief (June 2025): https://www.agriculture.go.ug/wp-content/uploads/2025/06/Press-Brief-on-Coffee-Prices-001.pdf
 - World Bank, Small AI, Big Impact: https://www.worldbank.org/en/topic/digital/brief/small-ai-big-impact
 - NASA POWER hourly API: https://power.larc.nasa.gov/docs/services/api/temporal/hourly/
