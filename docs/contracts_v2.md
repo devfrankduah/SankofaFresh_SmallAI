@@ -57,6 +57,10 @@ Both encoders add the 14 values one by one, oldest first, and divide by 14. That
 2. `out_of_range`: any input the contract doesn't allow (outside `min` and `max`, a value not in `values`, the wrong type, or an impossible date), or any feature outside `feature_ranges` in `tree.json`. Ranges are inclusive and compared as ordinary 64-bit numbers. Treating contract violations as out of range is our addition: a tap-only form shouldn't produce them, but corrupted storage could, and the fail-safe answer is not_sure rather than a crash.
 3. `low_confidence`: the winning class probability at the leaf is below `abstain_cut` from `tree.json`. A probability exactly equal to the cut is not below it, so it returns the band. `default_abstain_cut` (0.6) is the starting value; the tuned value always comes from `tree.json`.
 
+The winning class is the first class with the highest probability, in `classes` order, the same tie rule as numpy `argmax` and scikit-learn `predict`. `web/tree.js` (`predict`) and `model/bands.py` (`band`) both follow it, and the parity test holds them to each other.
+
+The humidity-only baseline (spec 7, `model/bands.py`) says red when `rh14_mean` is above 80 and green otherwise. It is used only in evaluation, never in the app.
+
 ## Actions
 
 `actions` is the spec 5.6 rule for the single action on a result. If the first reason shown is a key in `reason_action`, that action is shown. Otherwise `band_default` decides: amber, red and not_sure show `action_test_sample`, and green shows nothing (`null`). Green results show no reasons, because every reason message describes a risk, so green never picks up an action from the map. A not_sure result's only reason is its abstention reason, which is not in the map, so not_sure always shows `action_test_sample`.
