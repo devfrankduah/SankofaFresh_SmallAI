@@ -81,5 +81,9 @@
   "demo_data_note": "Demo data, not a real batch",
   "sms_copied": "Copied",
   "weather_strip": "Humidity, last 14 days: {low} to {high}",
-  "button_back": "Back"
+  "button_back": "Back",
+  "error_future_date": "That date is after today.",
+  "app_tagline": "Check stored coffee before you sell it.",
+  "offline_chip": "Works with no signal",
+  "summary_line": "{count} of {total} batches need a check"
 }
