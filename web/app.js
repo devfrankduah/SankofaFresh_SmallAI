@@ -1290,12 +1290,14 @@ class App {
 }
 
 // Without a messages file there is no approved text to show, so the failure screen is an icon
-// and a reload button. The button's hard-coded "Reload" label is the one documented exception to the
-// messages rule: docs/contracts_v2.md#messages.
+// and a reload button. The button's "Reload" label and the page title "SankofaFresh" are the two
+// documented exceptions to the messages rule: docs/contracts_v2.md#messages.
 const RELOAD_LABEL = 'Reload';
+const APP_TITLE = 'SankofaFresh';
 
 function renderFatal(error) {
   console.error(error);
+  document.title = APP_TITLE;
   const main = document.getElementById('main');
   document.getElementById('bar').replaceChildren();
   const dock = document.getElementById('dock');

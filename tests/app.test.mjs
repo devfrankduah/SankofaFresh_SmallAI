@@ -418,13 +418,19 @@ test('every message key app.js names exists in the contract', () => {
   for (const band of CONTRACT.bands) assert.ok(keys.has(band.message), band.name);
 });
 
-test('the only hard-coded label is the documented "Reload" on the error screen', () => {
+test('the only hard-coded strings are the documented "Reload" label and "SankofaFresh" title on the error screen', () => {
   const source = read('web/app.js');
   assert.deepEqual([...source.matchAll(/'aria-label':\s*'([^']*)'/g)].map(match => match[1]), [],
     'labels come from the messages files');
   assert.equal([...source.matchAll(/'Reload'/g)].length, 1, 'only RELOAD_LABEL spells it out');
   assert.match(source, /const RELOAD_LABEL = 'Reload';/);
-  assert.ok(read('docs/contracts_v2.md').includes('hard-coded aria-label "Reload"'), 'the exception is documented');
+  assert.equal([...source.matchAll(/'SankofaFresh'/g)].length, 1, 'only APP_TITLE spells it out');
+  assert.match(source, /const APP_TITLE = 'SankofaFresh';/);
+  assert.deepEqual([...source.matchAll(/document\.title = ([^;]+);/g)].map(match => match[1]).sort(), ['APP_TITLE', 'screen.title'],
+    'every other page title comes from a screen built from messages');
+  const docs = read('docs/contracts_v2.md');
+  assert.ok(docs.includes('hard-coded aria-label "Reload"'), 'the label exception is documented');
+  assert.ok(docs.includes('hard-coded app name "SankofaFresh"'), 'the title exception is documented');
 });
 
 test('every icon app.js asks for is drawn in index.html', () => {
