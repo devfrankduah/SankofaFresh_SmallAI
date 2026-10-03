@@ -264,6 +264,8 @@ def check_placeholders(messages):
         assert re.findall(r'\{(\w+)\}', text) == CONTRACT['message_placeholders'].get(key, []), key
         assert text.count('{') == text.count('}') == len(CONTRACT['message_placeholders'].get(key, [])), key
     assert 'SYNTHETIC_DEMO' in messages['synthetic_label']
+    # Spec section 2: the SMS draft is labelled SIMULATED_NOT_SENT in every language.
+    assert 'SIMULATED_NOT_SENT' in messages['sms_not_sent']
 
 
 @pytest.mark.parametrize('code', LANGUAGES)
