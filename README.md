@@ -6,7 +6,7 @@ SankofaFresh runs in the web browser of the phone a household already has, and k
 
 Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Development, agriculture.
 
-**Live app:** LIVE_LINK_PLACEHOLDER. Two steps need a repository admin first: make the repository public, and in Settings, Pages, set Source to "GitHub Actions". The deploy workflow (`.github/workflows/pages.yml`) skips itself until then.
+**Live app:** [https://devfrankduah.github.io/SankofaFresh_SmallAI/](https://devfrankduah.github.io/SankofaFresh_SmallAI/) (English and Twi; works offline after the first visit). It deploys from `main` through `.github/workflows/pages.yml`.
 
 **Status:** the app works offline end to end with a trained model. Every result below is on synthetic labels, and the app has not been tested with farmers.
 
@@ -35,7 +35,7 @@ This evidence is for the problem, not for our tool: we have not measured any eff
 
 ## Try it
 
-**Offline test on a phone:** open the live link once with a connection and let it load. Turn on airplane mode, then reload the page. Open Settings, tap "Load demo batches" and open each batch. Results, reasons, the SMS draft and the evidence screen ("About this check") all work with no connection. Our own check so far was in a desktop browser with the server stopped ([evidence/offline-check.md](evidence/offline-check.md)); the real-phone check is still to do ([#17](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/17)).
+**Offline test on a phone:** open [the live app](https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection and let it load. Turn on airplane mode, then reload the page. Open Settings, tap "Load demo batches" and open each batch. Results, reasons, the SMS draft and the evidence screen ("About this check") all work with no connection. Our own check so far was in a desktop browser with the server stopped ([evidence/offline-check.md](evidence/offline-check.md)); the real-phone check is still to do ([#17](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/17)).
 
 **The three demo batches** ([evidence/demo_batches.json](evidence/demo_batches.json), loaded by the Settings button):
 
