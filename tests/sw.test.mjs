@@ -12,10 +12,13 @@ const SOURCE = readFileSync(new URL('sw.js', WEB), 'utf8');
 const SW_URL = 'https://farm.test/app/sw.js';
 const at = path => new URL(path, SW_URL).href;
 
-// Everything the app can ask for: every file under web/ except the worker itself and dotfiles.
+// Everything the app can ask for: every file under web/ except the worker itself, dotfiles and
+// unreviewed drafts (*.draft.json), which must never ship or be cached.
+const DRAFT = /\.draft\.json$/;
+
 function webFiles(directory = WEB, prefix = '') {
   return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
-    if (entry.name.startsWith('.')) return [];
+    if (entry.name.startsWith('.') || DRAFT.test(entry.name)) return [];
     const path = `${prefix}${entry.name}`;
     if (entry.isDirectory()) return webFiles(new URL(`${entry.name}/`, directory), `${path}/`);
     return path === 'sw.js' ? [] : [path];
@@ -98,6 +101,18 @@ test('PRECACHE lists exactly the files in web/, and CACHE_VERSION is the hash of
   assert.deepEqual([...worker.PRECACHE], files, `web/ changed: put this in web/sw.js\n${expected}`);
   assert.equal(new Set(worker.PRECACHE).size, worker.PRECACHE.length);
   assert.equal(worker.CACHE_VERSION, contentVersion(files), `web/ contents changed: put this in web/sw.js\n${expected}`);
+});
+
+test('no draft is pre-cached, and the worker answers a draft with a 404', async () => {
+  const drafts = readdirSync(WEB).filter(name => DRAFT.test(name));
+  assert.ok(drafts.length > 0, 'expected the Twi draft in web/ so this test means something');
+  assert.ok(worker.PRECACHE.every(path => !DRAFT.test(path)));
+  const { listeners } = loadWorker(fakeCaches({ [worker.CACHE_NAME]: {} }));
+  for (const draft of drafts) {
+    const event = fetchEvent(at(draft));
+    listeners.fetch(event);
+    assert.equal((await event.response).status, 404, draft);
+  }
 });
 
 test('the app and the worker use the same cache prefix', () => {

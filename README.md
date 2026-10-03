@@ -72,7 +72,7 @@ cd web
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-Open http://127.0.0.1:8000/. The first load stores every file in `web/` for offline use. After that, checks work with no connection, including a reload (see [evidence/offline-check.md](evidence/offline-check.md)). Use https, or `localhost` or `127.0.0.1` on the same machine. Plain http on a LAN address is not a secure context, so the browser runs no service worker and no Web Crypto, and the app refuses the model because it can't check its hash.
+Open http://127.0.0.1:8000/. The first load stores every file in `web/` for offline use, except unreviewed drafts (`*.draft.json`), which are never cached or loaded. After that, checks work with no connection, including a reload (see [evidence/offline-check.md](evidence/offline-check.md)). Use https, or `localhost` or `127.0.0.1` on the same machine. Plain http on a LAN address is not a secure context, so the browser runs no service worker and no Web Crypto, and the app refuses the model because it can't check its hash.
 
 To preview the screens with the shared test fixtures, serve the repository root instead and open http://127.0.0.1:8000/web/index.html?fixtures. The fixture batches are kept in memory only, never in the phone's records. If `web/tree.json` is missing, the app uses `tests/fixtures/sample_tree.json` from the repository root and marks every result with the demo model note.
 
