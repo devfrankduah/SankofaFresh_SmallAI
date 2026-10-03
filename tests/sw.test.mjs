@@ -2,7 +2,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import vm from 'node:vm';
 
 import { CACHE_PREFIX as APP_CACHE_PREFIX } from '../web/app.js';
@@ -103,12 +106,24 @@ test('PRECACHE lists exactly the files in web/, and CACHE_VERSION is the hash of
   assert.equal(worker.CACHE_VERSION, contentVersion(files), `web/ contents changed: put this in web/sw.js\n${expected}`);
 });
 
+// Drafts come and go from web/ as translations are reviewed, so these checks don't rely on one existing.
+test('the file list leaves out drafts, dotfiles and the worker itself', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'sw-files-'));
+  try {
+    mkdirSync(join(directory, 'audio'));
+    for (const name of ['app.js', 'sw.js', '.gitkeep', 'messages.tw.draft.json', 'audio/.gitkeep', 'audio/index.json']) {
+      writeFileSync(join(directory, name), name);
+    }
+    assert.deepEqual(webFiles(pathToFileURL(`${directory}/`)), ['app.js', 'audio/index.json']);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test('no draft is pre-cached, and the worker answers a draft with a 404', async () => {
-  const drafts = readdirSync(WEB).filter(name => DRAFT.test(name));
-  assert.ok(drafts.length > 0, 'expected the Twi draft in web/ so this test means something');
   assert.ok(worker.PRECACHE.every(path => !DRAFT.test(path)));
   const { listeners } = loadWorker(fakeCaches({ [worker.CACHE_NAME]: {} }));
-  for (const draft of drafts) {
+  for (const draft of ['messages.tw.draft.json', 'messages.sw.draft.json', ...readdirSync(WEB).filter(name => DRAFT.test(name))]) {
     const event = fetchEvent(at(draft));
     listeners.fetch(event);
     assert.equal((await event.response).status, 404, draft);
