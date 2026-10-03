@@ -331,6 +331,16 @@ function icon(name, className = '') {
   return svg;
 }
 
+// The missing mark is an icon and a colour for sighted users; aria-invalid tells a screen reader the same.
+function setMissing(fieldset, missing) {
+  if (missing) fieldset.dataset.missing = 'true';
+  else delete fieldset.dataset.missing;
+  for (const control of fieldset.querySelectorAll('input')) {
+    if (missing) control.setAttribute('aria-invalid', 'true');
+    else control.removeAttribute('aria-invalid');
+  }
+}
+
 class App {
   constructor({ contract, languages, store, model, metrics, audioIndex, demoAnswers }) {
     this.contract = contract;
@@ -588,7 +598,7 @@ class App {
         icon('alert', 'missing-mark'),
         h('span', { text: this.t(`question_${input.name}`) })));
     const markAnswered = () => {
-      if (isValidAnswer(input, draft.answers[input.name], this.contract.dont_know_value)) delete fieldset.dataset.missing;
+      if (isValidAnswer(input, draft.answers[input.name], this.contract.dont_know_value)) setMissing(fieldset, false);
     };
     if (input.type === 'choice') fieldset.append(this.choiceOptions(input, draft, markAnswered));
     else if (input.type === 'integer') fieldset.append(...this.integerControl(input, draft, legendId, markAnswered));
@@ -720,12 +730,8 @@ class App {
     for (const input of this.contract.inputs) {
       const fieldset = form.querySelector(`fieldset[data-name="${input.name}"]`);
       const answered = isValidAnswer(input, draft.answers[input.name], this.contract.dont_know_value);
-      if (answered) {
-        delete fieldset.dataset.missing;
-      } else {
-        fieldset.dataset.missing = 'true';
-        first ??= fieldset;
-      }
+      setMissing(fieldset, !answered);
+      if (!answered) first ??= fieldset;
     }
     if (first) {
       first.scrollIntoView({ block: 'start' });
