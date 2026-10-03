@@ -6,12 +6,12 @@ spec markdown itself, so this test holds no second copy of them that could drift
 import hashlib
 import json
 import re
-from datetime import date
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+FIXTURES = ROOT / 'tests/fixtures'
 SPEC = (ROOT / 'docs/SankofaFresh_Spec_v2.md').read_text()
 CATEGORICAL_ENCODING = re.compile(r'\d+ \w+(, \d+ \w+)*')
 INTERFACE_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_')
@@ -39,49 +39,9 @@ def table_rows(section):
     return [[cell.strip() for cell in line.strip().strip('|').split('|')] for line in lines[2:]]
 
 
-def input_allowed(field, value):
-    """True when a non "don't know" value is allowed for this contract input."""
-    if field['type'] == 'choice':
-        return value in field['values']
-    if field['type'] == 'integer':
-        return type(value) is int and field['min'] <= value <= field['max']
-    if field['type'] == 'date':
-        if not isinstance(value, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', value):
-            return False
-        try:
-            date.fromisoformat(value)
-        except ValueError:
-            return False
-        return True
-    raise AssertionError(f'unknown input type {field["type"]}')
-
-
-def abstain_reason(inputs):
-    """Apply the input side of abstention rules 1 and 2, in contract order."""
-    reasons = {rule['id']: rule['reason'] for rule in CONTRACT['abstention']['rules']}
-    dont_know = CONTRACT['dont_know_value']
-    if any(value == dont_know and INPUTS[name]['allows_dont_know'] for name, value in inputs.items()):
-        return reasons['dont_know']
-    if not all(input_allowed(INPUTS[name], value) for name, value in inputs.items()):
-        return reasons['out_of_range']
-    return None
-
-
-def encode(inputs, weather):
-    vector = []
-    for feature in CONTRACT['features']:
-        if feature['source'] == 'weather':
-            vector.append(weather[feature['name']])
-        elif feature['encoding'] == 'integer':
-            vector.append(inputs[feature['input']])
-        else:
-            vector.append(feature['map'][inputs[feature['input']]])
-    return vector
-
-
-def humidity_baseline(weather):
+def humidity_baseline(features):
     # Spec section 7: red if rh14_mean is above 80 percent, otherwise green.
-    return 'red' if weather['rh14_mean'] > 80 else 'green'
+    return 'red' if features[FEATURE_NAMES.index('rh14_mean')] > 80 else 'green'
 
 
 def tree_hash(nodes):
@@ -183,7 +143,12 @@ def test_contract_is_internally_consistent():
     assert [rule['id'] for rule in CONTRACT['abstention']['rules']] == ['dont_know', 'out_of_range', 'low_confidence']
     assert all(rule['reason'] in keys for rule in CONTRACT['abstention']['rules'])
     assert set(CONTRACT['message_placeholders']) <= keys
-    assert CONTRACT['weather_window']['days'] == 14
+    window = CONTRACT['weather_window']
+    assert window['days'] == 14
+    assert INPUTS[window['start_input']]['type'] == 'date' and INPUTS[window['days_input']]['type'] == 'integer'
+    for feature in CONTRACT['features']:
+        if feature['source'] == 'weather':
+            assert feature['variable'] in window['columns'] and feature['aggregate'] in ('mean', 'max'), feature['name']
     assert len(set(CONTRACT['recorded_actions'])) == len(CONTRACT['recorded_actions'])
     assert len(set(CONTRACT['message_keys'])) == len(CONTRACT['message_keys'])
 
@@ -265,18 +230,18 @@ def test_message_placeholders_are_declared():
 
 
 def check_cases(fixture):
-    weather_names = [f['name'] for f in CONTRACT['features'] if f['source'] == 'weather']
+    """Fixture structure; tests/test_encode.py checks the expected values against the encoders."""
+    assert (FIXTURES / fixture['weather_table']).is_file()
     for case in fixture['cases']:
-        assert set(case) == {'id', 'description', 'spec_expectation', 'inputs', 'weather', 'expected'}, case['id']
+        assert set(case) == {'id', 'description', 'spec_expectation', 'inputs', 'expected'}, case['id']
         assert set(case['inputs']) == set(INPUTS), case['id']
-        assert set(case['weather']) == set(weather_names), case['id']
         expected = case['expected']
-        assert expected['abstain_reason'] == abstain_reason(case['inputs']), case['id']
+        assert set(expected) == {'abstain_reason', 'features', 'baseline_band'}, case['id']
         if expected['abstain_reason'] is None:
-            assert expected['features'] == encode(case['inputs'], case['weather']), case['id']
+            assert len(expected['features']) == len(FEATURE_NAMES), case['id']
+            assert expected['baseline_band'] == humidity_baseline(expected['features']), case['id']
         else:
-            assert expected['features'] is None, case['id']
-        assert expected['baseline_band'] == humidity_baseline(case['weather']), case['id']
+            assert expected['features'] is None and expected['baseline_band'] is None, case['id']
     assert len({case['id'] for case in fixture['cases']}) == len(fixture['cases'])
 
 
@@ -307,18 +272,6 @@ def test_sample_tree_fixture():
             for name, value in zip(FEATURE_NAMES, case['expected']['features']):
                 low, high = tree['feature_ranges'][name]
                 assert low <= value <= high, (case['id'], name)
-
-
-@pytest.mark.parametrize('value, allowed', [
-    (0, True), (180, True), (181, False), (-1, False), (True, False), (12.0, False), ('12', False)])
-def test_integer_inputs_reject_out_of_range_and_wrong_types(value, allowed):
-    assert input_allowed(INPUTS['days_stored'], value) is allowed
-
-
-@pytest.mark.parametrize('value, allowed', [
-    ('2025-07-01', True), ('2025-02-29', False), ('2025-7-1', False), ('dont_know', False), (20250701, False)])
-def test_date_inputs_reject_impossible_or_malformed_dates(value, allowed):
-    assert input_allowed(INPUTS['storage_start'], value) is allowed
 
 
 def test_tree_check_rejects_a_tampered_tree():

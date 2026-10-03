@@ -29,7 +29,7 @@ Either teammate, GeorgeDavidson2 or devfrankduah, can pick any unblocked issue a
 
 ## Development setup
 
-Requires Python 3.12 (tested with 3.12.14). The pinned numpy has no Python 3.11 build. Node 18 or later is needed only for the parity test, once it exists. There is no frontend build step.
+Requires Python 3.12 (tested with 3.12.14). The pinned numpy has no Python 3.11 build. Node 18 or later runs the JavaScript tests (`node tests/test_encode_parity.mjs`). `package.json` only marks `.js` files as ES modules for Node 18; it has no dependencies, and there is no build step.
 
 ```sh
 python3.12 -m venv .venv

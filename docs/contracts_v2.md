@@ -8,13 +8,17 @@ This document explains `web/contract.json` and the `tree.json` format. It covers
 
 The file lives in `web/` because the app loads it, and the service worker caches it with everything else.
 
+Two modules implement it: `model/contract.py` for Python and `web/features.js` for the browser. Both turn answers into the feature vector and apply abstention rules 1 and 2. `tests/test_encode.py` and `tests/test_encode_parity.mjs` hold them to the same expected values, so they can't drift apart.
+
 ## Inputs
 
 `inputs` lists the eight answers from spec 5.1, in form order. Each has a `type`:
 
 - `choice`: the answer must be one of `values`.
-- `integer`: a whole number from `min` to `max`, both inclusive.
-- `date`: a calendar date written `YYYY-MM-DD`.
+- `integer`: a whole number from `min` to `max`, both inclusive. JSON has one number type, so `12.0` counts as 12; `12.5`, `true` and `"12"` are not allowed.
+- `date`: a real calendar date written `YYYY-MM-DD` in ASCII digits, from year 0001 to 9999.
+
+The answers must be an object with exactly these eight fields. A missing field, an extra field, or anything that isn't an object counts as an input the contract doesn't allow (rule 2).
 
 "Don't know" is stored as the string in `dont_know_value` (`dont_know`), never as a missing field, null or zero. Every question allows it (`allows_dont_know: true`) because spec section 3 says every question has a "Don't know" option. The one exception is `batch_label`: it names the batch when the farmer adds it, so it isn't an answer about the coffee.
 
@@ -32,7 +36,14 @@ Each feature also names the message key used when that feature is a reason for t
 
 ### Weather window
 
-The spec says `storage_start` is used to look up the weather window, and that the window is the 14 days before the check. This contract joins the two: `check_date` is `storage_start` plus `days_stored` days, and the window is the 14 days before `check_date`, not including it. Training and the app therefore compute the same window from the same answers. How a date maps onto the single bundled weather year (for example 29 February, or a window that crosses New Year) is for the weather issue (#5) to define in `web/weather.json`, and both languages must then use that one mapping.
+`weather_window` says how the three weather features are computed, and both encoders read every name from it:
+
+1. The check date is `start_input` (`storage_start`) plus `days_input` (`days_stored`) days. If that falls after 9999-12-31, the input is out of range.
+2. The window is the 14 days ending on the check date, including it.
+3. `web/weather.json` (built in #5) holds one bundled year as a `days` list with 365 or 366 rows. Row `n` has `day_of_year` equal to `n` and the daily means `rh2m_mean` and `t2m_mean` (the `columns` map). The check date's day of year picks the last row of the window, and the window takes the 13 rows before it, wrapping from row 1 back to the last row. Any year maps this way, so 31 December of a leap year (day 366) lands on row 1 of a 365-day table, one day off, which is within the spec's "same calendar weeks" proxy.
+4. `rh14_mean` and `t14_mean` are the mean of the daily means (`aggregate: mean`), and `rh14_max` is the largest daily mean (`aggregate: max`).
+
+Both encoders add the 14 values one by one, oldest first, and divide by 14. That fixed order keeps Python and JavaScript identical to the last bit; `math.fsum` or numpy would round differently. A malformed weather table is a build error and raises; it never becomes a not_sure result.
 
 ## Classes and bands
 
@@ -96,10 +107,15 @@ hashlib.sha256(json.dumps(nodes, sort_keys=True, separators=(",", ":")).encode()
 
 The hash is computed in Python only. The app displays the stored `sha256` and does not recompute it. Recomputing it in JavaScript with `JSON.stringify` gives a different string: it doesn't sort keys, and it writes the float `1.0` as `1`, while Python writes `1.0`, and scikit-learn leaves often hold exactly 1.0.
 
+
+
 ## Fixtures
 
-`tests/fixtures/` holds shared test data for the features (#6), bands (#8), inference (#11) and screens (#12) work. Weather values in the fixtures are illustrative, not NASA POWER data.
+`tests/fixtures/` holds shared test data for the features (#6), bands (#8), inference (#11) and screens (#12) work. Both encoders must reproduce every expected value exactly.
 
-- `demo_batches.json`: the three demo batches from spec section 7 (clearly safe; rewetted during drying then stored in dry weeks; a "Don't know" answer). Each case gives its inputs, weather features and expected results: the abstention reason or none, the feature vector in contract order (none when abstaining), and the humidity-only baseline band.
+- `weather_sample.json`: a synthetic weather table in the `weather.json` format, with two wet and two dry seasons. It is test data, not NASA POWER data.
+- `weather_ramp.json`: a synthetic table where `rh2m_mean` is the day of year and `t2m_mean` a quarter of it, so window sums can be checked by hand.
+- `demo_batches.json`: the three demo batches from spec section 7 (clearly safe; rewetted during drying then stored in dry weeks; a "Don't know" answer), computed against `weather_sample.json`. Each case gives its inputs and expected results: the abstention reason or none, the feature vector in contract order (none when abstaining), and the humidity-only baseline band (none when abstaining).
 - `out_of_range.json`: one batch with `days_stored` of 240, above the contract's 180. It returns not_sure with `reason_out_of_range`.
+- `encode_cases.json`: edge cases for both encoders, such as whole-number floats, booleans, impossible dates, two-digit years, a check date past 9999, missing or extra fields, rule 1 winning over rule 2, tree ranges including their edges, and ramp-table windows that wrap at New Year and on leap days. The ramp cases' expected weather values were computed with exact fractions, separately from either encoder.
 - `sample_tree.json`: a three-node `tree.json` (one split on `rh14_mean` at 80.5, two leaves) with a correct hash. Its right leaf's winning probability is exactly 0.6, the abstain cut, which is a ready-made boundary case for rule 3.

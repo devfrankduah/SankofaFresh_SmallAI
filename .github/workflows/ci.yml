@@ -21,7 +21,8 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
-      # Node runs only the parity test; the app itself has no package.json and no build step.
+      # Node runs only the JS tests. package.json exists solely to mark .js files as ES modules for Node 18;
+      # it has no dependencies and there is no build step.
       - uses: actions/setup-node@v7
         with:
           node-version: "18"
@@ -32,6 +33,13 @@ jobs:
       - name: Run pytest
         run: python -m pytest
 
-      - name: Run JS parity test
-        if: hashFiles('tests/test_parity.mjs') != ''
-        run: node tests/test_parity.mjs
+      - name: Run JS tests
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(tests/*.mjs)
+          if [ ${#files[@]} -eq 0 ]; then echo "No JS tests yet."; exit 0; fi
+          for file in "${files[@]}"; do
+            echo "node $file"
+            node "$file"
+          done

@@ -1,0 +1,914 @@
+{
+  "description": "Edge cases for model/contract.py and web/features.js. Ramp cases have expected weather values from exact fractions.",
+  "cases": [
+    {
+      "id": "float_integer_accepted",
+      "note": "12.0 is the same JSON number as 12.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12.0,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          30,
+          62.40071428571428,
+          63.16,
+          21.04357142857143
+        ]
+      }
+    },
+    {
+      "id": "negative_zero_is_zero",
+      "note": "-0.0 encodes as 0 in both languages.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": -0.0,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          30,
+          62.40071428571428,
+          63.16,
+          21.04357142857143
+        ]
+      }
+    },
+    {
+      "id": "days_drying_max",
+      "note": "30 is the inclusive maximum.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 30,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          30,
+          0,
+          0,
+          0,
+          0,
+          30,
+          62.40071428571428,
+          63.16,
+          21.04357142857143
+        ]
+      }
+    },
+    {
+      "id": "days_drying_above_max",
+      "note": "31 is above the contract range.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 31,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "days_stored_zero",
+      "note": "0 days stored: the window ends on storage_start.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 0,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          70.28071428571427,
+          72.87,
+          21.74785714285714
+        ]
+      }
+    },
+    {
+      "id": "days_stored_max",
+      "note": "180 is the inclusive maximum.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 180,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          180,
+          71.26285714285716,
+          73.9,
+          18.212857142857143
+        ]
+      }
+    },
+    {
+      "id": "days_stored_above_max",
+      "note": "181 is above the contract range.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 181,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "fractional_number",
+      "note": "12.5 is not a whole number.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12.5,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "boolean_number",
+      "note": "true is not a number.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": true,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "string_number",
+      "note": "\"12\" is a string, not a number.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": "12",
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "unknown_choice",
+      "note": "\"maybe\" is not an allowed value.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "maybe",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "choice_case_matters",
+      "note": "\"YES\" is not \"yes\".",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "YES",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "missing_field",
+      "note": "musty_smell is absent.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "extra_field",
+      "note": "An unknown field is present.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06",
+        "note": "x"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "batch_label_dont_know",
+      "note": "batch_label does not allow \"don't know\".",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "dont_know",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "batch_label_unknown",
+      "note": "Only Batch 1 to Batch 10 exist.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 11",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "dont_know_beats_out_of_range",
+      "note": "Rule 1 is checked before rule 2.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 99,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": "dont_know",
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_missing_input",
+        "features": null
+      }
+    },
+    {
+      "id": "dont_know_date",
+      "note": "storage_start allows \"don't know\".",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "dont_know"
+      },
+      "expected": {
+        "abstain_reason": "reason_missing_input",
+        "features": null
+      }
+    },
+    {
+      "id": "impossible_date",
+      "note": "2025 has no 29 February.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-02-29"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "month_thirteen",
+      "note": "There is no month 13.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-13-01"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "basic_format_date",
+      "note": "Python accepts 20250701 but the contract requires YYYY-MM-DD.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "20250701"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "non_ascii_digits",
+      "note": "Arabic-Indic digits are not ASCII digits.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "٢٠٢٥-٠٧-٠٦"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "year_zero",
+      "note": "There is no year 0000.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "0000-01-01"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "two_digit_year",
+      "note": "Year 25 must not become 1925.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "0025-03-01"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          30,
+          75.42857142857142,
+          78.05,
+          20.786428571428576
+        ]
+      }
+    },
+    {
+      "id": "last_day_no_overflow",
+      "note": "9999-12-31 plus 0 days is still a date.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 0,
+        "storage_start": "9999-12-31"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          72.06500000000001,
+          74.72,
+          18.18357142857143
+        ]
+      }
+    },
+    {
+      "id": "check_date_overflow",
+      "note": "9999-12-31 plus 1 day is past the last date.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 1,
+        "storage_start": "9999-12-31"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "inputs_not_an_object",
+      "note": "Inputs must be an object.",
+      "weather_table": "weather_sample.json",
+      "tree": null,
+      "inputs": null,
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "inside_sample_tree",
+      "note": "All features inside the sample tree ranges.",
+      "weather_table": "weather_sample.json",
+      "tree": {
+        "base": "sample_tree.json"
+      },
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          30,
+          62.40071428571428,
+          63.16,
+          21.04357142857143
+        ]
+      }
+    },
+    {
+      "id": "outside_tree_range",
+      "note": "rh14_mean is above a narrowed tree range.",
+      "weather_table": "weather_sample.json",
+      "tree": {
+        "base": "sample_tree.json",
+        "feature_ranges": {
+          "rh14_mean": [
+            55.0,
+            60.0
+          ]
+        }
+      },
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": "reason_out_of_range",
+        "features": null
+      }
+    },
+    {
+      "id": "on_tree_range_edge",
+      "note": "Tree ranges are inclusive.",
+      "weather_table": "weather_sample.json",
+      "tree": {
+        "base": "sample_tree.json",
+        "feature_ranges": {
+          "rh14_mean": [
+            62.40071428571428,
+            95.0
+          ]
+        }
+      },
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2025-07-06"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          30,
+          62.40071428571428,
+          63.16,
+          21.04357142857143
+        ]
+      }
+    },
+    {
+      "id": "ramp_mid_january",
+      "note": "Window is days 7 to 20.",
+      "weather_table": "weather_ramp.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 10,
+        "storage_start": "2025-01-10"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          10,
+          13.5,
+          20.0,
+          3.375
+        ]
+      }
+    },
+    {
+      "id": "ramp_first_window",
+      "note": "Window is days 1 to 14.",
+      "weather_table": "weather_ramp.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 10,
+        "storage_start": "2025-01-04"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          10,
+          7.5,
+          14.0,
+          1.875
+        ]
+      }
+    },
+    {
+      "id": "ramp_wraps_new_year",
+      "note": "Window is days 356 to 365, then 1 to 4.",
+      "weather_table": "weather_ramp.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 5,
+        "storage_start": "2024-12-30"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          5,
+          258.2142857142857,
+          365.0,
+          64.55357142857143
+        ]
+      }
+    },
+    {
+      "id": "ramp_check_on_day_one",
+      "note": "Window is days 353 to 365, then 1.",
+      "weather_table": "weather_ramp.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 0,
+        "storage_start": "2025-01-01"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          333.42857142857144,
+          365.0,
+          83.35714285714286
+        ]
+      }
+    },
+    {
+      "id": "ramp_leap_day_366",
+      "note": "31 December of a leap year is day 366 and wraps to row 1.",
+      "weather_table": "weather_ramp.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 30,
+        "storage_start": "2024-12-01"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          30,
+          333.42857142857144,
+          365.0,
+          83.35714285714286
+        ]
+      }
+    },
+    {
+      "id": "ramp_other_year",
+      "note": "1 March 2030 is day 60: window is days 47 to 60.",
+      "weather_table": "weather_ramp.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 0,
+        "storage_start": "2030-03-01"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          53.5,
+          60.0,
+          13.375
+        ]
+      }
+    },
+    {
+      "id": "ramp_leap_year_march",
+      "note": "1 March 2028 is day 61 in a leap year: window is days 48 to 61.",
+      "weather_table": "weather_ramp.json",
+      "tree": null,
+      "inputs": {
+        "batch_label": "Batch 1",
+        "days_drying": 12,
+        "rewetted": "no",
+        "storage_surface": "raised",
+        "musty_smell": "no",
+        "dryness_check": "dry",
+        "days_stored": 0,
+        "storage_start": "2028-03-01"
+      },
+      "expected": {
+        "abstain_reason": null,
+        "features": [
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          54.5,
+          61.0,
+          13.625
+        ]
+      }
+    }
+  ]
+}
