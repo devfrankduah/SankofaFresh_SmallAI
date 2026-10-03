@@ -15,12 +15,12 @@
       "number": 3,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/3"
     },
-    "storage": {
+    "device_records": {
       "id": "I_kwDOU6WVkc8AAAABUzduGA",
       "number": 4,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/4"
     },
-    "simulator": {
+    "weather": {
       "id": "I_kwDOU6WVkc8AAAABUzdvJg",
       "number": 5,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/5"
@@ -35,12 +35,12 @@
       "number": 7,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/7"
     },
-    "policy": {
+    "bands_baseline": {
       "id": "I_kwDOU6WVkc8AAAABUzdzLQ",
       "number": 8,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/8"
     },
-    "training_data": {
+    "synthetic_data": {
       "id": "I_kwDOU6WVkc8AAAABUzd0Jw",
       "number": 9,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/9"
@@ -55,17 +55,17 @@
       "number": 11,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/11"
     },
-    "ui_core": {
+    "pwa_screens": {
       "id": "I_kwDOU6WVkc8AAAABUzd37Q",
       "number": 12,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/12"
     },
-    "ui_sim": {
+    "result_view": {
       "id": "I_kwDOU6WVkc8AAAABUzd4ng",
       "number": 13,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/13"
     },
-    "integration": {
+    "offline_flow": {
       "id": "I_kwDOU6WVkc8AAAABUzd54w",
       "number": 14,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/14"
@@ -75,12 +75,12 @@
       "number": 15,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/15"
     },
-    "reliability": {
+    "test_gate": {
       "id": "I_kwDOU6WVkc8AAAABUzd8cw",
       "number": 16,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/16"
     },
-    "offline_mobile": {
+    "deploy_offline": {
       "id": "I_kwDOU6WVkc8AAAABUzd-XA",
       "number": 17,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/17"
@@ -90,7 +90,7 @@
       "number": 18,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/18"
     },
-    "audio": {
+    "messages": {
       "id": "I_kwDOU6WVkc8AAAABUzeAww",
       "number": 19,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/19"
@@ -113,20 +113,20 @@
   },
   "edges": [
     [
-      "storage",
+      "device_records",
       "contracts"
     ],
     [
-      "storage",
+      "device_records",
       "scaffold"
     ],
     [
-      "simulator",
+      "weather",
       "contracts"
     ],
     [
-      "simulator",
-      "storage"
+      "weather",
+      "device_records"
     ],
     [
       "features",
@@ -142,67 +142,67 @@
     ],
     [
       "batch_api",
-      "storage"
+      "device_records"
     ],
     [
-      "policy",
+      "bands_baseline",
       "contracts"
     ],
     [
-      "policy",
-      "storage"
+      "bands_baseline",
+      "device_records"
     ],
     [
-      "training_data",
-      "simulator"
+      "synthetic_data",
+      "weather"
     ],
     [
-      "training_data",
+      "synthetic_data",
       "features"
     ],
     [
       "train_export",
-      "training_data"
+      "synthetic_data"
     ],
     [
       "inference",
       "train_export"
     ],
     [
-      "ui_core",
+      "pwa_screens",
       "contracts"
     ],
     [
-      "ui_core",
+      "pwa_screens",
       "scaffold"
     ],
     [
-      "ui_sim",
-      "ui_core"
+      "result_view",
+      "pwa_screens"
     ],
     [
-      "integration",
-      "simulator"
+      "offline_flow",
+      "weather"
     ],
     [
-      "integration",
+      "offline_flow",
       "features"
     ],
     [
-      "integration",
+      "offline_flow",
       "batch_api"
     ],
     [
-      "integration",
-      "policy"
+      "offline_flow",
+      "bands_baseline"
     ],
     [
-      "integration",
+      "offline_flow",
       "inference"
     ],
     [
-      "integration",
-      "ui_sim"
+      "offline_flow",
+      "result_view"
     ],
     [
       "evaluation",
@@ -210,22 +210,22 @@
     ],
     [
       "evaluation",
-      "policy"
+      "bands_baseline"
     ],
     [
       "evaluation",
-      "training_data"
+      "synthetic_data"
     ],
     [
-      "reliability",
-      "integration"
+      "test_gate",
+      "offline_flow"
     ],
     [
-      "offline_mobile",
-      "integration"
+      "deploy_offline",
+      "offline_flow"
     ],
     [
-      "offline_mobile",
+      "deploy_offline",
       "scaffold"
     ],
     [
@@ -238,15 +238,15 @@
     ],
     [
       "release",
-      "reliability"
+      "test_gate"
     ],
     [
       "release",
-      "offline_mobile"
+      "deploy_offline"
     ],
     [
-      "audio",
-      "ui_sim"
+      "messages",
+      "result_view"
     ],
     [
       "baseline_plus",
