@@ -1,0 +1,604 @@
+/* Colours come from a coffee store: the blue drying tarp for anything you can tap, jute and
+   parchment for structure, and one strong colour per result band. Bands always carry a shape
+   (circle, triangle, octagon, diamond) and text as well, so colour is never the only signal. */
+:root {
+  --ink: #1b2620;
+  --ink-soft: #4b5750;
+  --page: #ffffff;
+  --parchment: #f1e8d2;
+  --jute: #8a6a3f;
+  --line: #cbbf9f;
+  --tarp: #1f4e86;
+  --tarp-deep: #173c68;
+  --tarp-soft: #e4edf8;
+  --green: #1d6a39;
+  --amber: #f3c04a;
+  --amber-ink: #3d2800;
+  --red: #a3202a;
+  --unsure: #3f4a56;
+  --missing: #a3202a;
+  --gutter: 16px;
+  --measure: 34rem;
+  --radius: 10px;
+  --tap: 52px;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--page);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* The bar, page and dock share one centred column with at least a 16 px gutter. */
+.bar,
+main,
+.dock {
+  padding-inline: max(var(--gutter), calc((100% - var(--measure)) / 2));
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 64px;
+  padding-top: env(safe-area-inset-top);
+  background: var(--tarp);
+  color: #ffffff;
+}
+
+.bar:empty {
+  display: none;
+}
+
+.bar-title {
+  flex: 1;
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.bar-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--parchment);
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-inline: -8px;
+  border-radius: 50%;
+  color: inherit;
+}
+
+.icon-button .icon {
+  width: 28px;
+  height: 28px;
+}
+
+.bar :focus-visible {
+  outline-color: #ffffff;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  padding-top: 20px;
+  padding-bottom: 32px;
+}
+
+main:focus {
+  outline: none;
+}
+
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding-top: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: var(--page);
+  border-top: 2px solid var(--line);
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 20px;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 19px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button-primary {
+  background: var(--tarp);
+  color: #ffffff;
+}
+
+.button-primary:active {
+  background: var(--tarp-deep);
+}
+
+.button-secondary {
+  background: var(--page);
+  border-color: var(--tarp);
+  color: var(--tarp);
+}
+
+.button:disabled {
+  background: var(--line);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+/* Batch list: each batch is a tag with its last result stamped on the left. */
+.batches {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.batch {
+  display: flex;
+  align-items: stretch;
+  min-height: 76px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
+  color: inherit;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.batch-badge {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 60px;
+  color: #ffffff;
+}
+
+.batch-badge .icon {
+  width: 32px;
+  height: 32px;
+}
+
+.batch-text {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  padding: 10px 14px;
+  min-width: 0;
+}
+
+.batch-label {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.batch-band {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.batch-date {
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.batch-unchecked .batch-badge {
+  background: var(--parchment);
+  color: var(--jute);
+}
+
+.band-green .batch-badge,
+.band.band-green {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.band-amber .batch-badge,
+.band.band-amber {
+  background: var(--amber);
+  color: var(--amber-ink);
+}
+
+.band-red .batch-badge,
+.band.band-red {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.band-not_sure .batch-badge,
+.band.band-not_sure {
+  background: var(--unsure);
+  color: #ffffff;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  min-height: 40vh;
+  color: var(--line);
+}
+
+.empty-mark {
+  width: 120px;
+  height: 120px;
+  stroke-width: 1.2;
+}
+
+/* Check form */
+.check {
+  display: grid;
+  gap: 32px;
+}
+
+.question {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  /* Keeps a question scrolled to by the missing-answer check clear of the sticky bar. */
+  scroll-margin-top: 84px;
+}
+
+.question legend {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 0;
+  font-size: 21px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.missing-mark {
+  display: none;
+  margin-top: 2px;
+  color: var(--missing);
+}
+
+.question[data-missing] legend {
+  color: var(--missing);
+}
+
+.question[data-missing] .missing-mark {
+  display: block;
+}
+
+.question[data-missing] .option-face,
+.question[data-missing] .date {
+  border-color: var(--missing);
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 10px;
+}
+
+.options-labels {
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+}
+
+.options-languages {
+  grid-template-columns: 1fr;
+}
+
+.option {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.option input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.option-face {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  height: 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.option-tick {
+  display: none;
+}
+
+.option input:checked + .option-face {
+  border-color: var(--tarp);
+  background: var(--tarp);
+  color: #ffffff;
+}
+
+.option input:checked + .option-face .option-tick {
+  display: block;
+}
+
+.option input:focus-visible + .option-face {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* "Don't know" is always available but looks like the way out, not the first answer. */
+.option-dont-know .option-face {
+  border-style: dashed;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.option-dont-know input:checked + .option-face {
+  border-style: solid;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 56px 1fr 56px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.step {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 2px solid var(--tarp);
+  border-radius: 50%;
+  background: var(--page);
+  color: var(--tarp);
+  cursor: pointer;
+}
+
+.step .icon {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.4;
+}
+
+.step:active {
+  background: var(--tarp-soft);
+}
+
+.count {
+  min-height: 56px;
+  border-bottom: 3px solid var(--line);
+  text-align: center;
+  font-size: 40px;
+  line-height: 56px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.slider {
+  display: block;
+  width: 100%;
+  height: 48px;
+  margin: 0 0 10px;
+  background: transparent;
+  accent-color: var(--tarp);
+  cursor: pointer;
+}
+
+.slider[data-state="unset"] {
+  opacity: 0.45;
+}
+
+.date {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
+  color: var(--ink);
+  font: inherit;
+  font-size: 20px;
+}
+
+/* Result: the band is a stamped tag, the one loud thing on the screen. */
+.result-batch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+  color: var(--ink-soft);
+}
+
+.result-label {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 20px;
+  padding: 22px 20px;
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+}
+
+.band-icon {
+  width: 56px;
+  height: 56px;
+  stroke-width: 2.2;
+}
+
+.band-text {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.reasons {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.reasons li,
+.action {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.reasons .icon,
+.action .icon {
+  margin-top: 1px;
+  color: var(--jute);
+}
+
+.action {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--tarp-soft);
+  font-weight: 650;
+}
+
+.action .icon {
+  color: var(--tarp);
+}
+
+.synthetic {
+  margin: 0;
+  padding: 12px 14px;
+  border: 2px dashed var(--jute);
+  border-radius: var(--radius);
+  background: var(--parchment);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+/* Settings */
+.setting {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.setting-mark {
+  padding-top: 14px;
+  color: var(--jute);
+}
+
+.setting-mark .icon {
+  width: 30px;
+  height: 30px;
+}
+
+.fatal {
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+  padding-top: 18vh;
+  color: var(--missing);
+}
+
+.fatal-mark {
+  width: 96px;
+  height: 96px;
+  stroke-width: 1.6;
+}
+
+.fatal .button {
+  width: 96px;
+}
+
+.fatal .button .icon {
+  width: 32px;
+  height: 32px;
+}
