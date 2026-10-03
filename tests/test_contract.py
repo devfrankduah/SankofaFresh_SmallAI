@@ -14,6 +14,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = (ROOT / 'docs/SankofaFresh_Spec_v2.md').read_text()
 CATEGORICAL_ENCODING = re.compile(r'\d+ \w+(, \d+ \w+)*')
+INTERFACE_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_')
+INTERFACE_MAX_CHARACTERS = 40
 
 
 def load(relative_path):
@@ -121,7 +123,8 @@ def check_tree(tree):
 
 def test_contract_loads_with_every_section():
     assert set(CONTRACT) == {'schema_version', 'evidence_mode', 'dont_know_value', 'inputs', 'weather_window',
-                             'features', 'classes', 'bands', 'abstention', 'message_keys', 'message_placeholders'}
+                             'features', 'classes', 'bands', 'abstention', 'actions', 'recorded_actions',
+                             'message_keys', 'message_placeholders'}
     assert CONTRACT['schema_version'] == 2
     assert CONTRACT['evidence_mode'] == 'SYNTHETIC_DEMO'
 
@@ -181,11 +184,67 @@ def test_contract_is_internally_consistent():
     assert all(rule['reason'] in keys for rule in CONTRACT['abstention']['rules'])
     assert set(CONTRACT['message_placeholders']) <= keys
     assert CONTRACT['weather_window']['days'] == 14
+    assert len(set(CONTRACT['recorded_actions'])) == len(CONTRACT['recorded_actions'])
+    assert len(set(CONTRACT['message_keys'])) == len(CONTRACT['message_keys'])
+
+
+def test_days_drying_has_the_long_drying_reason():
+    assert next(f for f in CONTRACT['features'] if f['name'] == 'days_drying')['reason'] == 'reason_long_drying'
+
+
+def pick_action(band, reasons):
+    """Spec 5.6: the first reason picks the action when mapped, otherwise the band default."""
+    actions = CONTRACT['actions']
+    if reasons and reasons[0] in actions['reason_action']:
+        return actions['reason_action'][reasons[0]]
+    return actions['band_default'][band]
+
+
+def test_action_rule_is_well_formed():
+    actions = CONTRACT['actions']
+    keys = set(CONTRACT['message_keys'])
+    reason_keys = {k for k in keys if k.startswith('reason_')}
+    abstention_reasons = {rule['reason'] for rule in CONTRACT['abstention']['rules']}
+    assert set(actions['reason_action']) <= reason_keys - abstention_reasons
+    assert set(actions['reason_action'].values()) <= {k for k in keys if k.startswith('action_')}
+    assert set(actions['band_default']) == {band['name'] for band in CONTRACT['bands']}
+    assert actions['band_default']['green'] is None
+    assert {v for v in actions['band_default'].values() if v} <= keys
+    used = set(actions['reason_action'].values()) | {v for v in actions['band_default'].values() if v}
+    assert used == {k for k in keys if k.startswith('action_')}, 'every action message is reachable'
+
+
+@pytest.mark.parametrize('band, reasons, action', [
+    ('red', ['reason_rewetted', 'reason_floor'], 'action_redry'),
+    ('amber', ['reason_damp_check'], 'action_redry'),
+    ('amber', ['reason_long_drying'], 'action_redry'),
+    ('red', ['reason_floor', 'reason_rewetted'], 'action_raise_bags'),
+    ('amber', ['reason_humid_weeks', 'reason_rewetted'], 'action_test_sample'),
+    ('red', ['reason_musty'], 'action_test_sample'),
+    ('red', [], 'action_test_sample'),
+    ('not_sure', ['reason_missing_input'], 'action_test_sample'),
+    ('not_sure', ['reason_low_confidence'], 'action_test_sample'),
+    ('green', [], None)])
+def test_action_rule_picks_the_specified_action(band, reasons, action):
+    assert pick_action(band, reasons) == action
+
+
+def test_interface_keys_follow_contract_patterns():
+    keys = set(CONTRACT['message_keys'])
+    assert {f'question_{name}' for name in INPUTS} <= keys
+    choice_values = {v for field in CONTRACT['inputs'] if field['type'] == 'choice' and field['name'] != 'batch_label'
+                     for v in field['values']}
+    assert {f'option_{v}' for v in choice_values} | {'option_dont_know'} == {k for k in keys if k.startswith('option_')}
+    assert {f'record_{v}' for v in CONTRACT['recorded_actions']} == {k for k in keys if k.startswith('record_')}
+    assert {'weather_note', 'not_evaluated', 'language_name', 'confirm_delete_all'} <= keys
+    for key, text in MESSAGES.items():
+        if key.startswith(INTERFACE_PREFIXES):
+            assert len(text) <= INTERFACE_MAX_CHARACTERS, (key, len(text))
 
 
 def test_message_keys_match_spec_and_english_file():
-    spec_keys = re.findall(r'`([a-z_]+)`', spec_section('### 5.5', '## 6.'))
-    assert len(spec_keys) == 19
+    spec_keys = re.findall(r'`([a-z_]+)`', spec_section('### 5.5', '### 5.6'))
+    assert 'band_green' in spec_keys and 'confirm_delete_all' in spec_keys, 'spec 5.5 key list did not parse'
     assert CONTRACT['message_keys'] == spec_keys
     assert set(MESSAGES) == set(spec_keys)
     for key, text in MESSAGES.items():

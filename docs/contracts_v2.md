@@ -28,7 +28,7 @@ The file lives in `web/` because the app loads it, and the service worker caches
 - `encoding: map` replaces the input value with the number in `map`, for example `no` becomes 0 and `yes` becomes 1.
 - Weather features name the NASA POWER variable (`RH2M` or `T2M`), how it is aggregated over the window, and its unit.
 
-Each feature also names the message key used when that feature is a reason for the result (spec 5.5). `days_drying` and `t14_mean` have no reason key, because spec 5.5 defines none for them.
+Each feature also names the message key used when that feature is a reason for the result (spec 5.5). `t14_mean` has no reason key, because spec 5.5 defines none for it. `reason_long_drying` is the `days_drying` reason; its message says the coffee did not dry for long enough, since fewer drying days means wetter parchment in the spec 6 model.
 
 ### Weather window
 
@@ -46,11 +46,25 @@ The spec says `storage_start` is used to look up the weather window, and that th
 2. `out_of_range`: any input the contract doesn't allow (outside `min` and `max`, a value not in `values`, the wrong type, or an impossible date), or any feature outside `feature_ranges` in `tree.json`. Ranges are inclusive and compared as ordinary 64-bit numbers. Treating contract violations as out of range is our addition: a tap-only form shouldn't produce them, but corrupted storage could, and the fail-safe answer is not_sure rather than a crash.
 3. `low_confidence`: the winning class probability at the leaf is below `abstain_cut` from `tree.json`. A probability exactly equal to the cut is not below it, so it returns the band. `default_abstain_cut` (0.6) is the starting value; the tuned value always comes from `tree.json`.
 
+## Actions
+
+`actions` is the spec 5.6 rule for the single action on a result. If the first reason shown is a key in `reason_action`, that action is shown. Otherwise `band_default` decides: amber, red and not_sure show `action_test_sample`, and green shows nothing (`null`). Green results show no reasons, because every reason message describes a risk, so green never picks up an action from the map. A not_sure result's only reason is its abstention reason, which is not in the map, so not_sure always shows `action_test_sample`.
+
+`recorded_actions` are the values stored when the farmer records what they did (spec 3, step 5). Recording an action never changes the result.
+
 ## Messages
 
-`message_keys` is the full key list from spec 5.5. Every `web/messages.<lang>.json` file must contain exactly these keys. `message_placeholders` lists the placeholders each message may contain, written `{name}`. Only `sms_template` has one, `{batch_label}`, which the app replaces with the batch's label. Translators must keep placeholders unchanged.
+`message_keys` is the full key list from spec 5.5. Every `web/messages.<lang>.json` file must contain exactly these keys. They come in two groups: result messages, and interface strings for the screens. Interface keys follow fixed patterns so the app can find them without a lookup table:
 
-The band messages copy the wording in spec section 1.
+- `question_<input>` for each input in `inputs`.
+- `option_<value>` for each choice value except batch labels, plus `option_dont_know`.
+- `record_<value>` for each value in `recorded_actions`.
+- `button_*` and `title_*` for buttons and screen titles.
+- `language_name` is the language's own name for itself, shown in the language toggle.
+
+`message_placeholders` lists the placeholders each message may contain, written `{name}`. `sms_template` has `{batch_label}` and `weather_note` has `{year}`, the bundled weather year. Translators must keep placeholders unchanged. Interface strings stay at 40 characters or fewer so they fit a 360 px screen and are quick to translate.
+
+The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to "Batch 10") are stored values and are shown as stored; they have no message key.
 
 ## tree.json
 
