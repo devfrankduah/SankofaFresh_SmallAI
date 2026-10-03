@@ -79,5 +79,7 @@
   "metric_coverage": "Coverage",
   "button_load_demo": "Fa nhwɛso kuw ka ho",
   "demo_data_note": "Nhwɛso data, ɛnyɛ kuw ankasa",
-  "sms_copied": "Wɔayɛ bi"
+  "sms_copied": "Wɔayɛ bi",
+  "weather_strip": "Ewiem fɔ, nna 14 a atwam: {low} kosi {high}",
+  "button_back": "San kɔ akyi"
 }

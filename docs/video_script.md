@@ -68,9 +68,9 @@ Numbers: twelve days, twenty days, January, `evidence/demo_batches.json` (and `w
 
 > In the household we designed for, the smartphone is home at weekends, so this is a Saturday habit: check the stored batches before the buyer comes. During the week, the basic phone carries the text messages with the cooperative.
 >
-> Under the hood, it's a static web app with no server, and a service worker keeps every file on the phone. The whole app is about two hundred kilobytes; the tree itself is twelve. And a less-supported language? The app only ever shows a fixed list of eighty-one messages, so a new language means one fluent speaker translating and checking that list, with no retraining.
+> Under the hood, it's a static web app with no server, and a service worker keeps every file on the phone. The whole app is about two hundred kilobytes; the tree itself is twelve. And a less-supported language? The app only ever shows a fixed list of eighty-three messages, so a new language means one fluent speaker translating and checking that list, with no retraining.
 
-Numbers: about two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, 201,234 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); eighty-one messages, `web/contract.json` (message_keys).
+Numbers: about two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, 201,234 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); eighty-three messages, `web/contract.json` (message_keys).
 
 ## 5. What localizing AI development means to us (about 25 seconds)
 
@@ -78,6 +78,6 @@ Numbers: about two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, 20
 
 ## Checks before recording
 
-- Read the numbers again from `web/metrics.json`, `evidence/metrics.json`, `evidence/sizes.json` and `web/contract.json` if anything has changed since this script was written (model `tree-v2-9b83270`, 81 message keys).
+- Read the numbers again from `web/metrics.json`, `evidence/metrics.json`, `evidence/sizes.json` and `web/contract.json` if anything has changed since this script was written (model `tree-v2-9b83270`, 83 message keys).
 - If the form asks for more than one video, cut at the part headings above.
 - Data limits from spec section 10 that the video must not contradict: labels are synthetic, the weather is one coarse grid cell for one year, and there has been no field test.

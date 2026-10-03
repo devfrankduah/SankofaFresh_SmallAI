@@ -78,7 +78,7 @@ The humidity-only baseline (spec 7, `model/bands.py`) says red when `rh14_mean` 
 - `error_*` for problems the app reports, `evidence_*` and `source_*` for the evidence screen, and `metric_<name>` for each name in `metrics`.
 - `language_name` is the language's own name for itself, shown in the language toggle.
 
-`message_placeholders` lists the placeholders each message may contain, written `{name}`. `sms_template` has `{batch_label}`, and `weather_note` and `source_weather` have `{year}`, the bundled weather year. Translators must keep placeholders unchanged. Interface strings (`question_`, `option_`, `button_`, `record_`, `title_`, `error_`, `evidence_`, `source_` and `metric_` keys, plus `sms_not_sent` and `demo_model_note`) stay at 40 characters or fewer, so they fit a 360 px screen and are quick to translate.
+`message_placeholders` lists the placeholders each message may contain, written `{name}`. `sms_template` has `{batch_label}`; `weather_note` and `source_weather` have `{year}`, the bundled weather year; and `weather_strip`, the screen-reader text for the result screen's 14-day humidity chart, has `{low}` and `{high}`, which the app fills with formatted percentages such as "62%". Translators must keep every placeholder unchanged but may reorder them. Interface strings (`question_`, `option_`, `button_`, `record_`, `title_`, `error_`, `evidence_`, `source_` and `metric_` keys, plus `sms_not_sent` and `demo_model_note`) stay at 40 characters or fewer, so they fit a 360 px screen and are quick to translate.
 
 The band messages copy the wording in spec section 1. Batch labels ("Batch 1" to "Batch 10") are stored values and are shown as stored; they have no message key. `sms_copied` ("Copied") confirms that the SMS draft was copied.
 

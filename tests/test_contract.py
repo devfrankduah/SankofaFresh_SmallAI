@@ -233,7 +233,8 @@ def test_band_messages_use_spec_wording():
 def check_placeholders(messages):
     for key in CONTRACT['message_keys']:
         text = messages[key]
-        assert re.findall(r'\{(\w+)\}', text) == CONTRACT['message_placeholders'].get(key, []), key
+        # Same placeholders, each once, in any order: languages order phrases like "{low} to {high}" differently.
+        assert sorted(re.findall(r'\{(\w+)\}', text)) == sorted(CONTRACT['message_placeholders'].get(key, [])), key
         assert text.count('{') == text.count('}') == len(CONTRACT['message_placeholders'].get(key, [])), key
     assert 'SYNTHETIC_DEMO' in messages['synthetic_label']
     # Spec section 2: the SMS draft is labelled SIMULATED_NOT_SENT in every language.
