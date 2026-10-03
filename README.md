@@ -40,6 +40,21 @@ python -m pytest
 
 `web/contract.json` defines the inputs, feature order, encodings, bands and abstention rules for both Python and JavaScript; see [docs/contracts_v2.md](docs/contracts_v2.md). The release issue checks these steps on a clean checkout.
 
+## Data
+
+**Demo location: Bepong, Kwahu South District, Eastern Region, Ghana (6.6034, -0.7121).** Language: Twi. Bepong is named as a coffee-growing area by the Ministry of Food and Agriculture's [Kwahu South district profile](https://mofa.gov.gh/site/directorates/district-directorates/eastern-region/197-kwahu-south) (crops table: "Coffee | Ntomem, Bepong") and by Afrifa, Ofori-Frimpong and Abekoe (2009), West African Journal of Applied Ecology 11, [doi:10.4314/wajae.v11i1.45717](https://doi.org/10.4314/wajae.v11i1.45717), which sampled "Cocobod coffee plantations at ... Bepong". Coordinates are the OpenStreetMap village point; GeoNames (ID 2303145) puts it about 300 m away, inside the same weather grid cell. The decision and its sources are recorded in issue #1.
+
+**Weather.** `web/weather.json` holds daily means of hourly 2 m temperature (T2M) and relative humidity (RH2M) for 2025, built from NASA POWER:
+
+```sh
+python -m data.fetch_power --lat 6.6034 --lon -0.7121 --year 2025   # saves data/raw/power_6.6034_-0.7121_2025.csv
+python -m data.build_weather --raw data/raw/power_6.6034_-0.7121_2025.csv
+```
+
+Request URL: https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M,RH2M&community=AG&longitude=-0.7121&latitude=6.6034&start=20250101&end=20251231&format=CSV&time-standard=LST
+
+Citation, in the wording the POWER project asks for: "The data was obtained from National Aeronautics and Space Administration (NASA) Langley Research Center's Prediction Of Worldwide Energy Resources (POWER) project funded through the NASA Earth Science Division." Service: POWER Hourly API v2.10.2, accessed 3 October 2026. The raw CSV is committed so the build runs offline.
+
 ## Evidence boundary
 
 Training labels are synthetic, generated from a documented rule tied to FAO and Codex moisture thresholds (evidence mode `SYNTHETIC_DEMO`). Results will show how well the tree recovers that rule. They are not field accuracy, food-safety assessments or income gains.

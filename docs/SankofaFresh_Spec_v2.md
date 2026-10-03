@@ -242,6 +242,7 @@ What our data does not cover (must appear in the README and the video):
 - No public dataset links smallholder storage conditions to parchment quality outcomes. That gap is the problem this tool starts on.
 - NASA POWER is coarse gridded data. It doesn't capture conditions inside a house, a store or a bag.
 - One location and one year of weather. No other regions, no robusta, no dry-processed cherry.
+- Most coffee in this area is robusta and often sold as dried cherry, so the parchment thresholds follow the brief's scenario rather than local practice.
 - No farmer registry, no real users and no field test.
 - Price figures are national and dated, not live or local.
 - Local-language messages are checked by one speaker; dialect variation isn't covered.

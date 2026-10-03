@@ -1,0 +1,11 @@
+{
+  "request_url": "https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M,RH2M&community=AG&longitude=-0.7121&latitude=6.6034&start=20250101&end=20251231&format=CSV&time-standard=LST",
+  "service": "POWER Hourly API",
+  "api_version": "v2.10.2",
+  "accessed": "2026-10-03",
+  "lat": 6.6034,
+  "lon": -0.7121,
+  "year": 2025,
+  "time_standard": "LST",
+  "community": "AG"
+}
