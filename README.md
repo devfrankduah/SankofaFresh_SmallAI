@@ -99,7 +99,7 @@ After changing any file in `web/`, update `PRECACHE` and `CACHE_VERSION` in `web
 | Messages, `web/messages.en.json` and the Twi draft | Written by the team; the Twi draft is machine-written and unreviewed | This repository's licence | about 4 KB each |
 | Demo location point | OpenStreetMap (village point) and GeoNames (ID 2303145) | OpenStreetMap: ODbL, © OpenStreetMap contributors. GeoNames: CC BY 4.0 | one coordinate pair |
 
-No audio ships yet. The whole app (`web/`) is about 195 KB; [evidence/sizes.json](evidence/sizes.json) lists every file.
+No audio ships yet. The whole app (`web/`) is about 200 KB; [evidence/sizes.json](evidence/sizes.json) lists every file.
 
 **Weather citation, in the wording the POWER project asks for:** "The data was obtained from National Aeronautics and Space Administration (NASA) Langley Research Center's Prediction Of Worldwide Energy Resources (POWER) project funded through the NASA Earth Science Division." Request URL: https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M,RH2M&community=AG&longitude=-0.7121&latitude=6.6034&start=20250101&end=20251231&format=CSV&time-standard=LST
 

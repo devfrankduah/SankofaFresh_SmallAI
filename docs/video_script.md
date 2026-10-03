@@ -60,9 +60,9 @@ Numbers: twelve days, twenty days, January, `evidence/demo_batches.json` (and `w
 
 > In the household we designed for, the smartphone is home at weekends, so this is a Saturday habit: check the stored batches before the buyer comes. During the week, the basic phone carries the text messages with the cooperative.
 >
-> Under the hood, it's a static web app with no server: plain HTML and JavaScript, and a service worker that keeps every file on the phone. The whole app is under two hundred kilobytes, and the tree itself is twelve. We trained it in Python with scikit-learn, and the browser gives exactly the same answers as Python.
+> Under the hood, it's a static web app with no server: plain HTML and JavaScript, and a service worker that keeps every file on the phone. The whole app is about two hundred kilobytes, and the tree itself is twelve. We trained it in Python with scikit-learn, and the browser gives exactly the same answers as Python.
 
-Numbers: under two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, about 195 KB); twelve kilobytes, `web/tree.json` (12,029 bytes); same answers, `tests/test_parity.mjs` with `tests/fixtures/parity_cases.json`.
+Numbers: about two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, 201,234 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); same answers, `tests/test_parity.mjs` with `tests/fixtures/parity_cases.json`.
 
 ## 5. What localizing AI development means to us (about 30 seconds)
 
