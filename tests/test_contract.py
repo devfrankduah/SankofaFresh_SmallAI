@@ -1,0 +1,269 @@
+"""Check web/contract.json, web/messages.en.json and the shared fixtures against Spec v2.
+
+The expected feature order, input values, message keys and band wording are read from the
+spec markdown itself, so this test holds no second copy of them that could drift.
+"""
+import hashlib
+import json
+import re
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = (ROOT / 'docs/SankofaFresh_Spec_v2.md').read_text()
+CATEGORICAL_ENCODING = re.compile(r'\d+ \w+(, \d+ \w+)*')
+
+
+def load(relative_path):
+    return json.loads((ROOT / relative_path).read_text())
+
+
+CONTRACT = load('web/contract.json')
+MESSAGES = load('web/messages.en.json')
+FEATURE_NAMES = [f['name'] for f in CONTRACT['features']]
+INPUTS = {i['name']: i for i in CONTRACT['inputs']}
+
+
+def spec_section(start_heading, end_heading):
+    start = SPEC.index(start_heading)
+    return SPEC[start:SPEC.index(end_heading, start)]
+
+
+def table_rows(section):
+    """Body rows of the first markdown table in a section, as lists of stripped cells."""
+    lines = [line for line in section.splitlines() if line.startswith('|')]
+    return [[cell.strip() for cell in line.strip().strip('|').split('|')] for line in lines[2:]]
+
+
+def input_allowed(field, value):
+    """True when a non "don't know" value is allowed for this contract input."""
+    if field['type'] == 'choice':
+        return value in field['values']
+    if field['type'] == 'integer':
+        return type(value) is int and field['min'] <= value <= field['max']
+    if field['type'] == 'date':
+        if not isinstance(value, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', value):
+            return False
+        try:
+            date.fromisoformat(value)
+        except ValueError:
+            return False
+        return True
+    raise AssertionError(f'unknown input type {field["type"]}')
+
+
+def abstain_reason(inputs):
+    """Apply the input side of abstention rules 1 and 2, in contract order."""
+    reasons = {rule['id']: rule['reason'] for rule in CONTRACT['abstention']['rules']}
+    dont_know = CONTRACT['dont_know_value']
+    if any(value == dont_know and INPUTS[name]['allows_dont_know'] for name, value in inputs.items()):
+        return reasons['dont_know']
+    if not all(input_allowed(INPUTS[name], value) for name, value in inputs.items()):
+        return reasons['out_of_range']
+    return None
+
+
+def encode(inputs, weather):
+    vector = []
+    for feature in CONTRACT['features']:
+        if feature['source'] == 'weather':
+            vector.append(weather[feature['name']])
+        elif feature['encoding'] == 'integer':
+            vector.append(inputs[feature['input']])
+        else:
+            vector.append(feature['map'][inputs[feature['input']]])
+    return vector
+
+
+def humidity_baseline(weather):
+    # Spec section 7: red if rh14_mean is above 80 percent, otherwise green.
+    return 'red' if weather['rh14_mean'] > 80 else 'green'
+
+
+def tree_hash(nodes):
+    return hashlib.sha256(json.dumps(nodes, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def check_tree(tree):
+    assert tree['schema_version'] == 2
+    assert tree['evidence_mode'] == CONTRACT['evidence_mode']
+    assert re.fullmatch(r'tree-v2-\w+', tree['model_version'])
+    assert tree['feature_names'] == FEATURE_NAMES
+    assert tree['classes'] == CONTRACT['classes']
+    assert 0 < tree['abstain_cut'] <= 1
+    assert set(tree['feature_ranges']) == set(FEATURE_NAMES)
+    for low, high in tree['feature_ranges'].values():
+        assert low <= high
+    nodes = tree['nodes']
+    for position, node in enumerate(nodes):
+        assert node['id'] == position
+        if 'value' in node:
+            assert set(node) == {'id', 'value'}
+            assert len(node['value']) == len(tree['classes'])
+            assert all(0 <= p <= 1 for p in node['value'])
+            assert abs(sum(node['value']) - 1) < 1e-9
+        else:
+            assert set(node) == {'id', 'feature', 'threshold', 'left', 'right'}
+            assert type(node['feature']) is int and 0 <= node['feature'] < len(FEATURE_NAMES)
+            assert type(node['threshold']) in (int, float)
+            assert all(type(node[side]) is int and 0 < node[side] < len(nodes) for side in ('left', 'right'))
+    visited, stack = [], [0]
+    while stack:
+        node = nodes[stack.pop()]
+        visited.append(node['id'])
+        if 'value' not in node:
+            stack += [node['left'], node['right']]
+    assert sorted(visited) == list(range(len(nodes))), 'every node must be reachable from the root exactly once'
+    assert tree['sha256'] == tree_hash(nodes)
+
+
+def test_contract_loads_with_every_section():
+    assert set(CONTRACT) == {'schema_version', 'evidence_mode', 'dont_know_value', 'inputs', 'weather_window',
+                             'features', 'classes', 'bands', 'abstention', 'message_keys', 'message_placeholders'}
+    assert CONTRACT['schema_version'] == 2
+    assert CONTRACT['evidence_mode'] == 'SYNTHETIC_DEMO'
+
+
+def test_feature_order_and_encodings_match_spec():
+    rows = table_rows(spec_section('### 5.2', '### 5.3'))
+    assert [row[1] for row in rows] == FEATURE_NAMES
+    assert [int(row[0]) for row in rows] == list(range(len(FEATURE_NAMES)))
+    for (_, name, encoding), feature in zip(rows, CONTRACT['features']):
+        if encoding == 'integer':
+            assert (feature['source'], feature['encoding']) == ('input', 'integer'), name
+        elif CATEGORICAL_ENCODING.fullmatch(encoding):
+            expected = {label: int(number) for number, label in re.findall(r'(\d+) (\w+)', encoding)}
+            assert feature['encoding'] == 'map' and feature['map'] == expected, name
+        else:
+            assert feature['source'] == 'weather' and feature['variable'] in encoding, name
+
+
+def test_inputs_match_spec():
+    rows = table_rows(spec_section('### 5.1', '### 5.2'))
+    assert [row[0] for row in rows] == list(INPUTS)
+    for name, values, _ in rows:
+        field = INPUTS[name]
+        if name == 'batch_label':
+            assert field['type'] == 'choice' and field['values'][:2] == ['Batch 1', 'Batch 2']
+            assert not field['allows_dont_know']
+        elif values == 'date':
+            assert field['type'] == 'date' and field['format'] == 'YYYY-MM-DD'
+        elif re.fullmatch(r'\d+ to \d+', values):
+            low, high = map(int, values.split(' to '))
+            assert (field['type'], field['min'], field['max']) == ('integer', low, high), name
+        else:
+            options = values.split(', ')
+            assert field['type'] == 'choice'
+            assert field['values'] == [o for o in options if o != "don't know"], name
+        if name != 'batch_label':
+            # Spec section 3: every question in the check form has a "Don't know" option.
+            assert field['allows_dont_know'], name
+
+
+def test_contract_is_internally_consistent():
+    assert len(INPUTS) == len(CONTRACT['inputs'])
+    assert len(set(FEATURE_NAMES)) == len(FEATURE_NAMES)
+    keys = set(CONTRACT['message_keys'])
+    for feature in CONTRACT['features']:
+        if feature['source'] == 'input':
+            field = INPUTS[feature['input']]
+            if feature['encoding'] == 'map':
+                assert set(feature['map']) == set(field['values']), feature['name']
+            else:
+                assert field['type'] == 'integer', feature['name']
+        assert feature['reason'] is None or feature['reason'] in keys
+    band_names = [band['name'] for band in CONTRACT['bands']]
+    assert band_names == CONTRACT['classes'] + [CONTRACT['abstention']['band']]
+    assert all(band['message'] in keys for band in CONTRACT['bands'])
+    assert [rule['id'] for rule in CONTRACT['abstention']['rules']] == ['dont_know', 'out_of_range', 'low_confidence']
+    assert all(rule['reason'] in keys for rule in CONTRACT['abstention']['rules'])
+    assert set(CONTRACT['message_placeholders']) <= keys
+    assert CONTRACT['weather_window']['days'] == 14
+
+
+def test_message_keys_match_spec_and_english_file():
+    spec_keys = re.findall(r'`([a-z_]+)`', spec_section('### 5.5', '## 6.'))
+    assert len(spec_keys) == 19
+    assert CONTRACT['message_keys'] == spec_keys
+    assert set(MESSAGES) == set(spec_keys)
+    for key, text in MESSAGES.items():
+        assert isinstance(text, str) and text and text == text.strip(), key
+
+
+def test_band_messages_use_spec_wording():
+    rows = table_rows(spec_section('## 1.', '### Why this fits'))
+    assert {f'band_{band}': meaning for band, meaning in rows} == {
+        key: MESSAGES[key] for key in MESSAGES if key.startswith('band_')}
+
+
+def test_message_placeholders_are_declared():
+    for key, text in MESSAGES.items():
+        assert re.findall(r'\{(\w+)\}', text) == CONTRACT['message_placeholders'].get(key, []), key
+        assert text.count('{') == text.count('}') == len(CONTRACT['message_placeholders'].get(key, [])), key
+    assert 'SYNTHETIC_DEMO' in MESSAGES['synthetic_label']
+
+
+def check_cases(fixture):
+    weather_names = [f['name'] for f in CONTRACT['features'] if f['source'] == 'weather']
+    for case in fixture['cases']:
+        assert set(case) == {'id', 'description', 'spec_expectation', 'inputs', 'weather', 'expected'}, case['id']
+        assert set(case['inputs']) == set(INPUTS), case['id']
+        assert set(case['weather']) == set(weather_names), case['id']
+        expected = case['expected']
+        assert expected['abstain_reason'] == abstain_reason(case['inputs']), case['id']
+        if expected['abstain_reason'] is None:
+            assert expected['features'] == encode(case['inputs'], case['weather']), case['id']
+        else:
+            assert expected['features'] is None, case['id']
+        assert expected['baseline_band'] == humidity_baseline(case['weather']), case['id']
+    assert len({case['id'] for case in fixture['cases']}) == len(fixture['cases'])
+
+
+def test_demo_batches_fixture():
+    fixture = load('tests/fixtures/demo_batches.json')
+    check_cases(fixture)
+    cases = {case['id']: case for case in fixture['cases']}
+    assert list(cases) == ['clearly_safe', 'rewetted_dry_weeks', 'missing_input']
+    assert cases['rewetted_dry_weeks']['inputs']['rewetted'] == 'yes'
+    assert cases['rewetted_dry_weeks']['expected']['baseline_band'] == 'green'
+    assert cases['missing_input']['expected']['abstain_reason'] == 'reason_missing_input'
+
+
+def test_out_of_range_fixture():
+    fixture = load('tests/fixtures/out_of_range.json')
+    check_cases(fixture)
+    assert [case['expected']['abstain_reason'] for case in fixture['cases']] == ['reason_out_of_range']
+
+
+def test_sample_tree_fixture():
+    tree = load('tests/fixtures/sample_tree.json')
+    check_tree(tree)
+    leaves = [node for node in tree['nodes'] if 'value' in node]
+    assert (len(tree['nodes']), len(leaves)) == (3, 2), 'one split and two leaves'
+    # The demo batches must sit inside the sample ranges so they can run through the sample tree.
+    for case in load('tests/fixtures/demo_batches.json')['cases']:
+        if case['expected']['features'] is not None:
+            for name, value in zip(FEATURE_NAMES, case['expected']['features']):
+                low, high = tree['feature_ranges'][name]
+                assert low <= value <= high, (case['id'], name)
+
+
+@pytest.mark.parametrize('value, allowed', [
+    (0, True), (180, True), (181, False), (-1, False), (True, False), (12.0, False), ('12', False)])
+def test_integer_inputs_reject_out_of_range_and_wrong_types(value, allowed):
+    assert input_allowed(INPUTS['days_stored'], value) is allowed
+
+
+@pytest.mark.parametrize('value, allowed', [
+    ('2025-07-01', True), ('2025-02-29', False), ('2025-7-1', False), ('dont_know', False), (20250701, False)])
+def test_date_inputs_reject_impossible_or_malformed_dates(value, allowed):
+    assert input_allowed(INPUTS['storage_start'], value) is allowed
+
+
+def test_tree_check_rejects_a_tampered_tree():
+    tree = load('tests/fixtures/sample_tree.json')
+    tree['nodes'][2]['value'] = [0.1, 0.2, 0.7]
+    with pytest.raises(AssertionError):
+        check_tree(tree)

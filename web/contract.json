@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "evidence_mode": "SYNTHETIC_DEMO",
+  "dont_know_value": "dont_know",
+  "inputs": [
+    {"name": "batch_label", "type": "choice", "values": ["Batch 1", "Batch 2", "Batch 3", "Batch 4", "Batch 5", "Batch 6", "Batch 7", "Batch 8", "Batch 9", "Batch 10"], "allows_dont_know": false},
+    {"name": "days_drying", "type": "integer", "min": 0, "max": 30, "allows_dont_know": true},
+    {"name": "rewetted", "type": "choice", "values": ["yes", "no"], "allows_dont_know": true},
+    {"name": "storage_surface", "type": "choice", "values": ["floor", "raised"], "allows_dont_know": true},
+    {"name": "musty_smell", "type": "choice", "values": ["yes", "no"], "allows_dont_know": true},
+    {"name": "dryness_check", "type": "choice", "values": ["dry", "unsure", "damp"], "allows_dont_know": true},
+    {"name": "days_stored", "type": "integer", "min": 0, "max": 180, "allows_dont_know": true},
+    {"name": "storage_start", "type": "date", "format": "YYYY-MM-DD", "allows_dont_know": true}
+  ],
+  "weather_window": {
+    "days": 14,
+    "check_date": "storage_start plus days_stored days",
+    "window": "the 14 days before check_date, not including check_date"
+  },
+  "features": [
+    {"name": "days_drying", "source": "input", "input": "days_drying", "encoding": "integer", "reason": null},
+    {"name": "rewetted", "source": "input", "input": "rewetted", "encoding": "map", "map": {"no": 0, "yes": 1}, "reason": "reason_rewetted"},
+    {"name": "floor", "source": "input", "input": "storage_surface", "encoding": "map", "map": {"raised": 0, "floor": 1}, "reason": "reason_floor"},
+    {"name": "musty", "source": "input", "input": "musty_smell", "encoding": "map", "map": {"no": 0, "yes": 1}, "reason": "reason_musty"},
+    {"name": "dryness_check", "source": "input", "input": "dryness_check", "encoding": "map", "map": {"dry": 0, "unsure": 1, "damp": 2}, "reason": "reason_damp_check"},
+    {"name": "days_stored", "source": "input", "input": "days_stored", "encoding": "integer", "reason": "reason_long_storage"},
+    {"name": "rh14_mean", "source": "weather", "variable": "RH2M", "aggregate": "mean of hourly values over the window", "unit": "percent", "reason": "reason_humid_weeks"},
+    {"name": "rh14_max", "source": "weather", "variable": "RH2M", "aggregate": "max of daily means over the window", "unit": "percent", "reason": "reason_humid_weeks"},
+    {"name": "t14_mean", "source": "weather", "variable": "T2M", "aggregate": "mean of hourly values over the window", "unit": "degrees C", "reason": null}
+  ],
+  "classes": ["green", "amber", "red"],
+  "bands": [
+    {"name": "green", "message": "band_green"},
+    {"name": "amber", "message": "band_amber"},
+    {"name": "red", "message": "band_red"},
+    {"name": "not_sure", "message": "band_not_sure"}
+  ],
+  "abstention": {
+    "band": "not_sure",
+    "order": "Check the rules in the order listed. The first rule that holds decides the result and its single reason.",
+    "rules": [
+      {"id": "dont_know", "when": "any input equals dont_know_value", "reason": "reason_missing_input"},
+      {"id": "out_of_range", "when": "any input is not allowed by this contract, or any feature is outside feature_ranges in tree.json (inclusive)", "reason": "reason_out_of_range"},
+      {"id": "low_confidence", "when": "the winning class probability at the leaf is below abstain_cut in tree.json", "reason": "reason_low_confidence", "default_abstain_cut": 0.6}
+    ]
+  },
+  "message_keys": [
+    "band_green", "band_amber", "band_red", "band_not_sure",
+    "reason_rewetted", "reason_damp_check", "reason_humid_weeks", "reason_floor", "reason_musty",
+    "reason_long_storage", "reason_missing_input", "reason_out_of_range", "reason_low_confidence",
+    "action_test_sample", "action_redry", "action_raise_bags",
+    "consent_text", "sms_template", "synthetic_label"
+  ],
+  "message_placeholders": {"sms_template": ["batch_label"]}
+}

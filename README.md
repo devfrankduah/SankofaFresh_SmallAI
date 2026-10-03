@@ -2,7 +2,7 @@
 
 An offline phone web app (PWA) that helps a smallholder coffee farmer decide what to do with stored coffee parchment before selling it: keep it, re-dry it, move it off the floor, or take a sample to the cooperative's moisture meter first. A small decision tree runs inside the browser. It combines tap-only answers about each batch with bundled local humidity data and returns one of four results (green, amber, red, not sure), each a fixed, human-checked message in a named local language.
 
-**Status: specification and backlog only. No application code exists yet, and nothing has been built or verified.**
+**Status: scaffold and shared contracts only. The app itself isn't built yet, and nothing has been verified on a phone.**
 
 Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Development, Agriculture sector.
 
@@ -27,7 +27,18 @@ After one online load, checks and results are meant to work in airplane mode. Th
 
 Either teammate, GeorgeDavidson2 or devfrankduah, can pick any unblocked issue and start. Begin with [#1](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/1) (deadline, language and demo location), [#2](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/2) (contracts) and [#3](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/3) (scaffold). Open focused PRs with evidence.
 
-Setup and run commands don't exist yet. The scaffold issue supplies them and the release issue checks them on a clean checkout. No application tests have run.
+## Development setup
+
+Requires Python 3.12 (tested with 3.12.14). The pinned numpy has no Python 3.11 build. Node 18 or later is needed only for the parity test, once it exists. There is no frontend build step.
+
+```sh
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pytest
+```
+
+`web/contract.json` defines the inputs, feature order, encodings, bands and abstention rules for both Python and JavaScript; see [docs/contracts_v2.md](docs/contracts_v2.md). The release issue checks these steps on a clean checkout.
 
 ## Evidence boundary
 

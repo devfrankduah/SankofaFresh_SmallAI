@@ -1,0 +1,21 @@
+{
+  "band_green": "No warning signs in this check. Keep storing as you are.",
+  "band_amber": "Check this batch soon.",
+  "band_red": "Check this batch before selling it. Take a sample to the cooperative.",
+  "band_not_sure": "Not sure. Ask a person at the cooperative.",
+  "reason_rewetted": "The coffee got wet after drying started.",
+  "reason_damp_check": "Your hand or bite test did not find the beans dry.",
+  "reason_humid_weeks": "These weeks are usually humid here.",
+  "reason_floor": "The bags are on the floor.",
+  "reason_musty": "The coffee smells musty.",
+  "reason_long_storage": "The coffee has been stored a long time.",
+  "reason_missing_input": "One question was answered \"Don't know\".",
+  "reason_out_of_range": "One answer is outside what this check was built for.",
+  "reason_low_confidence": "This check cannot tell for this batch.",
+  "action_test_sample": "Take a sample to the cooperative's moisture meter.",
+  "action_redry": "Dry this batch again before you store or sell it.",
+  "action_raise_bags": "Move the bags off the floor onto a pallet or rack.",
+  "consent_text": "Your batch records stay on this phone. This app sends nothing. If you choose to send the SMS, you send it yourself. You can delete all records in Settings.",
+  "sms_template": "Hello. My stored coffee ({batch_label}) needs checking. Can I bring a sample to the moisture meter this week?",
+  "synthetic_label": "SYNTHETIC_DEMO. Demo only: this check learned from made-up examples, not from real coffee tests."
+}

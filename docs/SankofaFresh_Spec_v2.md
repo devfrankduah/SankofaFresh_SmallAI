@@ -131,7 +131,8 @@ Return not_sure, with the reason, when any of these hold:
   "abstain_cut": 0.6,
   "nodes": [
     {"id": 0, "feature": 6, "threshold": 80.5, "left": 1, "right": 2},
-    {"id": 1, "value": [0.8, 0.15, 0.05]}
+    {"id": 1, "value": [0.8, 0.15, 0.05]},
+    {"id": 2, "value": [0.1, 0.3, 0.6]}
   ],
   "sha256": "<hash of the canonical nodes array>"
 }
