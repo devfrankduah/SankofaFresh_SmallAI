@@ -4,6 +4,7 @@ Each step re-reads GitHub and skips work that is already done, and published.jso
 after every change it records, so an interrupted --apply run can be resumed by rerunning it.
 """
 import argparse
+from datetime import date
 import json
 import shlex
 import subprocess
@@ -16,7 +17,7 @@ STATE = ROOT / 'docs/planning/published.json'
 INDEX = ROOT / 'docs/planning/ISSUE_INDEX.md'
 PRIORITY_PREFIX = 'priority:'
 ISSUES_QUERY = '''query($owner:String!,$name:String!){repository(owner:$owner,name:$name){
-issues(first:100){totalCount nodes{id number url title body state stateReason
+issues(first:100){totalCount nodes{id number url title body state stateReason closedAt
 labels(first:50){nodes{name}} blockedBy(first:100){nodes{id number}}}}}}'''
 EDGE_MUTATION = '''mutation($issue:ID!,$blocker:ID!){%s(input:{issueId:$issue,blockingIssueId:$blocker}){
 issue{number} blockingIssue{number}}}'''
@@ -235,38 +236,61 @@ def close_removed(state):
         gh_change(['issue', 'close', str(issue['number']), '--repo', REPO, '--reason', 'not planned',
                    '--comment', NOT_PLANNED_COMMENT])
 
-def write_index(state):
+def write_index(state, live):
+    """ISSUE_INDEX.md from live GitHub state: each backlog issue under its real state, not its planned one."""
     issues = state['issues']
-    def link(key):
-        return f'[#{issues[key]["number"]}]({issues[key]["url"]})'
-    lines = ['# Published issue index', '',
-             'Spec v2 backlog. Either teammate can pick any unblocked issue. Estimates are planning estimates only.', '',
-             '## Open', '', '| Issue | Priority | Blocked by |', '|---|---|---|']
-    for task in open_tasks():
-        info = issues[task['key']]
-        deps = ', '.join(link(d) for d in task['deps']) or 'None'
-        lines.append(f'| [#{info["number"]} {task["title"]}]({info["url"]}) | {task["priority"]} | {deps} |')
-    lines += ['', '## Closed as not planned', '', 'Spec v2 removes this work. Each issue carries a closing comment and keeps its v1 title and body.', '',
-              '| Issue | Task key |', '|---|---|']
-    for task in closed_tasks():
-        info = issues[task['key']]
-        lines.append(f'| [#{info["number"]} {task["title"]}]({info["url"]}) | `{task["key"]}` |')
+    def link(number):
+        return f'[#{number}]({live[number]["url"]})'
+    def blocker(key):
+        number = issues[key]['number']
+        return f'{link(number)} ({"done" if live[number]["state"] == "CLOSED" else "open"})'
+    def closed_on(issue):
+        return (issue['closedAt'] or '')[:10]
+    groups = {'open': [], 'completed': [], 'not_planned': [], 'other_closed': []}
+    for task in TASKS:
+        issue = live[issues[task['key']]['number']]
+        if issue['state'] == 'OPEN':
+            deps = ', '.join(blocker(d) for d in task['deps']) or 'None'
+            groups['open'].append(f'| {link(issue["number"])} {issue["title"]} | {task["priority"] or ""} | {deps} |')
+        else:
+            reason = {'COMPLETED': 'completed', 'NOT_PLANNED': 'not_planned'}.get(issue['stateReason'], 'other_closed')
+            groups[reason].append(f'| {link(issue["number"])} {issue["title"]} | {closed_on(issue)} |')
+    backlog_numbers = {info['number'] for info in issues.values()}
+    others = [issue for number, issue in sorted(live.items()) if number not in backlog_numbers]
+    lines = ['# Issue index', '',
+             f'Generated from live GitHub state on {date.today().isoformat()} by `python docs/planning/sync_backlog_v2.py --write-index`. '
+             f'{len(groups["open"])} open, {len(groups["completed"])} completed, {len(groups["not_planned"])} closed as not planned.', '',
+             '## Open', '', 'Either teammate can pick an open issue whose blockers are all done.', '',
+             '| Issue | Priority | Blocked by |', '|---|---|---|', *(groups['open'] or ['| None | | |']),
+             '', '## Completed', '', '| Issue | Closed |', '|---|---|', *(groups['completed'] or ['| None | |']),
+             '', '## Closed as not planned', '', 'Spec v2 removed this work. Each issue keeps its v1 title and body and carries a closing comment.', '',
+             '| Issue | Closed |', '|---|---|', *(groups['not_planned'] or ['| None | |'])]
+    if groups['other_closed']:
+        lines += ['', '## Closed for another reason', '', '| Issue | Closed |', '|---|---|', *groups['other_closed']]
+    if others:
+        lines += ['', '## Issues outside the backlog', '', '| Issue | State |', '|---|---|',
+                  *[f'| {link(issue["number"])} {issue["title"]} | {issue["state"].lower()} |' for issue in others]]
     INDEX.write_text('\n'.join(lines)+'\n')
+    return {name: len(rows) for name, rows in groups.items()} | {'outside_backlog': len(others)}
 
 def regenerate_files(state):
     print('\nStep 5 of 5: regenerate docs/planning/issues and ISSUE_INDEX.md', flush=True)
     write_issue_files(state['issues'])
-    write_index(state)
+    write_index(state, fetch_live())
     print(f'  wrote {len(open_tasks())} issue files and the index')
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--apply', action='store_true', help='make the changes on GitHub (default: dry run)')
+    parser.add_argument('--write-index', action='store_true', help='only rewrite ISSUE_INDEX.md from live GitHub state')
     args = parser.parse_args()
     validate_tasks()
     state = load_state()
     live = fetch_live()
     check_ids(state, live)
+    if args.write_index:
+        print(f'Wrote {INDEX.relative_to(ROOT)}: {write_index(state, live)}')
+        return
     print(f'{"APPLY" if args.apply else "DRY RUN"}: Spec v2 backlog migration for {REPO}')
     print_plan(state, live)
     if not args.apply:
