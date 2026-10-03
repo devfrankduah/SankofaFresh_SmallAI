@@ -1,7 +1,7 @@
 """Measure every file in web/ and write evidence/sizes.json (AC05: total app size measured and reported).
 
-Run from the repository root when web/ changes or evidence is refreshed:  python -m model.sizes
-tests/test_size.py checks the same limits without writing anything.
+Run from the repository root when web/ changes:  python -m model.sizes
+(or UPDATE_SIZES=1 python -m pytest tests/test_size.py, which does the same). tests/test_size.py fails while the file is stale.
 """
 from __future__ import annotations
 
