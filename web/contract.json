@@ -1,6 +1,7 @@
 {
   "schema_version": 2,
   "evidence_mode": "SYNTHETIC_DEMO",
+  "languages": ["en"],
   "dont_know_value": "dont_know",
   "inputs": [
     {"name": "batch_label", "type": "choice", "values": ["Batch 1", "Batch 2", "Batch 3", "Batch 4", "Batch 5", "Batch 6", "Batch 7", "Batch 8", "Batch 9", "Batch 10"], "allows_dont_know": false},
@@ -21,15 +22,15 @@
     "columns": {"RH2M": "rh2m_mean", "T2M": "t2m_mean"}
   },
   "features": [
-    {"name": "days_drying", "source": "input", "input": "days_drying", "encoding": "integer", "reason": "reason_long_drying"},
-    {"name": "rewetted", "source": "input", "input": "rewetted", "encoding": "map", "map": {"no": 0, "yes": 1}, "reason": "reason_rewetted"},
-    {"name": "floor", "source": "input", "input": "storage_surface", "encoding": "map", "map": {"raised": 0, "floor": 1}, "reason": "reason_floor"},
-    {"name": "musty", "source": "input", "input": "musty_smell", "encoding": "map", "map": {"no": 0, "yes": 1}, "reason": "reason_musty"},
-    {"name": "dryness_check", "source": "input", "input": "dryness_check", "encoding": "map", "map": {"dry": 0, "unsure": 1, "damp": 2}, "reason": "reason_damp_check"},
-    {"name": "days_stored", "source": "input", "input": "days_stored", "encoding": "integer", "reason": "reason_long_storage"},
-    {"name": "rh14_mean", "source": "weather", "variable": "RH2M", "aggregate": "mean", "unit": "percent", "reason": "reason_humid_weeks"},
-    {"name": "rh14_max", "source": "weather", "variable": "RH2M", "aggregate": "max", "unit": "percent", "reason": "reason_humid_weeks"},
-    {"name": "t14_mean", "source": "weather", "variable": "T2M", "aggregate": "mean", "unit": "degrees C", "reason": null}
+    {"name": "days_drying", "source": "input", "input": "days_drying", "encoding": "integer", "reason": "reason_short_drying", "risk": "lower"},
+    {"name": "rewetted", "source": "input", "input": "rewetted", "encoding": "map", "map": {"no": 0, "yes": 1}, "reason": "reason_rewetted", "risk": "higher"},
+    {"name": "floor", "source": "input", "input": "storage_surface", "encoding": "map", "map": {"raised": 0, "floor": 1}, "reason": "reason_floor", "risk": "higher"},
+    {"name": "musty", "source": "input", "input": "musty_smell", "encoding": "map", "map": {"no": 0, "yes": 1}, "reason": "reason_musty", "risk": "higher"},
+    {"name": "dryness_check", "source": "input", "input": "dryness_check", "encoding": "map", "map": {"dry": 0, "unsure": 1, "damp": 2}, "reason": "reason_damp_check", "risk": "higher"},
+    {"name": "days_stored", "source": "input", "input": "days_stored", "encoding": "integer", "reason": "reason_long_storage", "risk": "higher"},
+    {"name": "rh14_mean", "source": "weather", "variable": "RH2M", "aggregate": "mean", "unit": "percent", "reason": "reason_humid_weeks", "risk": "higher"},
+    {"name": "rh14_max", "source": "weather", "variable": "RH2M", "aggregate": "max", "unit": "percent", "reason": "reason_humid_weeks", "risk": "higher"},
+    {"name": "t14_mean", "source": "weather", "variable": "T2M", "aggregate": "mean", "unit": "degrees C", "reason": null, "risk": null}
   ],
   "classes": ["green", "amber", "red"],
   "bands": [
@@ -52,15 +53,16 @@
     "reason_action": {
       "reason_rewetted": "action_redry",
       "reason_damp_check": "action_redry",
-      "reason_long_drying": "action_redry",
+      "reason_short_drying": "action_redry",
       "reason_floor": "action_raise_bags"
     },
     "band_default": {"green": null, "amber": "action_test_sample", "red": "action_test_sample", "not_sure": "action_test_sample"}
   },
   "recorded_actions": ["redried", "moved_off_floor", "took_sample", "sold", "other"],
+  "metrics": ["accuracy", "macro_f1", "red_recall", "false_reassurance_rate", "abstain_rate", "coverage"],
   "message_keys": [
     "band_green", "band_amber", "band_red", "band_not_sure",
-    "reason_rewetted", "reason_long_drying", "reason_damp_check", "reason_humid_weeks", "reason_floor", "reason_musty",
+    "reason_rewetted", "reason_short_drying", "reason_damp_check", "reason_humid_weeks", "reason_floor", "reason_musty",
     "reason_long_storage", "reason_missing_input", "reason_out_of_range", "reason_low_confidence",
     "action_test_sample", "action_redry", "action_raise_bags",
     "consent_text", "sms_template", "synthetic_label",
@@ -70,7 +72,11 @@
     "button_add_batch", "button_check", "button_play", "button_copy_sms", "button_record_action", "button_delete_all", "button_continue",
     "record_redried", "record_moved_off_floor", "record_took_sample", "record_sold", "record_other",
     "title_consent", "title_batches", "title_check", "title_result", "title_settings", "title_evidence",
-    "weather_note", "not_evaluated", "language_name", "confirm_delete_all"
+    "weather_note", "not_evaluated", "language_name", "confirm_delete_all",
+    "sms_not_sent", "demo_model_note", "error_storage", "error_model_check", "error_files",
+    "evidence_model_version", "evidence_tree_hash", "evidence_file_sizes", "evidence_metrics", "evidence_tree",
+    "evidence_baseline", "evidence_sources", "source_weather", "source_labels",
+    "metric_accuracy", "metric_macro_f1", "metric_red_recall", "metric_false_reassurance_rate", "metric_abstain_rate", "metric_coverage"
   ],
-  "message_placeholders": {"sms_template": ["batch_label"], "weather_note": ["year"]}
+  "message_placeholders": {"sms_template": ["batch_label"], "weather_note": ["year"], "source_weather": ["year"]}
 }

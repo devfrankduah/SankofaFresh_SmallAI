@@ -142,13 +142,13 @@ scikit-learn sends a sample left when `x <= threshold`. It compares inputs as fl
 
 ### 5.5 Message set
 
-One JSON file per language, `web/messages.<lang>.json`, with the same keys.
+One JSON file per language, `web/messages.<lang>.json`, with the same keys. The languages list in `web/contract.json` names the shipped languages; the first is the default.
 
-Results: `band_green`, `band_amber`, `band_red`, `band_not_sure`, `reason_rewetted`, `reason_long_drying`, `reason_damp_check`, `reason_humid_weeks`, `reason_floor`, `reason_musty`, `reason_long_storage`, `reason_missing_input`, `reason_out_of_range`, `reason_low_confidence`, `action_test_sample`, `action_redry`, `action_raise_bags`, `consent_text`, `sms_template`, `synthetic_label`.
+Results: `band_green`, `band_amber`, `band_red`, `band_not_sure`, `reason_rewetted`, `reason_short_drying`, `reason_damp_check`, `reason_humid_weeks`, `reason_floor`, `reason_musty`, `reason_long_storage`, `reason_missing_input`, `reason_out_of_range`, `reason_low_confidence`, `action_test_sample`, `action_redry`, `action_raise_bags`, `consent_text`, `sms_template`, `synthetic_label`.
 
-Interface: `question_batch_label`, `question_days_drying`, `question_rewetted`, `question_storage_surface`, `question_musty_smell`, `question_dryness_check`, `question_days_stored`, `question_storage_start`, `option_yes`, `option_no`, `option_dont_know`, `option_floor`, `option_raised`, `option_dry`, `option_unsure`, `option_damp`, `button_add_batch`, `button_check`, `button_play`, `button_copy_sms`, `button_record_action`, `button_delete_all`, `button_continue`, `record_redried`, `record_moved_off_floor`, `record_took_sample`, `record_sold`, `record_other`, `title_consent`, `title_batches`, `title_check`, `title_result`, `title_settings`, `title_evidence`, `weather_note`, `not_evaluated`, `language_name`, `confirm_delete_all`.
+Interface: `question_batch_label`, `question_days_drying`, `question_rewetted`, `question_storage_surface`, `question_musty_smell`, `question_dryness_check`, `question_days_stored`, `question_storage_start`, `option_yes`, `option_no`, `option_dont_know`, `option_floor`, `option_raised`, `option_dry`, `option_unsure`, `option_damp`, `button_add_batch`, `button_check`, `button_play`, `button_copy_sms`, `button_record_action`, `button_delete_all`, `button_continue`, `record_redried`, `record_moved_off_floor`, `record_took_sample`, `record_sold`, `record_other`, `title_consent`, `title_batches`, `title_check`, `title_result`, `title_settings`, `title_evidence`, `weather_note`, `not_evaluated`, `language_name`, `confirm_delete_all`, `sms_not_sent`, `demo_model_note`, `error_storage`, `error_model_check`, `error_files`, `evidence_model_version`, `evidence_tree_hash`, `evidence_file_sizes`, `evidence_metrics`, `evidence_tree`, `evidence_baseline`, `evidence_sources`, `source_weather`, `source_labels`, `metric_accuracy`, `metric_macro_f1`, `metric_red_recall`, `metric_false_reassurance_rate`, `metric_abstain_rate`, `metric_coverage`.
 
-Placeholders in braces, {batch_label} in the SMS template and {year} in the weather note, are filled in by the app and must be kept unchanged in every language. Keep interface strings short: each one is translated and checked by a person.
+Placeholders in braces, {batch_label} in the SMS template and {year} in the weather note and weather source line, are filled in by the app and must be kept unchanged in every language. Keep interface strings short: each one is translated and checked by a person.
 
 Reasons are picked from the features on the decision path that pushed toward the result. They describe what the tree used, not a proven cause.
 
@@ -156,7 +156,7 @@ A fluent speaker checks every message in the local language. Audio, if included,
 
 ### 5.6 Actions
 
-Each result shows at most one action. If the first reason shown is the rewetted, damp check or long drying reason, the action is re-dry; if it is the floor reason, the action is raise the bags. Otherwise the band decides: amber, red and not_sure show take a sample to the moisture meter, and green shows no action. Green shows no reasons, because every reason message describes a risk. The red and not_sure band messages name the cooperative, so those results always name a person and a physical check. The rule lives in `web/contract.json` under `actions`.
+Each result shows at most one action. If the first reason shown is the rewetted, damp check or short drying reason, the action is re-dry; if it is the floor reason, the action is raise the bags. Otherwise the band decides: amber, red and not_sure show take a sample to the moisture meter, and green shows no action. Green shows no reasons, because every reason message describes a risk. The red and not_sure band messages name the cooperative, so those results always name a person and a physical check. The rule lives in `web/contract.json` under `actions`.
 
 ## 6. Synthetic data generator
 

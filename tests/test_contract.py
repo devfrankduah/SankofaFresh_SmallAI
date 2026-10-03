@@ -1,4 +1,4 @@
-"""Check web/contract.json, web/messages.en.json and the shared fixtures against Spec v2.
+"""Check web/contract.json, the message files and the shared fixtures against Spec v2.
 
 The expected feature order, input values, message keys and band wording are read from the
 spec markdown itself, so this test holds no second copy of them that could drift.
@@ -14,8 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/fixtures'
 SPEC = (ROOT / 'docs/SankofaFresh_Spec_v2.md').read_text()
 CATEGORICAL_ENCODING = re.compile(r'\d+ \w+(, \d+ \w+)*')
-INTERFACE_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_')
-INTERFACE_MAX_CHARACTERS = 40
+SHORT_KEY_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_', 'error_', 'evidence_', 'source_', 'metric_')
+SHORT_KEYS = ('sms_not_sent', 'demo_model_note')
+SHORT_MAX_CHARACTERS = 40
+DRAFT_STATUS = 'UNREVIEWED DRAFT, machine-written, not for release'
 
 
 def load(relative_path):
@@ -23,7 +25,9 @@ def load(relative_path):
 
 
 CONTRACT = load('web/contract.json')
-MESSAGES = load('web/messages.en.json')
+LANGUAGES = CONTRACT['languages']
+MESSAGE_FILES = {code: load(f'web/messages.{code}.json') for code in LANGUAGES}
+MESSAGES = MESSAGE_FILES['en']
 FEATURE_NAMES = [f['name'] for f in CONTRACT['features']]
 INPUTS = {i['name']: i for i in CONTRACT['inputs']}
 
@@ -84,7 +88,7 @@ def check_tree(tree):
 def test_contract_loads_with_every_section():
     assert set(CONTRACT) == {'schema_version', 'evidence_mode', 'dont_know_value', 'inputs', 'weather_window',
                              'features', 'classes', 'bands', 'abstention', 'actions', 'recorded_actions',
-                             'message_keys', 'message_placeholders'}
+                             'metrics', 'message_keys', 'message_placeholders', 'languages'}
     assert CONTRACT['schema_version'] == 2
     assert CONTRACT['evidence_mode'] == 'SYNTHETIC_DEMO'
 
@@ -153,8 +157,21 @@ def test_contract_is_internally_consistent():
     assert len(set(CONTRACT['message_keys'])) == len(CONTRACT['message_keys'])
 
 
-def test_days_drying_has_the_long_drying_reason():
-    assert next(f for f in CONTRACT['features'] if f['name'] == 'days_drying')['reason'] == 'reason_long_drying'
+def test_days_drying_has_the_short_drying_reason():
+    days_drying = next(f for f in CONTRACT['features'] if f['name'] == 'days_drying')
+    assert (days_drying['reason'], days_drying['risk']) == ('reason_short_drying', 'lower')
+
+
+def test_every_feature_with_a_reason_has_a_risk_direction():
+    for feature in CONTRACT['features']:
+        if feature['reason'] is None:
+            assert feature['risk'] is None, feature['name']
+        else:
+            assert feature['risk'] in ('higher', 'lower'), feature['name']
+
+
+def test_metric_keys_match_the_metrics_list():
+    assert {f'metric_{name}' for name in CONTRACT['metrics']} == {k for k in CONTRACT['message_keys'] if k.startswith('metric_')}
 
 
 def pick_action(band, reasons):
@@ -182,7 +199,7 @@ def test_action_rule_is_well_formed():
 @pytest.mark.parametrize('band, reasons, action', [
     ('red', ['reason_rewetted', 'reason_floor'], 'action_redry'),
     ('amber', ['reason_damp_check'], 'action_redry'),
-    ('amber', ['reason_long_drying'], 'action_redry'),
+    ('amber', ['reason_short_drying'], 'action_redry'),
     ('red', ['reason_floor', 'reason_rewetted'], 'action_raise_bags'),
     ('amber', ['reason_humid_weeks', 'reason_rewetted'], 'action_test_sample'),
     ('red', ['reason_musty'], 'action_test_sample'),
@@ -202,18 +219,37 @@ def test_interface_keys_follow_contract_patterns():
     assert {f'option_{v}' for v in choice_values} | {'option_dont_know'} == {k for k in keys if k.startswith('option_')}
     assert {f'record_{v}' for v in CONTRACT['recorded_actions']} == {k for k in keys if k.startswith('record_')}
     assert {'weather_note', 'not_evaluated', 'language_name', 'confirm_delete_all'} <= keys
-    for key, text in MESSAGES.items():
-        if key.startswith(INTERFACE_PREFIXES):
-            assert len(text) <= INTERFACE_MAX_CHARACTERS, (key, len(text))
 
 
-def test_message_keys_match_spec_and_english_file():
-    spec_keys = re.findall(r'`([a-z_]+)`', spec_section('### 5.5', '### 5.6'))
-    assert 'band_green' in spec_keys and 'confirm_delete_all' in spec_keys, 'spec 5.5 key list did not parse'
+def is_short_key(key):
+    return key.startswith(SHORT_KEY_PREFIXES) or key in SHORT_KEYS
+
+
+@pytest.mark.parametrize('code', LANGUAGES)
+def test_short_strings_fit_a_phone_screen(code):
+    for key, text in MESSAGE_FILES[code].items():
+        if is_short_key(key):
+            assert len(text) <= SHORT_MAX_CHARACTERS, (code, key, len(text))
+
+
+def test_languages_are_listed_once_with_a_default():
+    assert LANGUAGES and len(set(LANGUAGES)) == len(LANGUAGES)
+    assert all(re.fullmatch(r'[a-z]{2,3}', code) for code in LANGUAGES)
+
+
+def test_contract_message_keys_match_spec():
+    spec_keys = re.findall(r'`([a-z][a-z0-9_]*)`', spec_section('### 5.5', '### 5.6'))
+    assert 'band_green' in spec_keys and 'metric_coverage' in spec_keys, 'spec 5.5 key list did not parse'
     assert CONTRACT['message_keys'] == spec_keys
-    assert set(MESSAGES) == set(spec_keys)
-    for key, text in MESSAGES.items():
-        assert isinstance(text, str) and text and text == text.strip(), key
+
+
+@pytest.mark.parametrize('code', LANGUAGES)
+def test_every_listed_language_has_every_key_and_no_draft_status(code):
+    messages = MESSAGE_FILES[code]
+    assert '_status' not in messages, f'messages.{code}.json is still marked as a draft'
+    assert set(messages) == set(CONTRACT['message_keys']), code
+    for key, text in messages.items():
+        assert isinstance(text, str) and text and text == text.strip(), (code, key)
 
 
 def test_band_messages_use_spec_wording():
@@ -222,11 +258,32 @@ def test_band_messages_use_spec_wording():
         key: MESSAGES[key] for key in MESSAGES if key.startswith('band_')}
 
 
-def test_message_placeholders_are_declared():
-    for key, text in MESSAGES.items():
+def check_placeholders(messages):
+    for key in CONTRACT['message_keys']:
+        text = messages[key]
         assert re.findall(r'\{(\w+)\}', text) == CONTRACT['message_placeholders'].get(key, []), key
         assert text.count('{') == text.count('}') == len(CONTRACT['message_placeholders'].get(key, [])), key
-    assert 'SYNTHETIC_DEMO' in MESSAGES['synthetic_label']
+    assert 'SYNTHETIC_DEMO' in messages['synthetic_label']
+
+
+@pytest.mark.parametrize('code', LANGUAGES)
+def test_message_placeholders_are_declared(code):
+    check_placeholders(MESSAGE_FILES[code])
+
+
+def test_twi_draft_is_complete_and_unlisted():
+    draft = load('web/messages.tw.draft.json')
+    assert draft['_status'] == DRAFT_STATUS
+    assert 'tw' not in LANGUAGES, 'review the draft and rename it to messages.tw.json before listing tw'
+    assert set(draft) - {'_status'} == set(CONTRACT['message_keys'])
+    check_placeholders(draft)
+
+
+def test_canonical_fixture_matches_python():
+    fixture = load('tests/fixtures/canonical_nodes.json')
+    assert fixture['canonical'] == json.dumps(fixture['nodes'], sort_keys=True, separators=(',', ':'))
+    assert fixture['sha256'] == tree_hash(fixture['nodes'])
+    assert all(repr(number) == text for number, text in fixture['float_reprs'])
 
 
 def check_cases(fixture):

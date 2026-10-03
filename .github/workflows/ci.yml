@@ -33,13 +33,18 @@ jobs:
       - name: Run pytest
         run: python -m pytest
 
-      - name: Run JS tests
+      # Data and contract tests are tests/test_*.mjs; app tests are tests/*.test.mjs. Each runs once.
+      - name: Run data and contract JS tests
         shell: bash
         run: |
           shopt -s nullglob
-          files=(tests/*.mjs)
-          if [ ${#files[@]} -eq 0 ]; then echo "No JS tests yet."; exit 0; fi
+          files=(tests/test_*.mjs)
+          if [ ${#files[@]} -eq 0 ]; then echo "No data or contract JS tests yet."; exit 0; fi
           for file in "${files[@]}"; do
             echo "node $file"
             node "$file"
           done
+
+      - name: Run app JS tests
+        if: hashFiles('tests/*.test.mjs') != ''
+        run: node --test tests/*.test.mjs
