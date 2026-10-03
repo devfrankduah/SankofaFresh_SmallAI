@@ -1,9 +1,10 @@
-"""AC02 (data part): the same seed and config give a byte-identical dataset; a different seed does not."""
+"""AC02: the same seed gives a byte-identical dataset and the same tree; a different seed changes the data."""
 import hashlib
 import json
 from pathlib import Path
 
 from data.gen_batches import main as generate_dataset
+from model.train import main as train_tree
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,3 +28,10 @@ def test_a_different_seed_gives_a_different_dataset(tmp_path):
     generate_dataset(['--config', str(changed), '--out-dir', str(tmp_path)])
     committed = json.loads((ROOT / 'data' / 'manifest.json').read_text())
     assert sha256(tmp_path / 'batches.csv') != committed['batches_sha256']
+
+
+def test_retraining_gives_the_committed_tree_byte_for_byte(tmp_path):
+    train_tree(['--out-dir', str(tmp_path)])
+    assert (tmp_path / 'tree.json').read_text() == (ROOT / 'web' / 'tree.json').read_text()
+    assert (tmp_path / 'tree_rules.md').read_text() == (ROOT / 'docs' / 'tree_rules.md').read_text()
+    assert (tmp_path / 'training.json').read_text() == (ROOT / 'evidence' / 'training.json').read_text()
