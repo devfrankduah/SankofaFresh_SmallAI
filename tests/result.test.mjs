@@ -101,3 +101,37 @@ test('every question and every answer the contract offers has a drawn picture', 
   }
   assert.ok(drawn.has(OPTION_ICONS[CONTRACT.dont_know_value]), "Don't know");
 });
+
+test('the bagging date gives the day count, and future dates are not days at all', async () => {
+  const { askedInputs, daysBetween, isFutureDate, withComputedDays } = await import('../web/app.js');
+  const { encode } = await import('../web/features.js');
+  const rule = CONTRACT.weather_window;
+  assert.ok(!askedInputs(CONTRACT).some(input => input.name === rule.days_input), 'the form never asks for days stored');
+  assert.equal(askedInputs(CONTRACT).length, CONTRACT.inputs.length - 1);
+  assert.equal(daysBetween('2026-10-03', '2026-10-03'), 0);
+  assert.equal(daysBetween('2025-03-01', '2026-10-03'), 581);
+  assert.equal(daysBetween('2024-02-28', '2024-03-01'), 2, 'a leap day counts');
+  assert.equal(daysBetween('nope', '2026-10-03'), null);
+  assert.equal(isFutureDate('2026-10-04', '2026-10-03'), true);
+  assert.equal(isFutureDate('2026-10-03', '2026-10-03'), false);
+  const answers = { batch_label: 'Batch 1', days_drying: 10, rewetted: 'no', storage_surface: 'raised', musty_smell: 'no', dryness_check: 'dry' };
+  const recent = withComputedDays(CONTRACT, { ...answers, [rule.start_input]: '2026-09-13' }, '2026-10-03');
+  assert.equal(recent[rule.days_input], 20);
+  const unknown = withComputedDays(CONTRACT, { ...answers, [rule.start_input]: CONTRACT.dont_know_value }, '2026-10-03');
+  assert.equal(unknown[rule.days_input], CONTRACT.dont_know_value, '"Don\'t know" for the date is "Don\'t know" for the days');
+  const future = withComputedDays(CONTRACT, { ...answers, [rule.start_input]: '2026-12-01', [rule.days_input]: 5 }, '2026-10-03');
+  assert.equal(Object.hasOwn(future, rule.days_input), false, 'a future date never becomes a day count');
+  // Older than the contract allows still goes through, and the out-of-range rule answers not sure.
+  const old = withComputedDays(CONTRACT, { ...answers, [rule.start_input]: '2025-03-01' }, '2026-10-03');
+  assert.equal(old[rule.days_input], 581);
+  const reason = CONTRACT.abstention.rules.find(r => r.id === 'out_of_range').reason;
+  assert.equal(encode(CONTRACT, old, WEATHER).abstainReason, reason);
+});
+
+test('taps never zoom the page, fields never zoom on focus, and pinch zoom stays on', () => {
+  assert.match(CSS, /html \{[^}]*touch-action: manipulation/);
+  assert.match(CSS, /a,\s*button,\s*input,\s*label,\s*select,\s*textarea \{\s*touch-action: manipulation;/);
+  assert.match(CSS, /input,\s*select,\s*textarea \{\s*font-size: max\(16px, 1em\);/);
+  const viewport = HTML.match(/<meta name="viewport" content="([^"]+)"/)[1];
+  assert.doesNotMatch(viewport, /maximum-scale|user-scalable/);
+});

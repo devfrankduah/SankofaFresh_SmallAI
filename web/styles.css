@@ -40,6 +40,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* No double-tap zoom on fast taps such as the + and - steppers; pinch zoom stays available. */
+  touch-action: manipulation;
   /* Keeps a control the keyboard moves to out from under the sticky bar and dock (WCAG 2.4.11). */
   scroll-padding-top: 76px;
   scroll-padding-bottom: 96px;
@@ -69,6 +71,35 @@ body {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+a,
+button,
+input,
+label,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* iOS zooms into any field whose text is under 16 px when it gets focus. */
+input,
+select,
+textarea {
+  font-size: max(16px, 1em);
+}
+
+.field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--red);
+  font-weight: 650;
+}
+
+.field-error:empty {
+  display: none;
 }
 
 .sprite {

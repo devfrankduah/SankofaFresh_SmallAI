@@ -218,6 +218,43 @@ export function humiditySeries(contract, answers, weather) {
   return values.every(value => typeof value === 'number' && Number.isFinite(value)) ? values : null;
 }
 
+function calendarDayNumber(isoDate) {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
+  return Math.round(date.getTime() / MS_PER_DAY);
+}
+
+// Whole days from one calendar date to another (both YYYY-MM-DD); negative when "from" is later.
+export function daysBetween(from, to) {
+  if (!isCalendarDate(from) || !isCalendarDate(to)) return null;
+  return calendarDayNumber(to) - calendarDayNumber(from);
+}
+
+export function isFutureDate(isoDate, today) {
+  const days = daysBetween(isoDate, today);
+  return days !== null && days < 0;
+}
+
+// The form asks for the bagging date only (iOS ignores max on date inputs, and two linked answers
+// invited mistakes). The day count the contract also needs is worked out from it to today.
+export function askedInputs(contract) {
+  return contract.inputs.filter(input => input.name !== contract.weather_window.days_input);
+}
+
+export function withComputedDays(contract, answers, today) {
+  const { start_input: start, days_input: days } = contract.weather_window;
+  const complete = { ...answers };
+  if (answers[start] === contract.dont_know_value) {
+    complete[days] = contract.dont_know_value;
+    return complete;
+  }
+  const count = daysBetween(answers[start], today);
+  if (count === null || count < 0) delete complete[days];
+  else complete[days] = count;
+  return complete;
+}
+
 // Points for an axis-free line: values outside low..high sit on the edge instead of leaving the box.
 export function sparklinePoints(values, { width, height, low, high }) {
   const step = values.length > 1 ? width / (values.length - 1) : 0;
@@ -719,7 +756,7 @@ class App {
 
   // One question per screen; a re-check skips the batch label, which is already known.
   stepScreen(draft, back, backLabel) {
-    const steps = this.contract.inputs.filter(input => !(input.name === BATCH_LABEL_INPUT && draft.fixedLabel !== null));
+    const steps = askedInputs(this.contract).filter(input => !(input.name === BATCH_LABEL_INPUT && draft.fixedLabel !== null));
     draft.step = Math.min(Math.max(draft.step, 0), steps.length - 1);
     const input = steps[draft.step];
     const last = draft.step === steps.length - 1;
@@ -772,19 +809,19 @@ class App {
       this.transition(() => this.render(['.question input:checked', '.question input:not([disabled])']));
       return;
     }
-    const missing = firstUnanswered(this.contract, draft.answers);
-    if (missing) {
-      draft.step = Math.max(0, steps.findIndex(step => step.name === missing));
+    const missing = steps.findIndex(step => !isValidAnswer(step, draft.answers[step.name], this.contract.dont_know_value));
+    if (missing !== -1) {
+      draft.step = missing;
       this.render(['.question input:checked', '.question input:not([disabled])']);
       return;
     }
-    this.saveCheck(draft.answers);
+    this.saveCheck(withComputedDays(this.contract, draft.answers, localDateString(new Date())));
   }
 
   // The single-page form, used until the contract has button_back.
   wholeForm(draft, back) {
     const form = h('form', { class: 'check', id: 'check-form', novalidate: true });
-    for (const input of this.contract.inputs) form.append(this.question(input, draft));
+    for (const input of askedInputs(this.contract)) form.append(this.question(input, draft));
     form.addEventListener('submit', event => {
       event.preventDefault();
       this.submitCheck(form, draft);
@@ -906,15 +943,34 @@ class App {
   dateControl(input, draft, legendId, markAnswered) {
     const dontKnow = this.contract.dont_know_value;
     const current = draft.answers[input.name];
+    const today = localDateString(new Date());
+    const errorId = `${input.name}-error`;
+    // max stops future dates in most pickers, but iOS Safari ignores it, so the date is checked here too.
     const field = h('input', {
-      type: 'date', class: 'date', max: localDateString(new Date()), 'aria-labelledby': legendId,
+      type: 'date', class: 'date', max: today, 'aria-labelledby': legendId,
       value: isCalendarDate(current) ? current : null,
     });
+    const error = h('p', { class: 'field-error', id: errorId, role: 'status' });
+    const showFuture = future => {
+      const text = future ? this.optionalText('error_future_date') : null;
+      error.replaceChildren(...(future ? [icon('alert'), text ? h('span', { text }) : null].filter(Boolean) : []));
+      if (future) {
+        field.setAttribute('aria-invalid', 'true');
+        field.setAttribute('aria-describedby', errorId);
+      } else {
+        field.removeAttribute('aria-invalid');
+        field.removeAttribute('aria-describedby');
+      }
+      // Continue stays off while the date is in the future.
+      for (const next of document.querySelectorAll('#dock button[type="submit"]')) next.disabled = future;
+    };
     let toggle = null;
     const onPick = () => {
-      if (isCalendarDate(field.value)) draft.answers[input.name] = field.value;
+      const future = isCalendarDate(field.value) && isFutureDate(field.value, today);
+      if (isCalendarDate(field.value) && !future) draft.answers[input.name] = field.value;
       else delete draft.answers[input.name];
       if (toggle) toggle.querySelector('input').checked = false;
+      showFuture(future);
       markAnswered();
     };
     // Mobile pickers differ on which of the two events they fire, so both are handled.
@@ -929,16 +985,19 @@ class App {
         } else {
           delete draft.answers[input.name];
         }
+        showFuture(false);
         markAnswered();
       });
-      controls.push(h('div', { class: 'options' }, toggle));
+      controls.push(error, h('div', { class: 'options' }, toggle));
+    } else {
+      controls.push(error);
     }
     return controls;
   }
 
   submitCheck(form, draft) {
     let first = null;
-    for (const input of this.contract.inputs) {
+    for (const input of askedInputs(this.contract)) {
       const fieldset = form.querySelector(`fieldset[data-name="${input.name}"]`);
       const answered = isValidAnswer(input, draft.answers[input.name], this.contract.dont_know_value);
       setMissing(fieldset, !answered);
@@ -950,7 +1009,7 @@ class App {
       if (control) control.focus({ preventScroll: true });
       return;
     }
-    this.saveCheck(draft.answers);
+    this.saveCheck(withComputedDays(this.contract, draft.answers, localDateString(new Date())));
   }
 
   saveCheck(draftAnswers) {
