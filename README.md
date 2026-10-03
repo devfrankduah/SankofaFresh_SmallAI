@@ -62,3 +62,20 @@ Citation, in the wording the POWER project asks for: "The data was obtained from
 ## Evidence boundary
 
 Training labels are synthetic, generated from a documented rule tied to FAO and Codex moisture thresholds (evidence mode `SYNTHETIC_DEMO`). Results will show how well the tree recovers that rule. They are not field accuracy, food-safety assessments or income gains.
+
+## Running the app
+
+The app is the static folder `web/`; there is nothing to build or install.
+
+```sh
+cd web
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Open http://127.0.0.1:8000/. The first load stores every file in `web/` for offline use. After that, checks work with no connection, including a reload (see [evidence/offline-check.md](evidence/offline-check.md)). Use https, or `localhost` or `127.0.0.1` on the same machine. Plain http on a LAN address is not a secure context, so the browser runs no service worker and no Web Crypto, and the app refuses the model because it can't check its hash.
+
+To preview the screens with the shared test fixtures, serve the repository root instead and open http://127.0.0.1:8000/web/index.html?fixtures. The fixture batches are kept in memory only, never in the phone's records. If `web/tree.json` is missing, the app uses `tests/fixtures/sample_tree.json` from the repository root and marks every result with the demo model note.
+
+After changing any file in `web/`, update `PRECACHE` and `CACHE_VERSION` in `web/sw.js`, or installed phones keep the old files. `node --test tests/sw.test.mjs` fails until they match and prints the lines to paste.
+
+App tests: `node --test tests/*.test.mjs` (Node 18 or later). CI also runs `python -m pytest` and each `tests/test_*.mjs`.
