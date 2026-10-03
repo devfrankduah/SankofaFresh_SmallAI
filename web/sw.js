@@ -1,11 +1,12 @@
-// Offline service worker (spec 1 and 4, AC06 and AC07). Every file in web/ is cached on install under
-// a versioned cache name, and the app is then served only from that cache: no network requests after
-// install. tests/sw.test.mjs fails when PRECACHE no longer lists exactly the files in web/, or when
-// CACHE_VERSION is not the hash of their contents, and prints the values to paste here. Bumping the
-// version is what makes installed phones fetch a new tree, message file or script.
+// Offline service worker (spec 1 and 4, AC06 and AC07). Every file in web/ except drafts (*.draft.json)
+// is cached on install under a versioned cache name, and the app is then served only from that cache:
+// no network requests after install, and a draft is never cached or served. tests/sw.test.mjs fails
+// when PRECACHE no longer lists exactly those files, or when CACHE_VERSION is not the hash of their
+// contents, and prints the values to paste here. Bumping the version is what makes installed phones
+// fetch a new tree, message file or script.
 
 const CACHE_PREFIX = 'sankofafresh-';
-const CACHE_VERSION = '5622a132c8b117df';
+const CACHE_VERSION = '69e348021ffd8615';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const PRECACHE = [
   'app.js',
@@ -18,7 +19,6 @@ const PRECACHE = [
   'index.html',
   'manifest.webmanifest',
   'messages.en.json',
-  'messages.tw.draft.json',
   'metrics.json',
   'storage.js',
   'styles.css',
