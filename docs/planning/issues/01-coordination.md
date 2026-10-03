@@ -1,29 +1,30 @@
 ## Context
-Implement specification sections 14, 16: [project specification](../../blob/main/docs/SankofaFresh_Project_Specification.md). This is planned work, not verified behavior.
+Specification sections 13: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
-- Planning estimate: 0.5–1 focused person-hours, unvalidated and not a delivery guarantee.
+- Planning estimate: 0.5 to 1 focused person-hours, unvalidated and not a delivery guarantee.
 - Task key: `coordination`
 
 ## Dependencies
 - None. Either teammate can start.
 
 ## Scope and implementation notes
-- Obtain the complete competition brief, participant acceptance, registered team, permitted work window, exact deadline and timezone, technology requirements, and simulation/prior-work rules.
-- Record prior SankofaFresh concept disclosure and distinguish pre-existing material from work created during the permitted window.
-- Confirm the demo laptop and network needed for local and offline verification.
+- Confirm in the Hack-Nation workspace: the exact deadline and timezone, the submission form fields, and whether the form wants one video or three.
+- Choose the local language and the demo location together so they match: a language the team can verify tonight, spoken in a coffee-growing location. Check the coordinates on a map before weather is fetched.
+- Decide repository visibility for judges and the static host. Static hosting from a private repository may need a paid plan, so use a public repository or a separate static host.
+- Record the prior concept disclosure: SankofaFresh existed as an idea before the event, and all code is written during the event window.
 
 ## Acceptance criteria
-- [ ] Record each external answer with source/date or explicitly mark unresolved; do not claim organizer approval.
-- [ ] Record laptop OS/Python and intended LAN test arrangement.
-- [ ] Resolve competition eligibility before final submission.
+- [ ] Each answer is recorded in this issue with its source and time, or marked unresolved.
+- [ ] Language and demo location are decided by the 14:30 ET checkpoint, with the checked coordinates recorded.
+- [ ] No organizer approval is claimed that was not given.
 
 ## Required evidence
-- Linked organizer evidence and demo environment details; unresolved external decisions clearly listed.
+- An issue comment listing each decision with its source (link or screenshot) and time, and any unresolved items.
 
 ## Implementation notes
-- Use a short branch such as `codex/<issue-number>-<topic>` and a focused PR with `Closes #<issue-number>`.
+- Use a short branch such as `<issue-number>-<topic>` and a focused PR with `Closes #<issue-number>`.
 - Keep shared-contract changes explicit in the PR. Attach commands/results or mark checks not run.
 - Close the issue when its acceptance criteria and required evidence are complete.
-- Do not expand into real sensors, accounts, cloud inference, real SMS, payments or real-world accuracy claims.
+- Do not add server APIs, databases, cloud inference, real SMS, accounts or real-world accuracy claims.

@@ -109,6 +109,11 @@
       "id": "I_kwDOU6WVkc8AAAABUzeD2A",
       "number": 22,
       "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/22"
+    },
+    "video": {
+      "id": "I_kwDOU6WVkc8AAAABU02JlA",
+      "number": 24,
+      "url": "https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/24"
     }
   },
   "edges": [
@@ -122,11 +127,7 @@
     ],
     [
       "weather",
-      "contracts"
-    ],
-    [
-      "weather",
-      "device_records"
+      "scaffold"
     ],
     [
       "features",
@@ -137,20 +138,8 @@
       "scaffold"
     ],
     [
-      "batch_api",
-      "contracts"
-    ],
-    [
-      "batch_api",
-      "device_records"
-    ],
-    [
       "bands_baseline",
       "contracts"
-    ],
-    [
-      "bands_baseline",
-      "device_records"
     ],
     [
       "synthetic_data",
@@ -169,6 +158,10 @@
       "train_export"
     ],
     [
+      "inference",
+      "features"
+    ],
+    [
       "pwa_screens",
       "contracts"
     ],
@@ -181,20 +174,8 @@
       "pwa_screens"
     ],
     [
-      "offline_flow",
-      "weather"
-    ],
-    [
-      "offline_flow",
-      "features"
-    ],
-    [
-      "offline_flow",
-      "batch_api"
-    ],
-    [
-      "offline_flow",
-      "bands_baseline"
+      "result_view",
+      "messages"
     ],
     [
       "offline_flow",
@@ -205,8 +186,20 @@
       "result_view"
     ],
     [
+      "offline_flow",
+      "device_records"
+    ],
+    [
+      "offline_flow",
+      "bands_baseline"
+    ],
+    [
+      "offline_flow",
+      "weather"
+    ],
+    [
       "evaluation",
-      "inference"
+      "train_export"
     ],
     [
       "evaluation",
@@ -218,15 +211,15 @@
     ],
     [
       "test_gate",
-      "offline_flow"
+      "inference"
+    ],
+    [
+      "test_gate",
+      "synthetic_data"
     ],
     [
       "deploy_offline",
       "offline_flow"
-    ],
-    [
-      "deploy_offline",
-      "scaffold"
     ],
     [
       "release",
@@ -245,20 +238,24 @@
       "deploy_offline"
     ],
     [
+      "release",
+      "video"
+    ],
+    [
       "messages",
-      "result_view"
+      "contracts"
     ],
     [
-      "baseline_plus",
+      "messages",
+      "coordination"
+    ],
+    [
+      "video",
+      "offline_flow"
+    ],
+    [
+      "video",
       "evaluation"
-    ],
-    [
-      "economics",
-      "release"
-    ],
-    [
-      "interventions",
-      "release"
     ]
   ]
 }

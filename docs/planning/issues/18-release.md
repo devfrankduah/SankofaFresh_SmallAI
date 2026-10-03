@@ -1,9 +1,9 @@
 ## Context
-Implement specification sections 13–16: [project specification](../../blob/main/docs/SankofaFresh_Project_Specification.md). This is planned work, not verified behavior.
+Specification sections 10 to 12: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
-- Planning estimate: 1–2 focused person-hours, unvalidated and not a delivery guarantee.
+- Planning estimate: 1.5 to 2 focused person-hours, unvalidated and not a delivery guarantee.
 - Task key: `release`
 
 ## Dependencies
@@ -11,23 +11,23 @@ Implement specification sections 13–16: [project specification](../../blob/mai
 - Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/15
 - Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/16
 - Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/17
+- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/24
 
 ## Scope and implementation notes
-- Map all AC01–AC14 to evidence; verify model parity/performance and registration evidence alongside integration checks.
-- Review every UI/readme/demo claim: SYNTHETIC_DEMO, probability null, no farm-loss/food-safety/solar/real-SMS/microcontroller claims.
-- Freeze features and record backup demo covering registration, heat replay, trained model, operator alert, internet disconnect, missing sensor and baseline results.
-- Use confirmed organizer format/deadline and prior-work disclosure for submission pack; obtain any required human submission action.
+- README: problem sentence, how to run and test offline, dataset table, data limits list (spec 10), tree paths, metrics, Responsible AI (spec 11), claims (spec 12) and licences.
+- Claims review across the app, the README and the video.
+- Submit using the format confirmed in #1, by the 08:30 ET checkpoint.
 
 ## Acceptance criteria
-- [ ] All required release checks have links/results; failed checks are explicit blockers, not silently waived.
-- [ ] Trained local model and full workflow are present; threshold-only integration is not labeled final.
-- [ ] Submission pack follows verified brief and recording length; eligibility/deadline unknowns remain blockers until resolved.
+- [ ] AC12: SYNTHETIC_DEMO on every result, and no claims of field accuracy, food safety or income gains anywhere.
+- [ ] AC13: a teammate regenerates data, retrains and runs the app from the README on a clean checkout.
+- [ ] Every row in docs/ACCEPTANCE.md links its evidence or stays NOT VERIFIED as an explicit gap.
 
 ## Required evidence
-- Signed-off acceptance matrix, commit/model hashes, backup recording and final claims checklist.
+- Clean-run log, the completed docs/ACCEPTANCE.md, the claims checklist and the submission confirmation.
 
 ## Implementation notes
-- Use a short branch such as `codex/<issue-number>-<topic>` and a focused PR with `Closes #<issue-number>`.
+- Use a short branch such as `<issue-number>-<topic>` and a focused PR with `Closes #<issue-number>`.
 - Keep shared-contract changes explicit in the PR. Attach commands/results or mark checks not run.
 - Close the issue when its acceptance criteria and required evidence are complete.
-- Do not expand into real sensors, accounts, cloud inference, real SMS, payments or real-world accuracy claims.
+- Do not add server APIs, databases, cloud inference, real SMS, accounts or real-world accuracy claims.
