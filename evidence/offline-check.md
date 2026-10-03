@@ -2,7 +2,7 @@
 
 | Part | Status |
 |---|---|
-| Local browser check: load once, stop the server, reload and use the app | PASSED on 3 October 2026, against the current tree, steps below |
+| Local browser check: load once, stop the server, reload and use the app | PASSED on 3 October 2026, on the current build, steps below |
 | Deploy to the static host | NOT DONE: the public link isn't live yet |
 | Real phone in airplane mode, including a reload | NOT DONE: waits for the public link |
 
@@ -10,35 +10,33 @@ AC06 and AC07 stay NOT VERIFIED until the phone steps are done. The local check 
 
 ## Local browser check
 
-- Code: branch `19-twi-pass` from main at cd865ba, service worker cache `sankofafresh-53bcc1757d374b7d`, model `tree-v2-9b83270` (115 nodes, abstain cut 0.442), languages English and Twi.
-- Browser: Chromium 154 driven by Playwright, viewport 360 by 740, on a desktop computer.
+- Code: main at f1d6b44 (after the result-screen and check-form redesign, #58 and #60), service worker cache `sankofafresh-cde8e6c93a4e562e`, model `tree-v2-9b83270` (115 nodes, abstain cut 0.442), languages English and Twi.
+- Browser: Chromium 154 driven by Playwright in a fresh browser context, viewport 360 by 740, on a desktop computer.
 - Server: `cd web && python3 -m http.server 8770 --bind 127.0.0.1`, so `web/` is the site root. `http://127.0.0.1` counts as a secure context, so the service worker and Web Crypto both run.
 
 | Step | What was done | Result |
 |---|---|---|
-| 1 | Unregister any service worker, delete caches and clear localStorage for the origin | Clean start |
-| 2 | Open `http://127.0.0.1:8770/index.html` once, online (22:56:27 UTC) | Consent screen. The page is controlled by `sw.js`, and cache `sankofafresh-53bcc1757d374b7d` holds 18 files: app.js, canonical.js, contract.json, demo_batches.json, features.js, the three icons, index.html, manifest.webmanifest, messages.en.json, messages.tw.json, metrics.json, storage.js, styles.css, tree.js, tree.json, weather.json |
-| 3 | Stop the server (22:56:34 UTC) | `curl` to the server exits with code 7, connection refused |
-| 4 | Reload the page | Consent screen in English, no error notice |
-| 5 | Continue, then Settings > Load demo batches | Batches 1 to 3 added, marked "Demo data, not a real batch" |
-| 6 | Run two more checks through the form | See the table below |
-| 7 | Switch to Twi in Settings and reload | The app reloads in Twi; `messages.tw.json` came from the cache |
-| 8 | Open the batch list, switch back to English, reload again | All five batches listed with their bands |
-| 9 | Open About this check | Model `tree-v2-9b83270`, its hash, and file sizes 198.6 kB in total, measured from the 18 cached files, with the held-out metrics |
+| 1 | Open `http://127.0.0.1:8770/index.html` once in a new context, online (23:20:46 UTC) | Consent screen. The page is controlled by `sw.js`, and cache `sankofafresh-cde8e6c93a4e562e` holds 18 files: app.js, canonical.js, contract.json, demo_batches.json, features.js, the three icons, index.html, manifest.webmanifest, messages.en.json, messages.tw.json, metrics.json, storage.js, styles.css, tree.js, tree.json, weather.json |
+| 2 | Stop the server (23:20:54 UTC) | `curl` to the server exits with code 7, connection refused |
+| 3 | Reload the page | Consent screen in English, no error notice |
+| 4 | Continue, then Load demo batches from the empty list | Batches 1 to 3 added, marked "Demo data, not a real batch" |
+| 5 | Run a check through the one-question-per-screen form, all eight steps | See the table below |
+| 6 | Open each result | Each stamp landed, with its why chips and humidity line, as listed below |
+| 7 | Switch to Twi in Settings and reload | The app reloads in Twi; `messages.tw.json` came from the cache; the batch list shows all four batches with their stamps |
+| 8 | Switch back to English, reload, open About this check | Model `tree-v2-9b83270`, its hash, and file sizes 215.8 kB in total, measured from the 18 cached files, with the held-out metrics |
 
 | Batch | Answers | Result |
 |---|---|---|
-| Batch 1 (demo) | dried 12 days, not rewetted, raised, not musty, dry, stored 20 days from 2025-03-01 | Green, no reasons, no action, no SMS |
-| Batch 2 (demo) | dried 8 days, rewetted, raised, not musty, damp, stored 10 days from 2025-01-15 | Amber; reason "Your hand or bite test did not find the beans dry."; action re-dry; SMS draft labelled SIMULATED_NOT_SENT |
-| Batch 3 (demo) | as Batch 1, hand test "Don't know" | Not sure; reason "One question was answered "Don't know"."; action take a sample; SMS draft |
-| Batch 4 | dried 4 days, not rewetted, raised, musty, damp, stored 30 days from 2025-01-05 | Amber; reasons damp hand test and musty smell; action re-dry. This batch was red under the previous depth-4 tree |
-| Batch 5 | dried 3 days, rewetted, on the floor, musty, damp, stored 30 days from 2025-01-05 | Red; reasons damp hand test and musty smell; action re-dry; SMS draft |
+| Batch 1 (demo) | dried 12 days, not rewetted, raised, not musty, dry, stored 20 days from 2025-03-01 | Green, no reasons, no action; humidity line 67.4% to 78.2% |
+| Batch 2 (demo) | dried 8 days, rewetted, raised, not musty, damp, stored 10 days from 2025-01-15 | Amber; chip "Your hand or bite test did not find the beans dry."; action re-dry; humidity line 50.4% to 80% |
+| Batch 3 (demo) | as Batch 1, hand test "Don't know" | Not sure; chip "One question was answered "Don't know"."; action take a sample; no humidity line |
+| Batch 4 | dried 3 days, rewetted, on the floor, musty, damp, stored 30 days from 2025-01-05 | Red; chips for the damp hand test and the musty smell; action re-dry; humidity line 53.9% to 80% |
 
-Network log for steps 4 to 9 (every response the page received): 54 responses, all served by the service worker. 51 were 200. 3 were 404s from the worker for `audio/index.json`, which is not in this app version (no audio yet), so there is no Play button. No request reached the network. The log also holds one test probe of my own for `sw.js`, which the worker answered with a 404; it is not app traffic and isn't counted above.
+Network log for steps 3 to 8 (every response the page received): 60 responses, all served by the service worker. 57 were 200. 3 were 404s from the worker for `audio/index.json`, which is not in this app version (no audio yet), so there is no Play button. No request reached the network.
 
 Screenshots: `evidence/screens/17-offline-reload-consent.png`, `17-offline-result-green.png`, `17-offline-result-amber.png`, `17-offline-result-red.png`, `17-offline-result-not-sure.png`, `17-offline-batches.png`, `17-offline-batches-tw.png`, `17-offline-evidence.png`.
 
-Earlier runs on the same day, with the depth-4 tree `tree-v2-b7a4e1c` (caches `sankofafresh-883356923ec6e172` and `sankofafresh-6353f04814539408`), passed the same way. The update path from an older cache version to a newer one was also checked: the new version replaced the old cache and deleted it.
+Earlier runs the same day passed the same way: on cache `sankofafresh-53bcc1757d374b7d` before the redesign, and on the depth-4 tree `tree-v2-b7a4e1c` (caches `sankofafresh-883356923ec6e172` and `sankofafresh-6353f04814539408`). The update path from an older cache version to a newer one was also checked: the new version replaced the old cache and deleted it.
 
 ## Phone check (NOT DONE)
 
