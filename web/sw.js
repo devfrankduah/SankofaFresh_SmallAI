@@ -5,7 +5,7 @@
 // version is what makes installed phones fetch a new tree, message file or script.
 
 const CACHE_PREFIX = 'sankofafresh-';
-const CACHE_VERSION = '5622a132c8b117df';
+const CACHE_VERSION = '4e783920c24bbf3b';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const PRECACHE = [
   'app.js',

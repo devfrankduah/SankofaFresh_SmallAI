@@ -76,5 +76,7 @@
   "metric_red_recall": "Red recall",
   "metric_false_reassurance_rate": "False reassurance rate",
   "metric_abstain_rate": "Abstain rate",
-  "metric_coverage": "Coverage"
+  "metric_coverage": "Coverage",
+  "button_load_demo": "Load demo batches",
+  "demo_data_note": "Demo data, not a real batch"
 }
