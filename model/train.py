@@ -1,4 +1,4 @@
-"""Train the depth-4 tree on the train farms, tune abstain_cut on validation farms only, export web/tree.json.
+"""Train the decision tree on the train farms, tune abstain_cut on validation farms only, export web/tree.json.
 
 Run from the repository root:  python -m model.train
 Also writes docs/tree_rules.md (the tree as readable rules) and evidence/training.json (the abstain_cut search).
@@ -32,7 +32,8 @@ TRAINING_PATH = ROOT / 'evidence' / 'training.json'
 FEATURES = [feature['name'] for feature in CONTRACT['features']]
 CLASSES = CONTRACT['classes']
 ABSTAIN = CONTRACT['abstention']['band']
-MAX_DEPTH = 4
+# Chosen from 3 to 6 on validation farms only by python -m model.depth_sweep (evidence/depth_sweep.json).
+MAX_DEPTH = 6
 CLASS_WEIGHT = 'balanced'
 # ASSUMPTION: the tuned cut may send at most 15 percent of validation batches to not_sure. Within that limit it
 # minimises false reassurance (true red shown as green), the error that can cost a farmer the most.
@@ -53,8 +54,8 @@ def matrix(rows: list[dict[str, str]], split: str) -> tuple[np.ndarray, np.ndarr
     return X, y
 
 
-def fit(X: np.ndarray, y: np.ndarray, seed: int) -> DecisionTreeClassifier:
-    model = DecisionTreeClassifier(max_depth=MAX_DEPTH, class_weight=CLASS_WEIGHT, random_state=seed)
+def fit(X: np.ndarray, y: np.ndarray, seed: int, max_depth: int = MAX_DEPTH) -> DecisionTreeClassifier:
+    model = DecisionTreeClassifier(max_depth=max_depth, class_weight=CLASS_WEIGHT, random_state=seed)
     model.fit(X, y)
     if model.classes_.tolist() != list(range(len(CLASSES))):
         raise AssertionError('every class must appear in training, in contract order')

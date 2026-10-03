@@ -1,6 +1,6 @@
 {
   "evidence_mode": "SYNTHETIC_DEMO",
-  "model_version": "tree-v2-b7a4e1c",
+  "model_version": "tree-v2-9b83270",
   "note": "Hand-built demo batches for the video, run through the shipped tree with the Bepong 2025 weather. documented_rule_band is the spec 6 rule with no noise; it is what the synthetic labels follow, not a measurement.",
   "batches": [
     {
@@ -29,9 +29,9 @@
       ],
       "tree": "green",
       "tree_probabilities": {
-        "green": 0.9759702582798148,
-        "amber": 0.020058359256250474,
-        "red": 0.003971382463934814
+        "green": 0.9891822575872159,
+        "amber": 0.010817742412783962,
+        "red": 0.0
       },
       "baseline": "green",
       "documented_rule_moisture": 11.29,
@@ -63,9 +63,9 @@
       ],
       "tree": "amber",
       "tree_probabilities": {
-        "green": 0.13106394639824812,
-        "amber": 0.6233499910036694,
-        "red": 0.24558606259806504
+        "green": 0.40352155386132127,
+        "amber": 0.5716343457294015,
+        "red": 0.024844100409277283
       },
       "baseline": "green",
       "documented_rule_moisture": 13.25,

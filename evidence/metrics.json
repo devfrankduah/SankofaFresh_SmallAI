@@ -1,9 +1,9 @@
 {
   "evidence_mode": "SYNTHETIC_DEMO",
   "note": "Results on synthetic labels from the spec 6 rule. They show how well the tree recovers that rule compared with a one-variable humidity rule. They are not field accuracy.",
-  "model_version": "tree-v2-b7a4e1c",
-  "tree_sha256": "b7a4e1c115e6ab57f6f1b82a75cd18fb6f86f30dea45ad3f79cb785049a38854",
-  "abstain_cut": 0.45,
+  "model_version": "tree-v2-9b83270",
+  "tree_sha256": "9b832703746e573e0135a212622c11e0b914e27b5cc037daa505f04bdb03a902",
+  "abstain_cut": 0.442,
   "dataset_sha256": "be3a60ad80cc597ea3a78a9d38023d71a2711d9cc538852b5990c0ed38f3b7f4",
   "definitions": {
     "coverage": "share of batches that get a green, amber or red result (not not_sure)",
@@ -24,12 +24,12 @@
         "red": 480
       },
       "tree": {
-        "accuracy": 0.7049941927990708,
-        "macro_f1": 0.7022542007509244,
-        "red_recall": 0.6083333333333333,
-        "false_reassurance_rate": 0.0625,
-        "abstain_rate": 0.10312500000000002,
-        "coverage": 0.896875
+        "accuracy": 0.7465968586387435,
+        "macro_f1": 0.7413625847320674,
+        "red_recall": 0.7270833333333333,
+        "false_reassurance_rate": 0.03125,
+        "abstain_rate": 0.00520833333333337,
+        "coverage": 0.9947916666666666
       },
       "baseline": {
         "accuracy": 0.5072916666666667,
@@ -41,22 +41,22 @@
       },
       "tree_confusion": {
         "green": {
-          "green": 153,
-          "amber": 32,
-          "red": 5,
-          "not_sure": 36
+          "green": 178,
+          "amber": 42,
+          "red": 4,
+          "not_sure": 2
         },
         "amber": {
           "green": 32,
-          "amber": 162,
-          "red": 31,
-          "not_sure": 29
+          "amber": 186,
+          "red": 34,
+          "not_sure": 2
         },
         "red": {
-          "green": 30,
-          "amber": 124,
-          "red": 292,
-          "not_sure": 34
+          "green": 15,
+          "amber": 115,
+          "red": 349,
+          "not_sure": 1
         }
       },
       "baseline_confusion": {
@@ -80,9 +80,9 @@
         }
       },
       "tree_abstain_reasons": {
-        "reason_low_confidence": 99
+        "reason_low_confidence": 5
       },
-      "tree_red_shown_red_or_not_sure": 0.6791666666666667,
+      "tree_red_shown_red_or_not_sure": 0.7291666666666666,
       "rewetted_in_dry_weeks": {
         "rule": "rewetted is yes and rh14_mean below 70",
         "rows": 27,
@@ -92,16 +92,15 @@
           "red": 3
         },
         "tree": {
-          "green": 11,
-          "amber": 10,
-          "red": 2,
-          "not_sure": 4
+          "green": 8,
+          "amber": 17,
+          "not_sure": 2
         },
         "baseline": {
           "green": 27
         },
         "amber_or_red_rows": 16,
-        "tree_green_on_amber_or_red": 3,
+        "tree_green_on_amber_or_red": 0,
         "baseline_green_on_amber_or_red": 16
       }
     },
@@ -113,12 +112,12 @@
         "red": 673
       },
       "tree": {
-        "accuracy": 0.6858457997698504,
-        "macro_f1": 0.6395276752261232,
-        "red_recall": 0.62555720653789,
-        "false_reassurance_rate": 0.06092124814264487,
-        "abstain_rate": 0.09479166666666672,
-        "coverage": 0.9052083333333333
+        "accuracy": 0.7578947368421053,
+        "macro_f1": 0.7077848658751972,
+        "red_recall": 0.7578008915304606,
+        "false_reassurance_rate": 0.02823179791976226,
+        "abstain_rate": 0.01041666666666663,
+        "coverage": 0.9895833333333334
       },
       "baseline": {
         "accuracy": 0.5979166666666667,
@@ -130,22 +129,22 @@
       },
       "tree_confusion": {
         "green": {
-          "green": 68,
-          "amber": 11,
-          "red": 2,
-          "not_sure": 25
+          "green": 86,
+          "amber": 19,
+          "red": 1,
+          "not_sure": 0
         },
         "amber": {
-          "green": 15,
-          "amber": 107,
-          "red": 32,
-          "not_sure": 27
+          "green": 22,
+          "amber": 124,
+          "red": 35,
+          "not_sure": 0
         },
         "red": {
-          "green": 41,
-          "amber": 172,
-          "red": 421,
-          "not_sure": 39
+          "green": 19,
+          "amber": 134,
+          "red": 510,
+          "not_sure": 10
         }
       },
       "baseline_confusion": {
@@ -169,9 +168,9 @@
         }
       },
       "tree_abstain_reasons": {
-        "reason_low_confidence": 91
+        "reason_low_confidence": 10
       },
-      "tree_red_shown_red_or_not_sure": 0.6835066864784547,
+      "tree_red_shown_red_or_not_sure": 0.7726597325408618,
       "rewetted_in_dry_weeks": {
         "rule": "rewetted is yes and rh14_mean below 70",
         "rows": 0,

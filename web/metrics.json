@@ -1,13 +1,13 @@
 {
-  "model_version": "tree-v2-b7a4e1c",
-  "tree_sha256": "b7a4e1c115e6ab57f6f1b82a75cd18fb6f86f30dea45ad3f79cb785049a38854",
+  "model_version": "tree-v2-9b83270",
+  "tree_sha256": "9b832703746e573e0135a212622c11e0b914e27b5cc037daa505f04bdb03a902",
   "tree": {
-    "accuracy": 0.705,
-    "macro_f1": 0.7023,
-    "red_recall": 0.6083,
-    "false_reassurance_rate": 0.0625,
-    "abstain_rate": 0.1031,
-    "coverage": 0.8969
+    "accuracy": 0.7466,
+    "macro_f1": 0.7414,
+    "red_recall": 0.7271,
+    "false_reassurance_rate": 0.0312,
+    "abstain_rate": 0.0052,
+    "coverage": 0.9948
   },
   "baseline": {
     "accuracy": 0.5073,
