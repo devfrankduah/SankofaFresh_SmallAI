@@ -144,10 +144,12 @@ test('new batches can only take labels that are not in use', () => {
 });
 
 test('the action follows the contract rule (spec 5.6)', () => {
+  // Read from the contract so a rename of the drying reason can't break this table.
+  const dryingReason = CONTRACT.features.find(feature => feature.name === 'days_drying').reason;
   for (const [band, reasons, action] of [
     ['red', ['reason_rewetted', 'reason_floor'], 'action_redry'],
     ['amber', ['reason_damp_check'], 'action_redry'],
-    ['amber', ['reason_long_drying'], 'action_redry'],
+    ['amber', [dryingReason], 'action_redry'],
     ['red', ['reason_floor', 'reason_rewetted'], 'action_raise_bags'],
     ['amber', ['reason_humid_weeks', 'reason_rewetted'], 'action_test_sample'],
     ['red', ['reason_musty'], 'action_test_sample'],
