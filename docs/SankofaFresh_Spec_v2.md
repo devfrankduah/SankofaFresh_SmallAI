@@ -45,7 +45,7 @@ The persona (Noor) grows coffee and sells parchment to whichever buyer arrives, 
 | Crop and product | Coffee parchment in storage |
 | User | Smallholder farmer household, shared smartphone used mostly at weekends |
 | Delivery | Static PWA: HTML, CSS, vanilla JavaScript, service worker, web manifest |
-| Model | scikit-learn DecisionTreeClassifier, max_depth 4, exported to JSON, run by a small JS interpreter |
+| Model | scikit-learn DecisionTreeClassifier, max_depth 6 (chosen from 3 to 6 on validation farms only, `evidence/depth_sweep.json`), exported to JSON, run by a small JS interpreter |
 | Training tooling | Python, offline, team only. Never runs on the user's device. |
 | Weather data | NASA POWER hourly T2M and RH2M for one demo location, bundled as a small JSON |
 | Labels | Synthetic, generated from a documented rule tied to FAO and Codex thresholds. Evidence mode SYNTHETIC_DEMO. |

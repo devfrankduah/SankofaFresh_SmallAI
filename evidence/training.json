@@ -1,110 +1,254 @@
 {
   "evidence_mode": "SYNTHETIC_DEMO",
-  "model_version": "tree-v2-b7a4e1c",
-  "tree_sha256": "b7a4e1c115e6ab57f6f1b82a75cd18fb6f86f30dea45ad3f79cb785049a38854",
+  "model_version": "tree-v2-9b83270",
+  "tree_sha256": "9b832703746e573e0135a212622c11e0b914e27b5cc037daa505f04bdb03a902",
   "abstain_cut_rule": "lowest validation false reassurance rate with coverage at least 0.85; ties go to higher coverage, then the lower cut",
   "chosen": {
-    "abstain_cut": 0.45,
-    "coverage": 0.8770833333333333,
-    "false_reassurance_rate": 0.028634361233480177,
-    "accuracy_on_covered": 0.7315914489311164
+    "abstain_cut": 0.442,
+    "coverage": 0.996875,
+    "false_reassurance_rate": 0.019823788546255508,
+    "accuracy_on_covered": 0.7513061650992685
   },
   "candidates": [
     {
-      "abstain_cut": 0.449662548171229,
+      "abstain_cut": 0.4411682416596211,
       "coverage": 1.0,
-      "false_reassurance_rate": 0.08590308370044053,
-      "accuracy_on_covered": 0.6885416666666667
+      "false_reassurance_rate": 0.024229074889867842,
+      "accuracy_on_covered": 0.7489583333333333
     },
     {
-      "abstain_cut": 0.45,
-      "coverage": 0.8770833333333333,
-      "false_reassurance_rate": 0.028634361233480177,
-      "accuracy_on_covered": 0.7315914489311164
+      "abstain_cut": 0.442,
+      "coverage": 0.996875,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7513061650992685
     },
     {
-      "abstain_cut": 0.485,
-      "coverage": 0.871875,
-      "false_reassurance_rate": 0.028634361233480177,
-      "accuracy_on_covered": 0.7347670250896058
+      "abstain_cut": 0.517,
+      "coverage": 0.99375,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7526205450733753
     },
     {
-      "abstain_cut": 0.605,
-      "coverage": 0.79375,
-      "false_reassurance_rate": 0.028634361233480177,
-      "accuracy_on_covered": 0.7322834645669292
+      "abstain_cut": 0.52,
+      "coverage": 0.9822916666666667,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7518557794273595
     },
     {
-      "abstain_cut": 0.624,
-      "coverage": 0.515625,
-      "false_reassurance_rate": 0.028634361233480177,
-      "accuracy_on_covered": 0.8222222222222222
+      "abstain_cut": 0.54,
+      "coverage": 0.9791666666666666,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7531914893617021
     },
     {
-      "abstain_cut": 0.669,
-      "coverage": 0.5010416666666667,
-      "false_reassurance_rate": 0.028634361233480177,
-      "accuracy_on_covered": 0.8357588357588358
+      "abstain_cut": 0.543,
+      "coverage": 0.9604166666666667,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7505422993492408
+    },
+    {
+      "abstain_cut": 0.566,
+      "coverage": 0.9114583333333334,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7668571428571429
+    },
+    {
+      "abstain_cut": 0.572,
+      "coverage": 0.8791666666666667,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7701421800947867
+    },
+    {
+      "abstain_cut": 0.576,
+      "coverage": 0.865625,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.776173285198556
+    },
+    {
+      "abstain_cut": 0.613,
+      "coverage": 0.865625,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.776173285198556
+    },
+    {
+      "abstain_cut": 0.637,
+      "coverage": 0.8572916666666667,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7837181044957473
+    },
+    {
+      "abstain_cut": 0.651,
+      "coverage": 0.8416666666666667,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7883663366336634
+    },
+    {
+      "abstain_cut": 0.665,
+      "coverage": 0.840625,
+      "false_reassurance_rate": 0.019823788546255508,
+      "accuracy_on_covered": 0.7881040892193308
+    },
+    {
+      "abstain_cut": 0.673,
+      "coverage": 0.8229166666666666,
+      "false_reassurance_rate": 0.01762114537444934,
+      "accuracy_on_covered": 0.7911392405063291
     },
     {
       "abstain_cut": 0.675,
-      "coverage": 0.49270833333333336,
-      "false_reassurance_rate": 0.02643171806167401,
-      "accuracy_on_covered": 0.8372093023255814
+      "coverage": 0.7385416666666667,
+      "false_reassurance_rate": 0.01762114537444934,
+      "accuracy_on_covered": 0.8208744710860366
     },
     {
-      "abstain_cut": 0.712,
-      "coverage": 0.47291666666666665,
-      "false_reassurance_rate": 0.015418502202643172,
-      "accuracy_on_covered": 0.8524229074889867
+      "abstain_cut": 0.678,
+      "coverage": 0.7052083333333333,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8360413589364845
     },
     {
-      "abstain_cut": 0.721,
-      "coverage": 0.409375,
-      "false_reassurance_rate": 0.015418502202643172,
-      "accuracy_on_covered": 0.9007633587786259
+      "abstain_cut": 0.685,
+      "coverage": 0.6708333333333333,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8509316770186336
     },
     {
-      "abstain_cut": 0.736,
-      "coverage": 0.3645833333333333,
-      "false_reassurance_rate": 0.015418502202643172,
-      "accuracy_on_covered": 0.9171428571428571
+      "abstain_cut": 0.698,
+      "coverage": 0.659375,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8515007898894155
     },
     {
-      "abstain_cut": 0.798,
-      "coverage": 0.36041666666666666,
-      "false_reassurance_rate": 0.015418502202643172,
-      "accuracy_on_covered": 0.9161849710982659
+      "abstain_cut": 0.704,
+      "coverage": 0.6552083333333333,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8505564387917329
     },
     {
-      "abstain_cut": 0.835,
-      "coverage": 0.28854166666666664,
-      "false_reassurance_rate": 0.0022026431718061676,
-      "accuracy_on_covered": 0.9494584837545126
+      "abstain_cut": 0.717,
+      "coverage": 0.6520833333333333,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.853035143769968
     },
     {
-      "abstain_cut": 0.892,
-      "coverage": 0.2677083333333333,
-      "false_reassurance_rate": 0.0022026431718061676,
-      "accuracy_on_covered": 0.9571984435797666
+      "abstain_cut": 0.731,
+      "coverage": 0.5864583333333333,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8579040852575488
     },
     {
-      "abstain_cut": 0.893,
-      "coverage": 0.20208333333333334,
-      "false_reassurance_rate": 0.0022026431718061676,
-      "accuracy_on_covered": 0.9536082474226805
+      "abstain_cut": 0.744,
+      "coverage": 0.553125,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8531073446327684
     },
     {
-      "abstain_cut": 0.935,
-      "coverage": 0.07604166666666666,
-      "false_reassurance_rate": 0.0022026431718061676,
-      "accuracy_on_covered": 0.9315068493150684
+      "abstain_cut": 0.761,
+      "coverage": 0.45729166666666665,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8610478359908884
+    },
+    {
+      "abstain_cut": 0.77,
+      "coverage": 0.4375,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8809523809523809
+    },
+    {
+      "abstain_cut": 0.772,
+      "coverage": 0.434375,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8800959232613909
+    },
+    {
+      "abstain_cut": 0.791,
+      "coverage": 0.43333333333333335,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.8798076923076923
+    },
+    {
+      "abstain_cut": 0.801,
+      "coverage": 0.3958333333333333,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.9026315789473685
+    },
+    {
+      "abstain_cut": 0.814,
+      "coverage": 0.38958333333333334,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.9010695187165776
+    },
+    {
+      "abstain_cut": 0.827,
+      "coverage": 0.38333333333333336,
+      "false_reassurance_rate": 0.00881057268722467,
+      "accuracy_on_covered": 0.904891304347826
+    },
+    {
+      "abstain_cut": 0.843,
+      "coverage": 0.37916666666666665,
+      "false_reassurance_rate": 0.006607929515418502,
+      "accuracy_on_covered": 0.9065934065934066
+    },
+    {
+      "abstain_cut": 0.844,
+      "coverage": 0.371875,
+      "false_reassurance_rate": 0.006607929515418502,
+      "accuracy_on_covered": 0.9103641456582633
+    },
+    {
+      "abstain_cut": 0.852,
+      "coverage": 0.340625,
+      "false_reassurance_rate": 0.006607929515418502,
+      "accuracy_on_covered": 0.9296636085626911
+    },
+    {
+      "abstain_cut": 0.887,
+      "coverage": 0.32708333333333334,
+      "false_reassurance_rate": 0.0,
+      "accuracy_on_covered": 0.945859872611465
+    },
+    {
+      "abstain_cut": 0.905,
+      "coverage": 0.32083333333333336,
+      "false_reassurance_rate": 0.0,
+      "accuracy_on_covered": 0.9545454545454546
+    },
+    {
+      "abstain_cut": 0.953,
+      "coverage": 0.2760416666666667,
+      "false_reassurance_rate": 0.0,
+      "accuracy_on_covered": 0.9622641509433962
+    },
+    {
+      "abstain_cut": 0.969,
+      "coverage": 0.2520833333333333,
+      "false_reassurance_rate": 0.0,
+      "accuracy_on_covered": 0.9586776859504132
+    },
+    {
+      "abstain_cut": 0.973,
+      "coverage": 0.23645833333333333,
+      "false_reassurance_rate": 0.0,
+      "accuracy_on_covered": 0.960352422907489
     },
     {
       "abstain_cut": 0.976,
-      "coverage": 0.0020833333333333333,
+      "coverage": 0.22291666666666668,
       "false_reassurance_rate": 0.0,
-      "accuracy_on_covered": 0.5
+      "accuracy_on_covered": 0.9579439252336449
+    },
+    {
+      "abstain_cut": 0.981,
+      "coverage": 0.2,
+      "false_reassurance_rate": 0.0,
+      "accuracy_on_covered": 0.9583333333333334
+    },
+    {
+      "abstain_cut": 0.99,
+      "coverage": 0.13125,
+      "false_reassurance_rate": 0.0,
+      "accuracy_on_covered": 0.9603174603174603
     }
   ],
   "validation_rows": 960,
