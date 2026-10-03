@@ -2,14 +2,16 @@
 import json
 import re
 import subprocess
-from prepare_backlog import CLOSED_NOT_PLANNED, ROOT, TASKS, body, closed_tasks, open_tasks, validate_tasks
+from prepare_backlog import (CLOSED_NOT_PLANNED, LEGACY_REPO_URL, REPO_NAME, REPO_OWNER, REPO_URL, ROOT, TASKS, body,
+                             closed_tasks, open_tasks, validate_tasks)
 
 validate_tasks()
 UNTICK = re.compile(r'^- \[[xX]\]', re.MULTILINE)
-query = '''{repository(owner:"GeorgeDavidson2",name:"SankofaFresh_SmallAI"){
+query = '''query($owner:String!,$name:String!){repository(owner:$owner,name:$name){
 isPrivate url issues(first:100){totalCount nodes{id number title state stateReason assignees(first:10){totalCount}
 labels(first:20){nodes{name}} body blockedBy(first:100){nodes{id number}}}}}}'''
-result = json.loads(subprocess.check_output(['gh','api','graphql','-f',f'query={query}'], text=True))
+result = json.loads(subprocess.check_output(['gh','api','graphql','-f',f'query={query}','-f',f'owner={REPO_OWNER}',
+                                             '-f',f'name={REPO_NAME}'], text=True))
 assert not result.get('errors'), result
 repo = result['data']['repository']
 assert repo['issues']['totalCount'] <= len(repo['issues']['nodes']), 'more than 100 issues; add pagination'
@@ -35,6 +37,8 @@ for task in TASKS:
     assert issue['assignees']['totalCount'] == 0, task['key']
     assert {x for x in labels if x.startswith('priority:')} == {f'priority:{task["priority"]}'}, (task['key'], labels)
     # Ticking acceptance boxes is how evidence gets recorded, so checkbox state is not drift.
+    # Bodies written before the repository moved link to the old path, which GitHub redirects; that is not drift.
+    issue['body'] = issue['body'].replace(LEGACY_REPO_URL, REPO_URL)
     assert UNTICK.sub('- [ ]', issue['body']) == body(task, published['issues']), task['key']
     expected = {published['issues'][d]['id'] for d in task['deps']}
     assert {x['id'] for x in issue['blockedBy']['nodes']} == expected, task['key']

@@ -1,5 +1,5 @@
 ## Context
-Specification sections 5.4: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 5.4: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 5.4: [docs/SankofaFresh_Spec_v2.md](https://github.com/Ge
 - Task key: `inference`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/10
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/6
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/10
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/6
 
 ## Scope and implementation notes
 - `web/tree.js` interpreter: cast inputs with `Math.fround` and go left when the value is less than or equal to the float32 threshold, as scikit-learn does. Return class probabilities and the decision path.

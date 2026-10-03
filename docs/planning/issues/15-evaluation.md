@@ -1,5 +1,5 @@
 ## Context
-Specification sections 7: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 7: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,9 +7,9 @@ Specification sections 7: [docs/SankofaFresh_Spec_v2.md](https://github.com/Geor
 - Task key: `evaluation`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/10
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/8
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/9
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/10
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/8
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/9
 
 ## Scope and implementation notes
 - Run the tree and the humidity-only baseline on the same held-out farms.

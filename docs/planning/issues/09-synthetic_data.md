@@ -1,5 +1,5 @@
 ## Context
-Specification sections 6: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 6: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,8 +7,8 @@ Specification sections 6: [docs/SankofaFresh_Spec_v2.md](https://github.com/Geor
 - Task key: `synthetic_data`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/5
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/6
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/5
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/6
 
 ## Scope and implementation notes
 - `data/gen_batches.py` and `data/generator_config.json` exactly as spec 6, every parameter carrying a `source` field (a citation or ASSUMPTION).

@@ -12,7 +12,7 @@ Native dependency links describe blockers; they don't enforce merge order. Integ
 
 ## Checkpoints (ET)
 
-The submission deadline is still to be confirmed in [issue #1](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/1). Until it is, work to these checkpoints. Times after midnight fall on the following day. If a checkpoint slips, say so straight away and cut scope rather than letting the slip move downstream.
+The submission deadline is still to be confirmed in [issue #1](https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/1). Until it is, work to these checkpoints. Times after midnight fall on the following day. If a checkpoint slips, say so straight away and cut scope rather than letting the slip move downstream.
 
 | Time (ET) | Checkpoint | Task keys |
 |---|---|---|
@@ -43,4 +43,4 @@ Every open issue is P0. Audio is the one planned cut: if it isn't working by 21:
 
 ## Open decisions
 
-Tracked in [issue #1](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/1) (spec section 13): exact deadline, form fields and video format; local language and demo location, chosen together; repository visibility and static host for judges; prior concept disclosure.
+Tracked in [issue #1](https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/1) (spec section 13): exact deadline, form fields and video format; local language and demo location, chosen together; repository visibility and static host for judges; prior concept disclosure.

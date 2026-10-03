@@ -1,5 +1,5 @@
 ## Context
-Specification sections 5.2, 10: [docs/SankofaFresh_Spec_v2.md](https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
+Specification sections 5.2, 10: [docs/SankofaFresh_Spec_v2.md](https://github.com/devfrankduah/SankofaFresh_SmallAI/blob/main/docs/SankofaFresh_Spec_v2.md). This is planned work, not verified behavior.
 
 ## Priority
 - Priority: P0
@@ -7,7 +7,7 @@ Specification sections 5.2, 10: [docs/SankofaFresh_Spec_v2.md](https://github.co
 - Task key: `weather`
 
 ## Dependencies
-- Blocked by https://github.com/GeorgeDavidson2/SankofaFresh_SmallAI/issues/3
+- Blocked by https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/3
 
 ## Scope and implementation notes
 - `data/fetch_power.py`: NASA POWER hourly T2M and RH2M, community AG, with `--lat --lon --year`. Coordinates come from #1; the script must not hard-code them.
