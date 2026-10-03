@@ -1,8 +1,8 @@
 # SankofaFresh Small AI: Specification v2
 
-Version 2.0 | 3 October 2026 | Status: specification agreed by the team, software not yet built
+Version 2.0 | 3 October 2026 | Status: built and deployed at https://devfrankduah.github.io/SankofaFresh_SmallAI/. This document is the design record; current results are in [README.md](../README.md).
 
-Supersedes `docs/SankofaFresh_Project_Specification.md` (v1, tomato storage hub). v1 is kept unchanged as history. Where the two differ, this document wins.
+Supersedes the v1 specification (a tomato storage hub). Where the two differ, this document wins.
 
 Track: Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Development (World Bank Youth Summit), Agriculture sector, Annex B.
 
@@ -263,12 +263,12 @@ Allowed after tests pass: the app runs offline on the tested phone; the model is
 
 Not allowed: reduced losses, higher income, food safety, real-world accuracy, real SMS delivery, or anything about Noor as a real person.
 
-## 13. Open decisions (tracked in issue #1)
+## 13. Decisions (tracked in issue #1)
 
-- Exact submission deadline, form fields and video format (one video or three).
-- Local language and demo location, chosen together so they match. Proposal: a language the team can verify tonight and a coffee-growing location where it is spoken. Coordinates checked on a map before fetching weather.
-- Repository visibility at submission. Judges need to read the code, and static hosting from a private repository may need a paid plan; use a public repository or a separate static host.
-- Prior concept disclosure: SankofaFresh existed as an idea before the event. All code is written during the event window.
+- Exact submission deadline, form fields and video format (one video or three). **Open:** not yet recorded in issue #1. The video is scripted as one video that can be cut by part (`docs/video_script.md`).
+- Local language and demo location, chosen together so they match. **Resolved:** Twi, and Bepong, Kwahu South District, Eastern Region, Ghana (6.6034, -0.7121), with sources recorded in issue #1 and the README.
+- Repository visibility at submission. **Resolved:** the repository is public at https://github.com/devfrankduah/SankofaFresh_SmallAI, and GitHub Pages deploys the app from main to https://devfrankduah.github.io/SankofaFresh_SmallAI/.
+- Prior concept disclosure: SankofaFresh existed as an idea before the event, and all code was written during the event window. **Resolved:** stated in the README.
 
 ## 14. References
 

@@ -23,6 +23,6 @@ Blocked by:
 
 ## Required evidence
 
-## Handoff
+## How to start
 
 Either teammate can start an unblocked issue. Attach evidence in a focused PR.

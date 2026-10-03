@@ -9,7 +9,7 @@ from prepare_backlog import OPEN, REPO, TASKS, ROOT, body
 if any(task['status'] != OPEN for task in TASKS):
     sys.exit('The backlog has closed tasks, which publish_backlog.py cannot handle. Use sync_backlog_v2.py.')
 
-STATE = ROOT / 'docs/planning/published.json'
+STATE = ROOT / 'archive/planning/published.json'
 
 def gh(*args):
     return subprocess.check_output(['gh', *args], text=True).strip()
@@ -27,7 +27,7 @@ for task in TASKS:
     key = task['key']
     if key in state['issues']:
         continue
-    path = ROOT / f'docs/planning/issues/{TASKS.index(task)+1:02d}-{key}.md'
+    path = ROOT / f'archive/planning/issues/{TASKS.index(task)+1:02d}-{key}.md'
     path.write_text(body(task, state['issues']))
     url = gh('issue','create','--repo',REPO,'--title',task['title'],'--body-file',str(path),
              '--label',f'priority:{task["priority"]}')
@@ -58,5 +58,5 @@ for task in TASKS:
     info = state['issues'][task['key']]
     deps = ', '.join(f'[#{state["issues"][d]["number"]}]({state["issues"][d]["url"]})' for d in task['deps']) or 'None'
     index.append(f'| [#{info["number"]} {task["title"]}]({info["url"]}) | {task["priority"]} | {deps} |')
-(ROOT/'docs/planning/ISSUE_INDEX.md').write_text('\n'.join(index)+'\n')
+(ROOT/'archive/planning/ISSUE_INDEX.md').write_text('\n'.join(index)+'\n')
 print(f'Published {len(state["issues"])} issues and {len(state["edges"])} dependency links.', flush=True)

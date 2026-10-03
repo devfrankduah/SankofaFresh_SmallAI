@@ -1,6 +1,6 @@
 # Team execution guide
 
-This guide applies to [Spec v2](SankofaFresh_Spec_v2.md), the offline coffee parchment PWA. Where they differ, the spec wins.
+This guide applies to [Spec v2](../docs/SankofaFresh_Spec_v2.md), the offline coffee parchment PWA. Where they differ, the spec wins.
 
 ## Working together
 

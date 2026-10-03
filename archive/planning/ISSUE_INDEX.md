@@ -1,6 +1,6 @@
 # Issue index
 
-Generated from live GitHub state on 2026-10-03 by `python docs/planning/sync_backlog_v2.py --write-index`. 5 open, 14 completed, 4 closed as not planned.
+Generated from live GitHub state on 2026-10-03 by `python archive/planning/sync_backlog_v2.py --write-index`. 5 open, 14 completed, 4 closed as not planned.
 
 ## Open
 
