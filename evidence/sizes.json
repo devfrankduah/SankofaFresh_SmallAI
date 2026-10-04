@@ -1,11 +1,11 @@
 {
   "tree_json_bytes": 12029,
   "tree_json_limit_bytes": 250000,
-  "web_total_bytes": 252166,
+  "web_total_bytes": 252173,
   "web_target_bytes": 1000000,
   "web_total_within_target": true,
   "files": {
-    "web/app.js": 72597,
+    "web/app.js": 72604,
     "web/canonical.js": 2294,
     "web/contract.json": 6638,
     "web/demo_batches.json": 1224,
