@@ -70,7 +70,7 @@ Numbers: twelve days, twenty days, January, `evidence/demo_batches.json` (and `w
 >
 > Under the hood, it's a static web app with no server, and a service worker keeps every file on the phone. The whole app is about two hundred and fifty kilobytes; the tree itself is twelve. And a less-supported language? The app only ever shows a fixed list of ninety-six messages, so a new language means one fluent speaker translating and checking that list, with no retraining. Next: a pilot with one Kwahu South cooperative, whose moisture meter turns sampled batches into real labels.
 
-Numbers: about two hundred and fifty kilobytes, `evidence/sizes.json` (web_total_bytes, 252,166 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); ninety-six messages, `web/contract.json` (message_keys).
+Numbers: about two hundred and fifty kilobytes, `evidence/sizes.json` (web_total_bytes, 252,199 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); ninety-six messages, `web/contract.json` (message_keys).
 
 ## 5. What localizing AI development means to us (about 25 seconds)
 
