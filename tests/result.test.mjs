@@ -82,6 +82,9 @@ test('all motion sits behind prefers-reduced-motion: no-preference', () => {
   assert.match(CSS, /prefers-reduced-motion: no-preference/);
   const rest = withoutMotionBlocks(CSS);
   assert.doesNotMatch(rest, /\banimation\s*:|@keyframes|\btransition\s*:/);
+  // A press may change colour anywhere, but only moves a control when motion is welcome.
+  assert.doesNotMatch(rest, /:active[^{]*\{[^}]*\btransform\s*:/);
+  assert.match(CSS, /:active[^{]*\{[^}]*translateY\(3px\)/);
 });
 
 test('the stamp only lands, and only vibrates, when reduced motion is off', () => {

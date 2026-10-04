@@ -16,6 +16,12 @@
   --tarp: #1f4e86;
   --tarp-deep: #173c68;
   --tarp-soft: #e4edf8;
+  --tarp-edge: #0f2a4a;
+  --relief-face: #fbf6eb;
+  --relief-side: #cbb07c;
+  --relief-ground: #cfb98c;
+  --emboss-shade: #4b371d;
+  --emboss-lift: #b08d58;
   --green: #1d6a39;
   --amber: #f3c04a;
   --amber-ink: #3d2800;
@@ -250,6 +256,12 @@ main:focus {
   background: var(--tarp-deep);
 }
 
+/* Tactile controls: a darker bottom edge that compresses on press. Under reduced motion nothing
+   moves; the press shows only as the colour change. */
+.button-primary {
+  box-shadow: 0 4px 0 var(--tarp-edge);
+}
+
 .button-secondary {
   background: var(--paper);
   border-color: var(--tarp);
@@ -263,6 +275,7 @@ main:focus {
 }
 
 .button:disabled {
+  box-shadow: none;
   background: var(--line);
   color: var(--ink-soft);
   cursor: not-allowed;
@@ -529,17 +542,25 @@ main:focus {
   stroke-width: 1.9;
 }
 
-/* Two-tone pictures: parchment fill under a thick jute line (the symbols read --art-fill). */
+/* Dimensional pictures: a light face, a darker side, a small highlight and a soft ground shadow
+   under a thick jute line. The symbols read these four properties and stay flat line art without them. */
 .question-art,
 .option-art,
 .why .icon,
 .result-card-head .icon,
-.empty-mark {
-  --art-fill: var(--parchment);
+.empty-mark,
+.how-art .icon {
+  --art-fill: var(--relief-face);
+  --art-side: var(--relief-side);
+  --art-hi: var(--paper);
+  --art-ground: var(--parchment);
 }
 
-.question-art {
-  --art-fill: var(--paper);
+/* On a parchment disc the ground shadow needs a deeper tone to show. */
+.question-art,
+.how-art .icon,
+.empty-mark {
+  --art-ground: var(--relief-ground);
 }
 
 .wizard .options {
@@ -570,6 +591,9 @@ main:focus {
 
 .option input:checked + .option-face .option-art {
   --art-fill: none;
+  --art-side: none;
+  --art-hi: none;
+  --art-ground: none;
   color: #ffffff;
 }
 
@@ -682,6 +706,7 @@ main:focus {
   padding: 10px 14px;
   border: 2px solid var(--control-edge);
   border-radius: var(--radius);
+  box-shadow: 0 4px 0 var(--control-edge);
   background: var(--paper);
   font-weight: 600;
   line-height: 1.25;
@@ -694,7 +719,16 @@ main:focus {
 .option input:checked + .option-face {
   border-color: var(--tarp);
   background: var(--tarp);
+  box-shadow: 0 4px 0 var(--tarp-edge);
   color: #ffffff;
+}
+
+.option:active .option-face {
+  background: var(--parchment);
+}
+
+.option:active input:checked + .option-face {
+  background: var(--tarp-deep);
 }
 
 .option input:checked + .option-face .option-tick {
@@ -706,8 +740,9 @@ main:focus {
   outline-offset: 2px;
 }
 
-/* "Don't know" is always available but looks like the way out, not the first answer. */
+/* "Don't know" is always available but looks like the way out, not the first answer: flat, dashed. */
 .option-dont-know .option-face {
+  box-shadow: none;
   border-style: dashed;
   color: var(--ink-soft);
   font-weight: 500;
@@ -890,6 +925,29 @@ main:focus {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .button-primary,
+  .option-face {
+    transition: transform 70ms ease-out, box-shadow 70ms ease-out;
+  }
+
+  .button-primary:not(:disabled):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--tarp-edge);
+  }
+
+  .option:active .option-face {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--control-edge);
+  }
+
+  .option:active input:checked + .option-face {
+    box-shadow: 0 1px 0 var(--tarp-edge);
+  }
+
+  .option-dont-know:active .option-face {
+    box-shadow: none;
+  }
+
   .stamp.is-landing {
     animation: stamp-land 250ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
   }
@@ -1267,7 +1325,10 @@ main:focus {
   text-align: center;
 }
 
+/* The mark as a carved adinkra stamp: a lit upper edge and a shaded lower edge inside each line. */
 .welcome-mark {
+  --emboss-shadow: var(--emboss-shade);
+  --emboss-light: var(--emboss-lift);
   width: 112px;
   height: 112px;
   color: var(--jute);
@@ -1373,7 +1434,6 @@ main:focus {
 }
 
 .how-art .icon {
-  --art-fill: var(--paper);
   width: 52px;
   height: 52px;
   stroke-width: 1.8;
