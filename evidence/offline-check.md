@@ -4,9 +4,9 @@
 |---|---|
 | Local browser check: load once, stop the server, reload and use the app | PASSED on 3 October 2026 (21:14 ET), on the current build, steps below |
 | Deploy to the static host | DONE: live at https://devfrankduah.github.io/SankofaFresh_SmallAI/, deployed by GitHub Pages from main (`.github/workflows/pages.yml`) |
-| Real phone in airplane mode, including a reload | NOT DONE: phone steps 2 to 5 below |
+| Real phone in airplane mode, including a reload | DONE on an iPhone 15 Pro Max in Safari, reported 3 October 2026: phone check below |
 
-AC06 stays PENDING until the phone steps are done. AC07 is verified by the desktop network log below; the phone log comes with step 5. The local check shows the service worker works in one desktop browser.
+AC06 is verified by the phone check below; no screen recording of it is linked. AC07 is verified by the desktop network log below; no phone network log is linked. The local check shows the service worker works in one desktop browser, and the phone check shows it works in Safari on one iPhone.
 
 ## Local browser check
 
@@ -38,13 +38,17 @@ Screenshots: `evidence/screens/17-offline-reload-consent.png`, `17-offline-resul
 
 Earlier runs the same day passed the same way: on cache `sankofafresh-d130451f6c75318b` before the plain weather note, `sankofafresh-7a5aa463cf27b08b` before the plain-language round, `sankofafresh-c892176027866dda` after the depth pass, `sankofafresh-07d3530c1bf503b0` after the Sankofa identity, `sankofafresh-cde8e6c93a4e562e` after the result-screen and check-form redesign, `sankofafresh-53bcc1757d374b7d` before it, and on the depth-4 tree `tree-v2-b7a4e1c` (caches `sankofafresh-883356923ec6e172` and `sankofafresh-6353f04814539408`). The update path from an older cache version to a newer one was also checked: the new version replaced the old cache and deleted it.
 
-## Phone check (NOT DONE)
+## Phone check (iPhone 15 Pro Max, Safari)
+
+A team member ran this on the live app and reported the results on 3 October 2026.
 
 1. DONE: `web/` is deployed over https at https://devfrankduah.github.io/SankofaFresh_SmallAI/ by GitHub Pages from main.
-2. NOT DONE: on the phone, open the app once online. Open About this check: the offline cache is complete when File sizes, under Technical details, lists all 18 files (247.8 kB at e756404). Before that it lists only the files the page has loaded so far.
-3. NOT DONE: turn on airplane mode, close the browser completely, reopen the app and reload.
-4. NOT DONE: load the demo batches, run a check that gives each band and a "Don't know" check, and switch to Twi. In one check, pick a bagging date after today: the app should say "That date is after today." and keep the Check button disabled (the date is the last step, so its button reads Check rather than Continue; iOS date pickers ignore a maximum date, which is why the app checks it).
-5. NOT DONE: record the screen, and save the network log through remote debugging (Chrome `chrome://inspect` or Safari Web Inspector).
+2. DONE: the app was opened once online. That one load was enough for it to work offline.
+3. DONE: with airplane mode on, the page reloaded and the app worked.
+4. DONE: with airplane mode on, the demo batches, all results and Twi worked.
+5. DONE: a bagging date after today was refused.
+6. DONE: double-tap no longer zooms the page.
+7. NOT LINKED: no screen recording and no Safari network log of this check are linked here.
 
 ## Limits found during the check
 
