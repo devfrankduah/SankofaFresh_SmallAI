@@ -18,7 +18,7 @@
   "action_raise_bags": "Yi kotoku no fi fam na fa si dua anaa pon so.",
   "consent_text": "Wo kɔfe ho nsɛm tena fon yi so. App yi mmɔ hwee nkɔ baabiara. Sɛ wopɛ sɛ wode SMS no kɔ a, wo ara na wobɛmane. Wubetumi apepa ne nyinaa wɔ Nhyehyɛe mu.",
   "sms_template": "Agoo. Me kɔfe a mekora ({batch_label}) hia sɔhwɛ. Metumi de bi aba nsu susudua no ho nnawɔtwe yi anaa?",
-  "synthetic_label": "SYNTHETIC_DEMO. Nhwɛso kɛkɛ: sɔhwɛ yi suaa ade fii nhwɛso a wɔyɛe mu, ɛnyɛ kɔfe ankasa sɔhwɛ.",
+  "synthetic_label": "Nhwɛso nea efi mu bae: sɔhwɛ yi suaa ade fii nhwɛso a wɔyɛe mu, ɛnyɛ mfuw ankasa so.",
   "question_batch_label": "Kuw bɛn?",
   "question_days_drying": "Nna sɛn na wohataa no?",
   "question_rewetted": "Ɛfɔɔ bere a wofii ase hata no?",
@@ -57,7 +57,7 @@
   "not_evaluated": "Wɔnhwɛɛ no",
   "language_name": "Twi",
   "confirm_delete_all": "Wopɛ sɛ wopepa nsɛm nyinaa wɔ fon yi so? Wontumi nsan nnya bio.",
-  "sms_not_sent": "SIMULATED_NOT_SENT: wo ara na wobɛmane",
+  "sms_not_sent": "Wɔammane. Wo na wosi gyinae sɛ wobɛmane.",
   "demo_model_note": "Nhwɛso model: wɔantete no",
   "error_storage": "Yɛantumi ankora wɔ fon yi so.",
   "error_model_check": "Model fael no antumi ansɔ sɔhwɛ.",
@@ -92,5 +92,7 @@
   "how_step_weather": "Fon no de wo mmuae toto ewiem tebea a ɛtaa ba saa nnawɔtwe no mu ho, sɛ network nni hɔ mpo a.",
   "how_step_result": "Wobɛhunu ahabammono, akokɔsrade, kɔkɔɔ anaa ɛnna hɔ pefee, ne deɛ ɛsɛ sɛ woyɛ.",
   "weather_days": "Wɔ saa nna 14 yi mu wɔ 2025 mu, nna {wet} na ewiem yɛɛ fɔ yiye.",
-  "nav_home": "Wo kɔfe kuw"
+  "nav_home": "Wo kɔfe kuw",
+  "about_technical": "Mfiridwuma ho nsɛm",
+  "about_can_be_wrong": "Sɔhwɛ yi betumi adi mfomsoɔ. Sɛ ɛka sɛ ɛnna hɔ pefee a, bisa obi wɔ nnwumakuw no hɔ."
 }

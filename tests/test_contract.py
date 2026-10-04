@@ -236,14 +236,22 @@ def check_placeholders(messages):
         # Same placeholders, each once, in any order: languages order phrases like "{low} to {high}" differently.
         assert sorted(re.findall(r'\{(\w+)\}', text)) == sorted(CONTRACT['message_placeholders'].get(key, [])), key
         assert text.count('{') == text.count('}') == len(CONTRACT['message_placeholders'].get(key, [])), key
-    assert 'SYNTHETIC_DEMO' in messages['synthetic_label']
-    # Spec section 2: the SMS draft is labelled SIMULATED_NOT_SENT in every language.
-    assert 'SIMULATED_NOT_SENT' in messages['sms_not_sent']
 
 
 @pytest.mark.parametrize('code', LANGUAGES)
 def test_message_placeholders_are_declared(code):
     check_placeholders(MESSAGE_FILES[code])
+
+
+INTERNAL_IDENTIFIER = re.compile(r'\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b')
+
+
+@pytest.mark.parametrize('code', LANGUAGES)
+def test_no_message_shows_an_internal_identifier(code):
+    # SYNTHETIC_DEMO and SIMULATED_NOT_SENT stay in code and evidence (evidence_mode); on screen,
+    # synthetic_label and sms_not_sent say the same thing in words.
+    shown = {key: INTERNAL_IDENTIFIER.findall(text) for key, text in MESSAGE_FILES[code].items()}
+    assert {key: found for key, found in shown.items() if found} == {}
 
 
 def test_twi_is_listed_after_english():
