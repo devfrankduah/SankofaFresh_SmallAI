@@ -262,6 +262,22 @@ export function sparklinePoints(values, { width, height, low, high }) {
   return values.map((value, index) => [Number((index * step).toFixed(1)), Number(y(value).toFixed(1))]);
 }
 
+// Worst first: the result classes from most to least risky among those that come with an action, then
+// the abstention band, then batches with no result yet, then classes with no action (green).
+export function bandRank(contract, band) {
+  const { classes, abstention, actions } = contract;
+  if (band === null) return classes.length;
+  if (band === abstention.band) return classes.length - 1;
+  const index = classes.indexOf(band);
+  if (index === -1) return classes.length + 2;
+  return actions.band_default[band] === null ? classes.length + 1 : classes.length - 1 - index;
+}
+
+// A batch needs a check when its last result came with an action, or when it has no result at all.
+export function needsCheck(contract, batch) {
+  return !batch.result || offersSms(contract, batch.result.band);
+}
+
 // The SMS asks the cooperative to check the batch, so it only fits results that come with an action.
 export function offersSms(contract, band) {
   return Object.hasOwn(contract.actions.band_default, band) && contract.actions.band_default[band] !== null;
@@ -575,6 +591,12 @@ class App {
     }
   }
 
+  // Setting location.hash to the hash already showing fires no hashchange, so that case renders here.
+  go(hash) {
+    if (location.hash === hash) this.transition(() => this.render());
+    else location.hash = hash;
+  }
+
   // Screen and step changes cross-fade where the browser has View Transitions and motion is welcome.
   transition(update) {
     if (typeof document.startViewTransition !== 'function' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -634,11 +656,19 @@ class App {
     });
   }
 
+  // The first screen and the first thing in the video: the Sankofa mark, the name, the promise, the
+  // offline chip, the two languages, then the consent text.
   consentScreen() {
-    const body = [h('section', { class: 'consent' },
-      icon('sack', 'consent-mark'),
-      h('p', { class: 'consent-text', text: this.t('consent_text') }))];
-    if (this.languages.length > 1) body.push(this.languageChoices());
+    const name = this.optionalText('app_name');
+    const tagline = this.optionalText('app_tagline');
+    const chip = this.optionalText('offline_chip');
+    const body = [h('section', { class: 'welcome' },
+      icon('sankofa', 'welcome-mark'),
+      h('h1', { class: 'welcome-name', text: name ?? this.t('title_consent') }),
+      tagline ? h('p', { class: 'welcome-tagline', text: tagline }) : null,
+      chip ? h('p', { class: 'offline-chip' }, icon('offline'), h('span', { text: chip })) : null)];
+    if (this.languages.length > 1) body.push(this.languageTiles());
+    body.push(h('p', { class: 'consent-text', text: this.t('consent_text') }));
     return {
       title: this.t('title_consent'),
       bare: true,
@@ -671,11 +701,12 @@ class App {
 
   renderBar(screen) {
     const title = h('h1', { class: 'bar-title', text: screen.title });
-    if (screen.bare) return [h('span', { class: 'bar-mark' }, icon('sack')), title];
+    // The welcome screen carries the mark and the name itself, so it has no bar.
+    if (screen.bare) return [];
     if (!screen.back) {
       const settings = h('a', { class: 'icon-button', href: routeHash('settings'), 'aria-label': this.t('title_settings') },
         icon('settings'));
-      return [h('span', { class: 'bar-mark' }, icon('sack')), title, settings];
+      return [h('span', { class: 'bar-mark' }, icon('sankofa')), title, settings];
     }
     const back = h('a', { class: 'icon-button', href: screen.back.href, 'aria-label': screen.back.label }, icon('back'));
     return [back, title];
@@ -686,8 +717,14 @@ class App {
   }
 
   batchesScreen() {
-    const labels = batchLabels(this.contract).filter(label => this.batches.has(label));
-    const list = h('ul', { class: 'batches' }, labels.map(label => this.batchRow(this.batches.get(label))));
+    const labelOrder = batchLabels(this.contract);
+    const batches = labelOrder.filter(label => this.batches.has(label)).map(label => this.batches.get(label));
+    const labels = batches.map(batch => batch.label);
+    batches.sort((a, b) => bandRank(this.contract, a.result ? a.result.band : null) - bandRank(this.contract, b.result ? b.result.band : null)
+      || labelOrder.indexOf(a.label) - labelOrder.indexOf(b.label));
+    const count = batches.filter(batch => needsCheck(this.contract, batch)).length;
+    const summary = this.optionalText('summary_line', { count: this.formatNumber(count), total: this.formatNumber(batches.length) });
+    const list = h('ul', { class: 'batches' }, batches.map(batch => this.batchRow(batch)));
     const free = freeBatchLabels(this.contract, this.batches.keys());
     const add = free.length > 0
       ? h('a', { class: 'button button-primary', href: routeHash('check') }, icon('plus'), h('span', { text: this.t('button_add_batch') }))
@@ -695,7 +732,9 @@ class App {
         icon('plus'), h('span', { text: this.t('button_add_batch') }));
     return {
       title: this.t('title_batches'),
-      body: labels.length > 0 ? [list] : [this.emptyBatches()],
+      body: labels.length > 0
+        ? [summary ? h('p', { class: `summary${count > 0 ? ' needs-check' : ''}` }, icon(count > 0 ? 'alert' : 'check'), h('span', { text: summary })) : null, list].filter(Boolean)
+        : [this.emptyBatches()],
       dock: [add],
     };
   }
@@ -716,15 +755,13 @@ class App {
     const messageKey = band ? bandMessage(this.contract, band) : null;
     const href = batch.result ? routeHash('result', batch.label) : routeHash('check', batch.label);
     return h('li', {},
-      h('a', { class: `batch${band ? '' : ' batch-unchecked'}`, href },
-        h('span', { class: 'batch-sack' },
-          icon('sack', 'sack-art'),
-          h('span', { class: `mini-stamp ${band ? `band-${band}` : 'is-pending'}` }, icon(band ? `band-${band}` : 'pending'))),
+      h('a', { class: `batch ${band ? `edge-${band}` : 'batch-unchecked'}`, href },
+        h('span', { class: `mini-stamp ${band ? `band-${band}` : 'is-pending'}` }, icon(band ? `band-${band}` : 'pending')),
         h('span', { class: 'batch-text' },
           h('span', { class: 'batch-label', text: batch.label }),
-          this.demoDataTag(batch),
           messageKey ? h('span', { class: 'batch-band', text: this.t(messageKey) }) : null,
-          h('time', { class: 'batch-date', datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) }))));
+          h('time', { class: 'batch-date', datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) })),
+        this.demoDataTag(batch)));
   }
 
   demoDataTag(batch) {
@@ -1021,7 +1058,7 @@ class App {
     this.batches.set(label, { label, answers, checkedAt: new Date().toISOString(), result, actions: previous ? previous.actions : [], demoData: false });
     this.persist();
     this.wizard = null;
-    location.hash = result ? routeHash('result', label) : routeHash('batches');
+    this.go(result ? routeHash('result', label) : routeHash('batches'));
   }
 
   resultScreen(label) {
@@ -1036,13 +1073,14 @@ class App {
     const spoken = [messageKey, ...shownReasons, ...(action ? [action] : [])];
     const body = [
       h('section', { class: 'result-card' },
+        h('div', { class: `band band-${band}` },
+          h('div', { class: 'stamp' },
+            icon(`band-${band}`, 'band-icon'),
+            h('p', { class: 'band-text', text: this.t(messageKey) }))),
         h('p', { class: 'result-card-head' },
           icon('sack'),
           h('span', { class: 'result-label', text: batch.label }),
-          h('time', { datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) })),
-        h('div', { class: `band band-${band} stamp` },
-          icon(`band-${band}`, 'band-icon'),
-          h('p', { class: 'band-text', text: this.t(messageKey) }))),
+          h('time', { datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) }))),
     ];
     const playable = audioKeys(this.contract, this.audioIndex, this.language.code);
     if (spoken.some(key => playable.has(key))) {
@@ -1085,12 +1123,14 @@ class App {
     const points = sparklinePoints(values, { width, height, low, high });
     const markY = sparklinePoints([mark], { width, height, low, high })[0][1];
     const [lastX, lastY] = points[points.length - 1];
-    const chart = svg('svg', { viewBox: `-4 -4 ${width + 8} ${height + 8}`, role: 'img', 'aria-label': label, class: 'humidity-chart' });
+    // The "80%" label sits in its own space past the line's right end, so the line never runs through it.
+    const labelSpace = 40;
+    const chart = svg('svg', { viewBox: `-4 -4 ${width + labelSpace + 8} ${height + 8}`, role: 'img', 'aria-label': label, class: 'humidity-chart' });
     chart.append(
-      svg('line', { x1: 0, x2: width, y1: markY, y2: markY, class: 'humidity-mark' }),
+      svg('line', { x1: 0, x2: width + 4, y1: markY, y2: markY, class: 'humidity-mark' }),
       svg('polyline', { points: points.map(point => point.join(',')).join(' '), class: 'humidity-line' }),
       svg('circle', { cx: lastX, cy: lastY, r: 4, class: 'humidity-end' }));
-    const markLabel = svg('text', { x: 0, y: markY - 5, class: 'humidity-mark-label' });
+    const markLabel = svg('text', { x: width + 10, y: markY + 4, class: 'humidity-mark-label' });
     markLabel.textContent = this.formatShare(mark / 100);
     chart.append(markLabel);
     return h('figure', { class: 'humidity' }, chart, h('figcaption', {}, note));
@@ -1191,6 +1231,19 @@ class App {
     this.render('.record-toggle');
   }
 
+  // On the welcome screen the two languages are two big tiles, each named in its own language.
+  languageTiles() {
+    return h('div', { class: 'options welcome-languages' }, this.languages.map(language => this.optionTile({
+      type: 'radio',
+      name: 'language',
+      value: language.code,
+      checked: language.code === this.language.code,
+      text: language.messages.language_name,
+      art: 'language',
+      onchange: () => this.chooseLanguage(language.code),
+    })));
+  }
+
   languageChoices() {
     return h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('language')),
       h('div', { class: 'options options-languages' }, this.languages.map(language => this.optionTile({
@@ -1240,7 +1293,7 @@ class App {
       this.batches.set(label, { label, answers, checkedAt, result: this.runCheck(answers), actions: [], demoData: true });
     }
     this.persist();
-    location.hash = routeHash('batches');
+    this.go(routeHash('batches'));
   }
 
   // The offline cache holds every app file, audio included, so its sizes are the app's size on the phone.

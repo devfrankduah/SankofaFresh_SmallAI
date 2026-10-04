@@ -1,16 +1,18 @@
-/* Colours come from a coffee store: the blue drying tarp for anything you can tap, jute and
-   parchment for structure, and one strong colour per result band. Bands always carry a shape
-   (circle, triangle, octagon, diamond) and text as well, so colour is never the only signal. */
+/* Colours come from a coffee store: parchment for the page, white paper for cards, the blue drying
+   tarp for the main action, jute for structure, and one strong colour per result band. Bands always
+   carry a shape (circle, triangle, octagon, diamond) and text as well, so colour is never the only
+   signal. */
 :root {
   --ink: #1b2620;
   --ink-soft: #4b5750;
-  --page: #ffffff;
-  --parchment: #f1e8d2;
-  --jute: #8a6a3f;
+  --page: #f4ecda;
+  --paper: #ffffff;
+  --parchment: #e8d9b8;
+  --jute: #7a5c34;
   --line: #cbbf9f;
-  /* Boundaries of things you can tap: at least 3:1 against the page (WCAG 1.4.11). --line is for
-     decorative rules only. */
-  --control-edge: #948463;
+  /* Boundaries of things you can tap: at least 3:1 against the page and the paper (WCAG 1.4.11).
+     --line is for decorative rules only. */
+  --control-edge: #8a7a59;
   --tarp: #1f4e86;
   --tarp-deep: #173c68;
   --tarp-soft: #e4edf8;
@@ -139,10 +141,24 @@ main,
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 64px;
+  min-height: 66px;
   padding-top: env(safe-area-inset-top);
-  background: var(--tarp);
-  color: #ffffff;
+  padding-bottom: 6px;
+  background: var(--page);
+  color: var(--ink);
+}
+
+/* A strip of woven jute along the header's bottom edge: two crossing sets of thin threads. */
+.bar::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 6px;
+  background-image:
+    repeating-linear-gradient(45deg, var(--jute) 0 1.5px, transparent 1.5px 6px),
+    repeating-linear-gradient(-45deg, var(--jute) 0 1.5px, transparent 1.5px 6px);
 }
 
 .bar:empty {
@@ -160,9 +176,15 @@ main,
 .bar-mark {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  color: var(--parchment);
+  width: 36px;
+  height: 36px;
+  color: var(--jute);
+}
+
+.bar-mark .icon {
+  width: 34px;
+  height: 34px;
+  stroke-width: 3.2;
 }
 
 .icon-button {
@@ -180,9 +202,6 @@ main,
   height: 28px;
 }
 
-.bar :focus-visible {
-  outline-color: #ffffff;
-}
 
 main {
   flex: 1;
@@ -232,13 +251,13 @@ main:focus {
 }
 
 .button-secondary {
-  background: var(--page);
+  background: var(--paper);
   border-color: var(--tarp);
   color: var(--tarp);
 }
 
 .button-danger {
-  background: var(--page);
+  background: var(--paper);
   border-color: var(--red);
   color: var(--red);
 }
@@ -258,87 +277,133 @@ main:focus {
   list-style: none;
 }
 
-.batch {
+.summary {
   display: flex;
-  align-items: stretch;
-  min-height: 76px;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.summary .icon {
+  width: 28px;
+  height: 28px;
+  color: var(--green);
+}
+
+.summary.needs-check .icon {
+  color: var(--red);
+}
+
+/* Each batch is a card with a full-height edge in its band colour and the band's stamp. */
+.batch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 92px;
+  padding: 12px 14px 12px 22px;
   border: 2px solid var(--control-edge);
   border-radius: var(--radius);
-  background: var(--page);
+  background: var(--paper);
   color: inherit;
   text-decoration: none;
   overflow: hidden;
 }
 
-/* Each batch is a sack with its latest stamp pressed on it. */
-.batch-sack {
-  position: relative;
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 76px;
-  background: var(--parchment);
+.batch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  background: var(--edge, var(--line));
 }
 
-.sack-art {
-  width: 50px;
-  height: 50px;
-  color: var(--jute);
-  stroke-width: 1.5;
+.edge-green {
+  --edge: var(--green);
+}
+
+.edge-amber {
+  --edge: var(--amber);
+}
+
+.edge-red {
+  --edge: var(--red);
+}
+
+.edge-not_sure {
+  --edge: var(--unsure);
 }
 
 .mini-stamp {
-  position: absolute;
-  right: 6px;
-  bottom: 8px;
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  transform: rotate(-8deg);
-  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
+  flex: none;
+  width: 52px;
+  height: 52px;
+  transform: rotate(-6deg);
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
 }
 
 .mini-stamp .icon {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
+  stroke-width: 2.4;
 }
 
 .mini-stamp.is-pending {
-  background: var(--page);
+  background: var(--parchment);
   color: var(--jute);
 }
 
 .batch-text {
   display: grid;
   gap: 2px;
-  align-content: center;
-  padding: 10px 14px;
   min-width: 0;
 }
 
 .batch-label {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.batch-band {
   font-size: 16px;
-  line-height: 1.35;
+  font-weight: 700;
+  color: var(--ink-soft);
 }
 
+/* The band's words are the loudest thing on the card. */
+.batch-band {
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+/* Demo data is labelled with a small tag in the card's corner. */
 .batch-demo {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 15px;
-  font-weight: 650;
+  gap: 4px;
+  max-width: 62%;
+  padding: 3px 8px 3px 6px;
+  border-bottom-left-radius: 8px;
+  background: var(--page);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
   color: var(--jute);
 }
 
 .batch-demo .icon {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.batch:has(.batch-demo) .batch-text {
+  padding-top: 18px;
 }
 
 .batch-date {
@@ -387,7 +452,8 @@ main:focus {
 .empty-mark {
   width: 120px;
   height: 120px;
-  stroke-width: 1.2;
+  color: var(--jute);
+  stroke-width: 1.6;
 }
 
 /* Check form */
@@ -422,7 +488,7 @@ main:focus {
   height: 32px;
   border: 2px solid var(--control-edge);
   border-radius: 50%;
-  background: var(--page);
+  background: var(--paper);
   color: var(--ink-soft);
   font-size: 15px;
   font-weight: 700;
@@ -454,13 +520,26 @@ main:focus {
 }
 
 .question-art {
-  width: 92px;
-  height: 92px;
-  padding: 18px;
+  width: 136px;
+  height: 136px;
+  padding: 22px;
   border-radius: 50%;
   background: var(--parchment);
   color: var(--jute);
-  stroke-width: 1.6;
+  stroke-width: 1.9;
+}
+
+/* Two-tone pictures: parchment fill under a thick jute line (the symbols read --art-fill). */
+.question-art,
+.option-art,
+.why .icon,
+.result-card-head .icon,
+.empty-mark {
+  --art-fill: var(--parchment);
+}
+
+.question-art {
+  --art-fill: var(--paper);
 }
 
 .wizard .options {
@@ -483,12 +562,14 @@ main:focus {
 }
 
 .option-art {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   color: var(--jute);
+  stroke-width: 2.3;
 }
 
 .option input:checked + .option-face .option-art {
+  --art-fill: none;
   color: #ffffff;
 }
 
@@ -601,7 +682,7 @@ main:focus {
   padding: 10px 14px;
   border: 2px solid var(--control-edge);
   border-radius: var(--radius);
-  background: var(--page);
+  background: var(--paper);
   font-weight: 600;
   line-height: 1.25;
 }
@@ -652,7 +733,7 @@ main:focus {
   padding: 0;
   border: 2px solid var(--tarp);
   border-radius: 50%;
-  background: var(--page);
+  background: var(--paper);
   color: var(--tarp);
   cursor: pointer;
 }
@@ -692,14 +773,14 @@ main:focus {
   height: 10px;
   border: 2px solid var(--control-edge);
   border-radius: 6px;
-  background: var(--page);
+  background: var(--paper);
 }
 
 .slider::-moz-range-track {
   height: 6px;
   border: 2px solid var(--control-edge);
   border-radius: 6px;
-  background: var(--page);
+  background: var(--paper);
 }
 
 .slider::-webkit-slider-thumb {
@@ -724,12 +805,12 @@ main:focus {
 /* Not answered yet: a hollow thumb, so the slider never looks as if it already says 0. */
 .slider[data-state="unset"]::-webkit-slider-thumb {
   border-color: var(--control-edge);
-  background: var(--page);
+  background: var(--paper);
 }
 
 .slider[data-state="unset"]::-moz-range-thumb {
   border-color: var(--control-edge);
-  background: var(--page);
+  background: var(--paper);
 }
 
 .date {
@@ -740,19 +821,26 @@ main:focus {
   padding: 10px 14px;
   border: 2px solid var(--control-edge);
   border-radius: var(--radius);
-  background: var(--page);
+  background: var(--paper);
   color: var(--ink);
   font: inherit;
   font-size: 20px;
 }
 
-/* Result: the band is a stamp pressed onto the batch's parchment card, the one loud thing on the screen. */
+/* Result: the band colour fills the top of the batch's card, and the band's words are a stamp pressed
+   into it, the one loud thing on the screen. */
 .result-card {
   margin: 0 0 20px;
-  padding: 14px 14px 18px;
   border: 2px solid var(--jute);
   border-radius: var(--radius);
-  background: var(--parchment);
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.result-card .band {
+  display: block;
+  padding: 26px 18px 30px;
+  clip-path: none;
 }
 
 .result-card-head {
@@ -760,7 +848,8 @@ main:focus {
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 10px;
-  margin: 0 0 14px;
+  margin: 0;
+  padding: 12px 16px;
   color: var(--ink-soft);
 }
 
@@ -777,9 +866,27 @@ main:focus {
   color: var(--ink);
 }
 
-/* A stamp is never pressed perfectly straight. */
+/* An inked frame around the icon and words; a stamp is never pressed perfectly straight. */
 .stamp {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 4px solid currentColor;
+  border-radius: 12px;
   transform: rotate(-1.5deg);
+}
+
+.stamp .band-icon {
+  width: 60px;
+  height: 60px;
+  stroke-width: 2.4;
+}
+
+.stamp .band-text {
+  font-size: 24px;
+  line-height: 1.22;
+  font-weight: 800;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -839,7 +946,7 @@ main:focus {
   padding: 10px 14px;
   border: 2px solid var(--line);
   border-radius: 14px;
-  background: var(--page);
+  background: var(--paper);
 }
 
 .why li + li::before {
@@ -998,7 +1105,7 @@ main:focus {
   padding: 12px 14px;
   border: 2px dashed var(--control-edge);
   border-radius: var(--radius);
-  background: var(--page);
+  background: var(--paper);
   color: var(--ink);
   font: inherit;
   font-size: 17px;
@@ -1107,7 +1214,7 @@ main:focus {
   padding: 10px 14px;
   border: 2px solid var(--tarp);
   border-radius: var(--radius);
-  background: var(--page);
+  background: var(--paper);
   color: var(--tarp);
   font: inherit;
   font-weight: 600;
@@ -1151,23 +1258,83 @@ main:focus {
 }
 
 /* Consent */
-.consent {
+/* Welcome: the first screen, and the first thing in the video. */
+.welcome {
   display: grid;
-  justify-items: start;
-  gap: 18px;
-  margin-bottom: 28px;
+  justify-items: center;
+  gap: 10px;
+  margin: 8px 0 22px;
+  text-align: center;
 }
 
-.consent-mark {
-  width: 64px;
-  height: 64px;
+.welcome-mark {
+  width: 132px;
+  height: 132px;
   color: var(--jute);
-  stroke-width: 1.5;
+  stroke-width: 3.4;
+}
+
+.welcome-name {
+  margin: 4px 0 0;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.welcome-tagline {
+  margin: 0;
+  max-width: 22ch;
+  font-size: 21px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.offline-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 6px 14px;
+  border: 2px solid var(--green);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--green);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.offline-chip .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.welcome-languages {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 0 22px;
+}
+
+.welcome-languages .option-face {
+  flex-direction: column;
+  justify-content: center;
+  min-height: 92px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.welcome-languages .option-tick {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.welcome-languages .option-face {
+  position: relative;
 }
 
 .consent-text {
   margin: 0;
-  font-size: 21px;
+  font-size: 19px;
   line-height: 1.45;
 }
 

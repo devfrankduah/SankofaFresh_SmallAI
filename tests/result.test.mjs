@@ -135,3 +135,20 @@ test('taps never zoom the page, fields never zoom on focus, and pinch zoom stays
   const viewport = HTML.match(/<meta name="viewport" content="([^"]+)"/)[1];
   assert.doesNotMatch(viewport, /maximum-scale|user-scalable/);
 });
+
+test('the dashboard puts the worst batches first and counts the ones that need a check', async () => {
+  const { bandRank, needsCheck } = await import('../web/app.js');
+  const order = ['red', 'amber', 'not_sure', null, 'green'];
+  const ranks = order.map(band => bandRank(CONTRACT, band));
+  assert.deepEqual([...ranks].sort((a, b) => a - b), ranks, `ranks ${ranks.join(',')}`);
+  assert.equal(new Set(ranks).size, ranks.length);
+  const batch = band => ({ result: band ? { band, reasons: [] } : null });
+  assert.deepEqual(order.map(band => needsCheck(CONTRACT, batch(band))), [true, true, true, true, false]);
+});
+
+test('navigation to the hash already showing still renders', () => {
+  const app = readFileSync(new URL('../web/app.js', import.meta.url), 'utf8');
+  const body = app.slice(app.indexOf('  go(hash) {'), app.indexOf('  // Screen and step changes cross-fade'));
+  assert.match(body, /location\.hash === hash/);
+  assert.equal([...app.matchAll(/location\.hash = /g)].length, 1, 'every in-app navigation goes through go()');
+});

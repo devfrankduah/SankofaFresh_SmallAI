@@ -24,32 +24,37 @@ function contrast(a, b) {
   return (light + 0.05) / (dark + 0.05);
 }
 
-// [foreground token, background token, minimum, where it is used]; "page" is also the white used for
-// text on tarp, green, red and slate.
+// [foreground token, background token, minimum, where it is used]. "page" is the parchment every screen
+// sits on; "paper" is the white of cards and tiles, and the white used for text on tarp, green, red and slate.
 const PAIRS = [
-  ['ink', 'page', TEXT, 'body text, questions, option labels'],
-  ['ink-soft', 'page', TEXT, 'dates, weather note, "Not evaluated", file sizes'],
+  ['ink', 'page', TEXT, 'bar title, questions, summary, welcome, consent text'],
+  ['ink-soft', 'page', TEXT, 'weather note'],
+  ['ink', 'paper', TEXT, 'option labels, chips, batch cards'],
+  ['ink-soft', 'paper', TEXT, 'dates, batch labels, "Not evaluated", file sizes'],
   ['ink', 'parchment', TEXT, 'SYNTHETIC_DEMO note, demo notes'],
   ['ink', 'tarp-soft', TEXT, 'action text'],
-  ['page', 'tarp', TEXT, 'bar title, primary buttons, selected options'],
-  ['tarp', 'page', TEXT, 'secondary buttons, Copy and Record'],
+  ['paper', 'tarp', TEXT, 'primary buttons, selected options'],
+  ['tarp', 'paper', TEXT, 'secondary buttons, Copy and Record'],
   ['tarp', 'parchment', TEXT, '"About this check" link'],
-  ['red', 'page', TEXT, 'notices, missing-answer questions, Delete all'],
-  ['jute', 'page', TEXT, '"Demo data" tag on a batch row'],
-  ['page', 'green', TEXT, 'green band text'],
+  ['red', 'page', TEXT, 'notices, missing-answer questions, future-date message'],
+  ['red', 'paper', TEXT, 'Delete all'],
+  ['jute', 'page', TEXT, '"Demo data" corner tag, humidity mark label'],
+  ['green', 'paper', TEXT, '"Works with no signal" chip'],
+  ['paper', 'green', TEXT, 'green band text'],
   ['amber-ink', 'amber', TEXT, 'amber band text'],
-  ['page', 'red', TEXT, 'red band text'],
-  ['page', 'unsure', TEXT, 'not sure band text'],
-  ['control-edge', 'page', NON_TEXT, 'option, date, SMS and batch boundaries, slider track and empty thumb'],
-  ['tarp', 'page', NON_TEXT, 'selected option, step buttons, slider thumb'],
-  ['red', 'page', NON_TEXT, 'missing-answer marks and borders'],
-  ['jute', 'page', NON_TEXT, 'reason icons, setting icons, demo icon'],
-  ['jute', 'parchment', NON_TEXT, 'unchecked batch badge, demo model icon'],
-  ['green', 'page', NON_TEXT, 'recorded action ticks'],
+  ['paper', 'red', TEXT, 'red band text'],
+  ['paper', 'unsure', TEXT, 'not sure band text'],
+  ['control-edge', 'page', NON_TEXT, 'tile, date, SMS and batch boundaries against the page'],
+  ['control-edge', 'paper', NON_TEXT, 'slider track and empty thumb, boundaries against the paper'],
+  ['tarp', 'paper', NON_TEXT, 'selected option, step buttons, slider thumb'],
+  ['red', 'page', NON_TEXT, 'missing-answer marks and borders, summary alert'],
+  ['jute', 'page', NON_TEXT, 'Sankofa mark, setting icons'],
+  ['jute', 'paper', NON_TEXT, 'reason icons, option pictures'],
+  ['jute', 'parchment', NON_TEXT, 'question pictures, unchecked badge, demo model icon'],
+  ['green', 'page', NON_TEXT, 'summary tick, recorded action ticks'],
   ['tarp', 'tarp-soft', NON_TEXT, 'action arrow'],
-  ['parchment', 'tarp', NON_TEXT, 'sack mark in the bar'],
   ['ink', 'page', NON_TEXT, 'keyboard focus ring'],
-  ['page', 'tarp', NON_TEXT, 'keyboard focus ring inside the bar'],
+  ['ink', 'paper', NON_TEXT, 'keyboard focus ring on cards'],
 ];
 
 test('every colour pair the app draws meets WCAG AA', () => {
