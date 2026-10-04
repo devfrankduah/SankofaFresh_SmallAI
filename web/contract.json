@@ -79,7 +79,8 @@
     "metric_accuracy", "metric_macro_f1", "metric_red_recall", "metric_false_reassurance_rate", "metric_abstain_rate", "metric_coverage",
     "button_load_demo", "demo_data_note", "sms_copied",
     "weather_strip", "button_back",
-    "error_future_date", "app_tagline", "offline_chip", "summary_line", "app_name"
+    "error_future_date", "app_tagline", "offline_chip", "summary_line", "app_name",
+    "how_title", "how_step_answer", "how_step_weather", "how_step_result"
   ],
   "message_placeholders": {"sms_template": ["batch_label"], "weather_note": ["year"], "source_weather": ["year"], "weather_strip": ["low", "high"], "summary_line": ["count", "total"]}
 }
