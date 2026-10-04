@@ -523,7 +523,7 @@ function setMissing(fieldset, missing) {
   }
 }
 
-class App {
+export class App {
   constructor({ contract, languages, store, model, metrics, audioIndex, demoAnswers }) {
     this.contract = contract;
     this.languages = languages;
