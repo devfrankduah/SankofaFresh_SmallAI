@@ -194,6 +194,7 @@ Every picture stands for one thing and means the same on every screen, so the ap
 | `trash` | Delete | Delete all in Settings |
 | `demo` (flask) | Demo data | Load demo batches, on the empty list and in Settings. The demo labels carry text only |
 | `evidence` (bars) | About this check | The link under each result, Settings |
+| `expand` (chevron) | Open or close a section | Technical details on About this check; it turns over when open |
 
 ## Fixtures
 
