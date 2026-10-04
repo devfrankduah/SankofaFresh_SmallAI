@@ -61,7 +61,7 @@ FastAPI, SQLite, the laptop server, LAN phone access, restart persistence, atomi
 
 1. First run: a consent screen in the local language explains that records stay on the phone and nothing is sent unless the user sends the SMS herself. The user taps to continue.
 2. Batch list: shows saved batches with their last band, the date of the last check, and an Add batch button.
-3. Check form (tap-only, no typing): the questions in section 5.1. Every question has a "Don't know" option.
+3. Check form (tap-only, no typing, one question per screen): every input in section 5.1 except days_stored, which the app works out from storage_start (the bagging date) to today. That is seven steps for a new batch and six on a re-check, which skips batch_label. Every question about the coffee has a "Don't know" option.
 4. Result: the band with icon and text, up to two reasons, one action, a Play button for audio, the SYNTHETIC_DEMO label, and the SMS draft.
 5. Record what was done: re-dried, moved off the floor, took a sample, sold, other. Recording an action does not change the result.
 6. Settings: language toggle (local language and English), delete all records.
@@ -91,8 +91,8 @@ Three main screens (batch list, check form, result) plus consent and settings.
 | storage_surface | floor, raised, don't know | Raised means pallet, platform or rack |
 | musty_smell | yes, no, don't know | |
 | dryness_check | dry, unsure, damp, don't know | The farmer's usual hand or bite test |
-| days_stored | 0 to 180 | Days since bagging |
-| storage_start | date | Used to look up the bundled weather window |
+| days_stored | 0 to 180 | Not asked. The app counts the days from storage_start to today. A "Don't know" bagging date makes it "Don't know", and more than 180 days gives not_sure with reason_out_of_range. Demo batches keep their stored value |
+| storage_start | date | Asked as the bagging date ("When did you bag it?"). A date after today is refused with error_future_date. Also used to look up the bundled weather window |
 
 ### 5.2 Model features (identical order and encoding in Python and JS)
 

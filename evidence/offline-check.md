@@ -43,7 +43,7 @@ Earlier runs the same day passed the same way: on cache `sankofafresh-53bcc1757d
 1. DONE: `web/` is deployed over https at https://devfrankduah.github.io/SankofaFresh_SmallAI/ by GitHub Pages from main.
 2. NOT DONE: on the phone, open the app once online. Open About this check; File sizes shows a total only once the offline cache is complete.
 3. NOT DONE: turn on airplane mode, close the browser completely, reopen the app and reload.
-4. NOT DONE: load the demo batches, run a check that gives each band and a "Don't know" check, and switch to Twi.
+4. NOT DONE: load the demo batches, run a check that gives each band and a "Don't know" check, and switch to Twi. In one check, pick a bagging date after today: the app should say "That date is after today." and keep Continue disabled (iOS date pickers ignore a maximum date, which is why the app checks it).
 5. NOT DONE: record the screen, and save the network log through remote debugging (Chrome `chrome://inspect` or Safari Web Inspector).
 
 ## Limits found during the check

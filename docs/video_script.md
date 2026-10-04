@@ -1,6 +1,6 @@
 # Video script
 
-One video, under 4 minutes 45 seconds, covering the five required parts in order. Spoken lines are the quoted blocks (594 words; about 4 minutes 39 seconds at 140 words a minute, including about 25 seconds of demo taps). "Do" steps are what the phone shows. "Numbers" lines give the file behind every number that is spoken; don't read them aloud.
+One video, under 4 minutes 45 seconds, covering the five required parts in order. Spoken lines are the quoted blocks (590 words; about 4 minutes 38 seconds at 140 words a minute, including about 25 seconds of demo taps). "Do" steps are what the phone shows. "Numbers" lines give the file behind every number that is spoken; don't read them aloud.
 
 Before recording: open the live app (https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection so the app is stored on the phone, delete any old records in Settings, and have airplane mode one swipe away. Record the phone screen with the status bar visible, so viewers can see airplane mode.
 
@@ -14,13 +14,13 @@ Numbers: "few farmers own a moisture meter", FAO Guidelines for the Prevention o
 
 ## 2. What the AI does, and why SMS, a spreadsheet or a search wouldn't do the same job (about 55 seconds)
 
-> SankofaFresh asks eight questions you answer by tapping: which batch, how long it dried, whether rain got on it, whether the bags sit on the floor, whether it smells musty, what your hand test says, when storage began, and how many days it has lasted. A small decision tree on the phone weighs those answers against local humidity and gives one of four results: green, amber, red, or not sure.
+> SankofaFresh asks seven questions you answer by tapping: which batch, how long it dried, whether rain got on it, whether the bags sit on the floor, whether it smells musty, what your hand test says, and the day it was bagged. A small decision tree on the phone weighs those answers against local humidity and gives one of four results: green, amber, red, or not sure.
 >
 > SMS needs signal and a person; a spreadsheet or a search can't judge this batch offline.
 >
 > Guardrails: every word is from a fixed, human-written list; nothing is generated. "Don't know" gives not sure and points to a person. Records stay on the phone, with no account, name or location. And it never sends anything.
 
-Numbers: eight questions, `web/contract.json` (inputs); four results, `web/contract.json` (bands).
+Numbers: seven questions, the form in `web/app.js` (`askedInputs`: the eight `web/contract.json` inputs less `days_stored`, which the app counts from the bagging date to today); four results, `web/contract.json` (bands).
 
 ## 3. Demo (about 115 seconds, including the taps)
 

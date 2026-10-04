@@ -2,6 +2,8 @@
 
 Captured on 3 October 2026 from `web/` at main f1d6b44, after the result-screen and check-form redesign (#58, #60). It was served with `python3 -m http.server` on 127.0.0.1. The browser was Chromium 154 driven by Playwright, emulating a phone with a 390 by 844 viewport at 2x pixel density, so every image is 780 by 1688. The model is the shipped tree `tree-v2-9b83270`, and the metrics are the real `web/metrics.json`. Everything shown is SYNTHETIC_DEMO: results on synthetic labels, not field accuracy.
 
+These captures predate [#66](https://github.com/devfrankduah/SankofaFresh_SmallAI/pull/66), which replaced the days-stored step with the bagging date. A new check now has seven steps, not the eight shown in `04-check-form.png` and `demo-flow.mp4`.
+
 | File | Screen |
 |---|---|
 | `01-consent.png` | First-run consent |

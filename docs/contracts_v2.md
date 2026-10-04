@@ -12,7 +12,7 @@ Two modules implement it: `model/contract.py` for Python and `web/features.js` f
 
 ## Inputs
 
-`inputs` lists the eight answers from spec 5.1, in form order. Each has a `type`:
+`inputs` lists the eight answers from spec 5.1, in form order. The form asks seven of them: `askedInputs` in `web/app.js` leaves out `weather_window.days_input` (`days_stored`), and `withComputedDays` fills it in as the days from `start_input` (`storage_start`, the bagging date) to today, or `dont_know` when the date is "Don't know". Each input has a `type`:
 
 - `choice`: the answer must be one of `values`.
 - `integer`: a whole number from `min` to `max`, both inclusive. JSON has one number type, so `12.0` counts as 12; `12.5`, `true` and `"12"` are not allowed.
