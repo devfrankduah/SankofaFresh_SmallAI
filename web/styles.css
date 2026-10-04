@@ -1268,8 +1268,8 @@ main:focus {
 }
 
 .welcome-mark {
-  width: 132px;
-  height: 132px;
+  width: 112px;
+  height: 112px;
   color: var(--jute);
   stroke-width: 3.4;
 }
@@ -1330,6 +1330,75 @@ main:focus {
 
 .welcome-languages .option-face {
   position: relative;
+}
+
+/* How it works: three numbered, pictured steps, on the welcome screen and from Settings. */
+.how {
+  margin: 0 0 24px;
+}
+
+.how-title {
+  margin: 0 0 14px;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.how-steps {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: how;
+}
+
+.how-step {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 16px;
+  counter-increment: how;
+}
+
+.how-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--parchment);
+  color: var(--jute);
+}
+
+.how-art .icon {
+  --art-fill: var(--paper);
+  width: 52px;
+  height: 52px;
+  stroke-width: 1.8;
+}
+
+.how-art::after {
+  content: counter(how);
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--tarp);
+  color: var(--paper);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.how-text {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.4;
 }
 
 .consent-text {

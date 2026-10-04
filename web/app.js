@@ -5,7 +5,7 @@ import { encode, parseIsoDate, validatedDays } from './features.js';
 import { BATCH_LABEL_INPUT, RecordStore, STORAGE_KEY, browserStorage, emptyRecords, memoryStorage } from './storage.js';
 import { TreeIntegrityError, predict, verifyTree } from './tree.js';
 
-const VIEWS = new Set(['batches', 'check', 'result', 'settings', 'evidence']);
+const VIEWS = new Set(['batches', 'check', 'result', 'settings', 'evidence', 'how']);
 const LANGUAGE_CODE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})$/;
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -17,6 +17,13 @@ const SAMPLE_TREE_URL = '../tests/fixtures/sample_tree.json';
 const SECONDS_TO_SHOW_COPIED = 2;
 // Must match CACHE_PREFIX in sw.js; tests/sw.test.mjs checks that it does.
 export const CACHE_PREFIX = 'sankofafresh-';
+
+// The welcome explainer, in order: the message key for each step and the picture drawn for it.
+export const HOW_STEPS = [
+  ['how_step_answer', 'sack'],
+  ['how_step_weather', 'weather'],
+  ['how_step_result', 'stamp'],
+];
 
 export async function fetchJson(url, fetchImplementation = globalThis.fetch) {
   const response = await fetchImplementation(url);
@@ -660,22 +667,44 @@ class App {
   // offline chip, the two languages, then the consent text.
   consentScreen() {
     const name = this.optionalText('app_name');
-    const tagline = this.optionalText('app_tagline');
     const chip = this.optionalText('offline_chip');
+    // The promise in every language at once, so a visitor sees it is bilingual before choosing.
+    const taglines = this.optionalText('app_tagline')
+      ? this.languages.map(language => h('p', { class: 'welcome-tagline', lang: language.code, text: language.messages.app_tagline }))
+      : [];
     const body = [h('section', { class: 'welcome' },
       icon('sankofa', 'welcome-mark'),
       h('h1', { class: 'welcome-name', text: name ?? this.t('title_consent') }),
-      tagline ? h('p', { class: 'welcome-tagline', text: tagline }) : null,
+      ...taglines,
       chip ? h('p', { class: 'offline-chip' }, icon('offline'), h('span', { text: chip })) : null)];
     if (this.languages.length > 1) body.push(this.languageTiles());
-    body.push(h('p', { class: 'consent-text', text: this.t('consent_text') }));
+    body.push(this.howItWorks(true), h('p', { class: 'consent-text', text: this.t('consent_text') }));
     return {
       title: this.t('title_consent'),
       bare: true,
-      body,
+      body: body.filter(Boolean),
       dock: [h('button', { class: 'button button-primary', type: 'button', onclick: () => this.giveConsent() },
         icon('check'), h('span', { text: this.t('button_continue') }))],
     };
+  }
+
+  // Three pictured steps; hidden until the contract has all four keys. On its own screen the bar
+  // already carries the title, so the section heading is left out there.
+  howItWorks(withHeading) {
+    const title = this.optionalText('how_title');
+    const steps = HOW_STEPS.map(([key, art]) => [this.optionalText(key), art]);
+    if (!title || steps.some(([text]) => !text)) return null;
+    return h('section', { class: 'how', 'aria-label': withHeading ? null : title, 'aria-labelledby': withHeading ? 'how-title' : null },
+      withHeading ? h('h2', { class: 'how-title', id: 'how-title', text: title }) : null,
+      h('ol', { class: 'how-steps' }, steps.map(([text, art]) => h('li', { class: 'how-step' },
+        h('span', { class: 'how-art' }, icon(art)),
+        h('p', { class: 'how-text', text })))));
+  }
+
+  howScreen() {
+    const section = this.howItWorks(false);
+    if (!section) return { redirect: routeHash('settings') };
+    return { title: this.t('how_title'), back: { href: routeHash('settings'), label: this.t('title_settings') }, body: [section] };
   }
 
   giveConsent() {
@@ -694,6 +723,8 @@ class App {
         return this.settingsScreen();
       case 'evidence':
         return this.evidenceScreen();
+      case 'how':
+        return this.howScreen();
       default:
         return this.batchesScreen();
     }
@@ -1259,6 +1290,11 @@ class App {
   settingsScreen() {
     const evidence = h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('evidence')),
       h('a', { class: 'button button-secondary', href: routeHash('evidence') }, h('span', { text: this.t('title_evidence') })));
+    const howTitle = this.optionalText('how_title');
+    const how = howTitle && this.howItWorks(false)
+      ? h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('question')),
+        h('a', { class: 'button button-secondary', href: routeHash('how') }, h('span', { text: howTitle })))
+      : null;
     const loadDemo = this.demoSetting();
     const deleteAll = h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('trash')),
       h('button', { class: 'button button-danger', type: 'button', onclick: () => this.deleteAll() },
@@ -1266,7 +1302,7 @@ class App {
     return {
       title: this.t('title_settings'),
       back: this.backToBatches(),
-      body: [this.languageChoices(), evidence, loadDemo, deleteAll].filter(Boolean),
+      body: [this.languageChoices(), how, evidence, loadDemo, deleteAll].filter(Boolean),
     };
   }
 
