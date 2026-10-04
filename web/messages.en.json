@@ -85,5 +85,6 @@
   "error_future_date": "That date is after today.",
   "app_tagline": "Check stored coffee before you sell it.",
   "offline_chip": "Works with no signal",
-  "summary_line": "{count} of {total} batches need a check"
+  "summary_line": "{count} of {total} batches need a check",
+  "app_name": "SankofaFresh"
 }
