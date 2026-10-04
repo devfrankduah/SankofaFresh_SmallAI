@@ -22,7 +22,7 @@ import {
   loadModel,
   loadOptionalJson,
   localDateString,
-  hasDateFormats,
+  formatFarmDate,
   numericDate,
   metricCell,
   offersSms,
@@ -233,11 +233,21 @@ test('routes parse back from the hashes the app writes', () => {
   assert.deepEqual(parseRoute(routeHash('check')), { view: 'check', param: null });
 });
 
-test('without browser date formats a date is numeric, day first, with no month names', () => {
-  assert.equal(numericDate(new Date(2026, 9, 3, 23, 59)), '3/10/2026');
-  assert.equal(numericDate(new Date(2026, 0, 31)), '31/1/2026');
-  assert.equal(hasDateFormats('en'), true);
-  assert.equal(hasDateFormats('not a locale!'), false);
+test('every date is day, month, year: en-GH names the month, every other language is numeric', () => {
+  assert.equal(numericDate(new Date(2026, 9, 3, 23, 59)), '03/10/2026');
+  assert.equal(numericDate(new Date(2026, 0, 31)), '31/01/2026');
+  assert.equal(formatFarmDate(new Date(2026, 9, 3, 23, 59), 'en'), '3 Oct 2026');
+  assert.equal(formatFarmDate(new Date(2026, 0, 31), 'en'), '31 Jan 2026');
+  assert.equal(formatFarmDate(new Date(2026, 9, 3), 'tw'), '03/10/2026');
+  assert.equal(formatFarmDate(new Date(2026, 9, 3), 'xx'), '03/10/2026');
+  assert.equal(formatFarmDate(new Date('not a date'), 'en'), '');
+  assert.equal(formatFarmDate('2026-10-03', 'en'), '');
+});
+
+test('the app writes dates through the one shared formatter only', () => {
+  const app = readFileSync(new URL('../web/app.js', import.meta.url), 'utf8');
+  assert.equal((app.match(/new Intl\.DateTimeFormat\(/g) ?? []).length, 1, 'one date formatter');
+  assert.equal((app.match(/toLocaleDateString|toDateString|toLocaleString\(/g) ?? []).length, 0);
 });
 
 test('local dates are written YYYY-MM-DD in the phone time zone', () => {
