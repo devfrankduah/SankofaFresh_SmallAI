@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/fixtures'
 SPEC = (ROOT / 'docs/SankofaFresh_Spec_v2.md').read_text()
 CATEGORICAL_ENCODING = re.compile(r'\d+ \w+(, \d+ \w+)*')
-SHORT_KEY_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_', 'error_', 'evidence_', 'source_', 'metric_')
+SHORT_KEY_PREFIXES = ('question_', 'option_', 'button_', 'record_', 'title_', 'error_', 'evidence_', 'source_', 'metric_', 'nav_')
 SHORT_KEYS = ('sms_not_sent', 'demo_model_note', 'demo_data_note', 'sms_copied')
 SHORT_MAX_CHARACTERS = 40
 

@@ -90,5 +90,7 @@
   "how_title": "How it works",
   "how_step_answer": "Answer a few questions about one batch of stored coffee.",
   "how_step_weather": "The phone checks your answers against the usual weather for those weeks, with no signal.",
-  "how_step_result": "You get green, amber, red or not sure, and what to do next."
+  "how_step_result": "You get green, amber, red or not sure, and what to do next.",
+  "weather_days": "{wet} of these 14 days had very damp air in 2025.",
+  "nav_home": "Your batches"
 }
