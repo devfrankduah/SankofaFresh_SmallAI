@@ -80,7 +80,7 @@
   "button_load_demo": "Fa nhwɛso kuw ka ho",
   "demo_data_note": "Nhwɛso data, ɛnyɛ kuw ankasa",
   "sms_copied": "Wɔayɛ bi",
-  "weather_strip": "Ewiem fɔ, nna 14 a atwam: {low} kosi {high}",
+  "weather_strip": "Sɛnea ewiem yɛɛ fɔ wɔ saa nna 14 yi mu wɔ 2025 mu: {low} kosi {high}",
   "button_back": "San kɔ akyi",
   "error_future_date": "Da no wɔ nnɛ akyi.",
   "app_tagline": "Hwɛ kɔfe a wokora ansa na woatɔn.",
@@ -91,6 +91,6 @@
   "how_step_answer": "Bua nsɛmmisa kakra fa kɔfe kuw baako a wokora ho.",
   "how_step_weather": "Fon no de wo mmuae toto ewiem tebea a ɛtaa ba saa nnawɔtwe no mu ho, sɛ network nni hɔ mpo a.",
   "how_step_result": "Wobɛhunu ahabammono, akokɔsrade, kɔkɔɔ anaa ɛnna hɔ pefee, ne deɛ ɛsɛ sɛ woyɛ.",
-  "weather_days": "Wɔ saa nna 14 yi mu, nna {wet} na ewiem yɛɛ fɔ yiye wɔ 2025 mu.",
+  "weather_days": "Wɔ saa nna 14 yi mu wɔ 2025 mu, nna {wet} na ewiem yɛɛ fɔ yiye.",
   "nav_home": "Wo kɔfe kuw"
 }
