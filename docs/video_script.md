@@ -50,7 +50,7 @@ Do:
 
 The quoted Twi is the reviewed `band_amber` and `action_redry` from `web/messages.tw.json`.
 
-8. Scroll down to the SMS draft labelled SIMULATED_NOT_SENT, and tap Copy SMS.
+8. Scroll down to the SMS draft labelled "Not sent", and tap Copy SMS.
 
 > Here is a message to the cooperative. It's marked not sent. The farmer decides whether to send it.
 
@@ -68,9 +68,9 @@ Numbers: twelve days, twenty days, January, `evidence/demo_batches.json` (and `w
 
 > In the household we designed for, the smartphone is home at weekends, so this is a Saturday habit: check the stored batches before the buyer comes. During the week, the basic phone handles texts with the cooperative.
 >
-> Under the hood, it's a static web app with no server, and a service worker keeps every file on the phone. The whole app is about two hundred and fifty kilobytes; the tree itself is twelve. And a less-supported language? The app only ever shows a fixed list of ninety-four messages, so a new language means one fluent speaker translating and checking that list, with no retraining. Next: a pilot with one Kwahu South cooperative, whose moisture meter turns sampled batches into real labels.
+> Under the hood, it's a static web app with no server, and a service worker keeps every file on the phone. The whole app is about two hundred and fifty kilobytes; the tree itself is twelve. And a less-supported language? The app only ever shows a fixed list of ninety-six messages, so a new language means one fluent speaker translating and checking that list, with no retraining. Next: a pilot with one Kwahu South cooperative, whose moisture meter turns sampled batches into real labels.
 
-Numbers: about two hundred and fifty kilobytes, `evidence/sizes.json` (web_total_bytes, 249,684 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); ninety-four messages, `web/contract.json` (message_keys).
+Numbers: about two hundred and fifty kilobytes, `evidence/sizes.json` (web_total_bytes, 249,684 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); ninety-six messages, `web/contract.json` (message_keys).
 
 ## 5. What localizing AI development means to us (about 25 seconds)
 
@@ -78,6 +78,6 @@ Numbers: about two hundred and fifty kilobytes, `evidence/sizes.json` (web_total
 
 ## Checks before recording
 
-- Read the numbers again from `web/metrics.json`, `evidence/metrics.json`, `evidence/sizes.json` and `web/contract.json` if anything has changed since this script was written (model `tree-v2-9b83270`, 94 message keys).
+- Read the numbers again from `web/metrics.json`, `evidence/metrics.json`, `evidence/sizes.json` and `web/contract.json` if anything has changed since this script was written (model `tree-v2-9b83270`, 96 message keys).
 - If the form asks for more than one video, cut at the part headings above.
 - Data limits from spec section 10 that the video must not contradict: labels are synthetic, the weather is one coarse grid cell for one year, and there has been no field test.

@@ -50,7 +50,7 @@ The persona (Noor) grows coffee and sells parchment to whichever buyer arrives, 
 | Weather data | NASA POWER hourly T2M and RH2M for one demo location, bundled as a small JSON |
 | Labels | Synthetic, generated from a documented rule tied to FAO and Codex thresholds. Evidence mode SYNTHETIC_DEMO. |
 | Storage on device | Browser localStorage only. No accounts, no names, no phone numbers, no GPS. |
-| SMS | Draft only, labelled SIMULATED_NOT_SENT, with a copy button |
+| SMS | Draft only, labelled as not sent (`sms_not_sent`: "Not sent. You decide whether to send it."), with a copy button |
 | Hosting for judges | Static host link. The app must still work offline after the first load. |
 
 ### Removed from v1
@@ -62,7 +62,7 @@ FastAPI, SQLite, the laptop server, LAN phone access, restart persistence, atomi
 1. First run: a consent screen in the local language explains that records stay on the phone and nothing is sent unless the user sends the SMS herself. The user taps to continue.
 2. Batch list: shows saved batches with their last band, the date of the last check, and an Add batch button.
 3. Check form (tap-only, no typing, one question per screen): every input in section 5.1 except days_stored, which the app works out from storage_start (the bagging date) to today. That is seven steps for a new batch and six on a re-check, which skips batch_label. Every question about the coffee has a "Don't know" option.
-4. Result: the band with icon and text, up to two reasons, one action, a Play button for audio, the SYNTHETIC_DEMO label, and the SMS draft.
+4. Result: the band with icon and text, up to two reasons, one action, a Play button for audio, the practice-result label (`synthetic_label`), and the SMS draft.
 5. Record what was done: re-dried, moved off the floor, took a sample, sold, other. Recording an action does not change the result.
 6. Settings: language toggle (local language and English), delete all records.
 
@@ -75,7 +75,7 @@ Three main screens (batch list, check form, result) plus consent and settings.
 - No horizontal scroll at 360 px width.
 - Tap targets at least 44 by 44 CSS pixels.
 - Status uses text and an icon, never colour alone.
-- The SYNTHETIC_DEMO label is visible on every result and on the evidence screen.
+- The practice-result label (`synthetic_label`: "Practice result: this check learned from made-up examples, not from real farms.") is visible on every result and on the evidence screen. Internal identifiers such as SYNTHETIC_DEMO and SIMULATED_NOT_SENT never appear on screen.
 - No external fonts, scripts, CDNs or network calls after install.
 - Evidence screen: model version, tree hash, file sizes, held-out metrics against the baseline, data sources. Metrics not yet computed show "Not evaluated", never zero.
 
@@ -146,7 +146,7 @@ One JSON file per language, `web/messages.<lang>.json`, with the same keys. The 
 
 Results: `band_green`, `band_amber`, `band_red`, `band_not_sure`, `reason_rewetted`, `reason_short_drying`, `reason_damp_check`, `reason_humid_weeks`, `reason_floor`, `reason_musty`, `reason_long_storage`, `reason_missing_input`, `reason_out_of_range`, `reason_low_confidence`, `action_test_sample`, `action_redry`, `action_raise_bags`, `consent_text`, `sms_template`, `synthetic_label`.
 
-Interface: `question_batch_label`, `question_days_drying`, `question_rewetted`, `question_storage_surface`, `question_musty_smell`, `question_dryness_check`, `question_days_stored`, `question_storage_start`, `option_yes`, `option_no`, `option_dont_know`, `option_floor`, `option_raised`, `option_dry`, `option_unsure`, `option_damp`, `button_add_batch`, `button_check`, `button_play`, `button_copy_sms`, `button_record_action`, `button_delete_all`, `button_continue`, `record_redried`, `record_moved_off_floor`, `record_took_sample`, `record_sold`, `record_other`, `title_consent`, `title_batches`, `title_check`, `title_result`, `title_settings`, `title_evidence`, `weather_note`, `not_evaluated`, `language_name`, `confirm_delete_all`, `sms_not_sent`, `demo_model_note`, `error_storage`, `error_model_check`, `error_files`, `evidence_model_version`, `evidence_tree_hash`, `evidence_file_sizes`, `evidence_metrics`, `evidence_tree`, `evidence_baseline`, `evidence_sources`, `source_weather`, `source_labels`, `metric_accuracy`, `metric_macro_f1`, `metric_red_recall`, `metric_false_reassurance_rate`, `metric_abstain_rate`, `metric_coverage`, `button_load_demo`, `demo_data_note`, `sms_copied`, `weather_strip`, `button_back`, `error_future_date`, `app_tagline`, `offline_chip`, `summary_line`, `app_name`, `how_title`, `how_step_answer`, `how_step_weather`, `how_step_result`, `weather_days`, `nav_home`.
+Interface: `question_batch_label`, `question_days_drying`, `question_rewetted`, `question_storage_surface`, `question_musty_smell`, `question_dryness_check`, `question_days_stored`, `question_storage_start`, `option_yes`, `option_no`, `option_dont_know`, `option_floor`, `option_raised`, `option_dry`, `option_unsure`, `option_damp`, `button_add_batch`, `button_check`, `button_play`, `button_copy_sms`, `button_record_action`, `button_delete_all`, `button_continue`, `record_redried`, `record_moved_off_floor`, `record_took_sample`, `record_sold`, `record_other`, `title_consent`, `title_batches`, `title_check`, `title_result`, `title_settings`, `title_evidence`, `weather_note`, `not_evaluated`, `language_name`, `confirm_delete_all`, `sms_not_sent`, `demo_model_note`, `error_storage`, `error_model_check`, `error_files`, `evidence_model_version`, `evidence_tree_hash`, `evidence_file_sizes`, `evidence_metrics`, `evidence_tree`, `evidence_baseline`, `evidence_sources`, `source_weather`, `source_labels`, `metric_accuracy`, `metric_macro_f1`, `metric_red_recall`, `metric_false_reassurance_rate`, `metric_abstain_rate`, `metric_coverage`, `button_load_demo`, `demo_data_note`, `sms_copied`, `weather_strip`, `button_back`, `error_future_date`, `app_tagline`, `offline_chip`, `summary_line`, `app_name`, `how_title`, `how_step_answer`, `how_step_weather`, `how_step_result`, `weather_days`, `nav_home`, `about_technical`, `about_can_be_wrong`.
 
 Placeholders in braces, {batch_label} in the SMS template, {year} in the weather note and weather source line, and {low} and {high} in the weather strip, and {count} and {total} in the batch-list summary, and {wet} in the weather-days line, are filled in by the app and must be kept unchanged in every language, in whatever order the language needs. Keep interface strings short: each one is translated and checked by a person.
 
@@ -227,7 +227,7 @@ All are requirements, not achieved results, until evidence is attached.
 | AC09 | Every result comes from the fixed message set; local-language messages checked by a fluent speaker | Message file and reviewer note |
 | AC10 | Tree and baseline compared on the same held-out farms with the metrics in section 7 | evidence/metrics.json |
 | AC11 | Records stay on device; consent screen shown; delete clears everything | Manual check |
-| AC12 | SYNTHETIC_DEMO on every result; no claims of field accuracy, food safety or income gains | Claims review |
+| AC12 | The practice-result label (`synthetic_label`) on every result, with no internal identifier on screen; no claims of field accuracy, food safety or income gains | Claims review |
 | AC13 | A teammate can regenerate data, retrain and run the app from the README on a clean checkout | Clean-run log |
 
 ## 10. Data we cite and data we lack
