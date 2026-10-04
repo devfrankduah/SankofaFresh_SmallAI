@@ -86,5 +86,9 @@
   "app_tagline": "Hwɛ kɔfe a wokora ansa na woatɔn.",
   "offline_chip": "Ɛyɛ adwuma a network nni hɔ",
   "summary_line": "Kuw {count} wɔ {total} mu hia sɔhwɛ",
-  "app_name": "SankofaFresh"
+  "app_name": "SankofaFresh",
+  "how_title": "Sɛnea ɛyɛ adwuma",
+  "how_step_answer": "Bua nsɛmmisa kakra fa kɔfe kuw baako a wokora ho.",
+  "how_step_weather": "Fon no de wo mmuae toto ewiem tebea a ɛtaa ba saa nnawɔtwe no mu ho, sɛ network nni hɔ mpo a.",
+  "how_step_result": "Wobɛhunu ahabammono, akokɔsrade, kɔkɔɔ anaa ɛnna hɔ pefee, ne deɛ ɛsɛ sɛ woyɛ."
 }
