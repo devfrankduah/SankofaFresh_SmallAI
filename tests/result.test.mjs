@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { REASON_ICONS, humiditySeries, reasonIcon, sparklinePoints } from '../web/app.js';
+import { HOW_STEPS, REASON_ICONS, humiditySeries, parseRoute, reasonIcon, routeHash, sparklinePoints } from '../web/app.js';
 import { weatherFeatures } from '../web/features.js';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -151,4 +151,11 @@ test('navigation to the hash already showing still renders', () => {
   const body = app.slice(app.indexOf('  go(hash) {'), app.indexOf('  // Screen and step changes cross-fade'));
   assert.match(body, /location\.hash === hash/);
   assert.equal([...app.matchAll(/location\.hash = /g)].length, 1, 'every in-app navigation goes through go()');
+});
+
+test('the how-it-works explainer has a drawn picture for each of its three steps and its own screen', () => {
+  const drawn = new Set([...HTML.matchAll(/<symbol id="i-([a-z_-]+)"/g)].map(match => match[1]));
+  assert.deepEqual(HOW_STEPS.map(([key]) => key), ['how_step_answer', 'how_step_weather', 'how_step_result']);
+  for (const [key, art] of HOW_STEPS) assert.ok(drawn.has(art), `${key}: i-${art} is not drawn`);
+  assert.deepEqual(parseRoute(routeHash('how')), { view: 'how', param: null });
 });
