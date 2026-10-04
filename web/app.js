@@ -438,15 +438,29 @@ export function routeHash(view, param = null) {
 
 // Day first, as dates are written in Ghana, and with no month names, so no language is needed.
 export function numericDate(date) {
-  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  const pad = value => String(value).padStart(2, '0');
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
 }
 
-export function hasDateFormats(code) {
-  try {
-    return Intl.DateTimeFormat.supportedLocalesOf([code]).length > 0;
-  } catch {
-    return false;
+// Languages whose month names a browser can be trusted to write, and the locale to write them in.
+// Every other language (Twi among them) gets the numeric form, so no unchecked month name appears.
+const DATE_LOCALES = { en: 'en-GH' };
+
+// The one date formatter: day, month, year in that order on every screen ("3 Oct 2026", 03/10/2026).
+// The named form is assembled from its parts, so no browser's locale data can put the month first.
+export function formatFarmDate(date, languageCode) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+  const locale = Object.hasOwn(DATE_LOCALES, languageCode) ? DATE_LOCALES[languageCode] : null;
+  if (locale) {
+    try {
+      const parts = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(date);
+      const part = type => parts.find(entry => entry.type === type)?.value;
+      if (part('day') && part('month') && part('year')) return `${part('day')} ${part('month')} ${part('year')}`;
+    } catch {
+      // A browser without Intl date parts falls back to the numeric form below.
+    }
   }
+  return numericDate(date);
 }
 
 export function localDateString(date) {
@@ -564,16 +578,7 @@ class App {
   }
 
   formatDate(isoTimestamp) {
-    const date = new Date(isoTimestamp);
-    if (Number.isNaN(date.getTime())) return '';
-    // Browsers ship no date formats for some languages (Twi among them) and would fall back to English
-    // month names, so those languages get a numeric date instead.
-    if (!hasDateFormats(this.language.code)) return numericDate(date);
-    try {
-      return new Intl.DateTimeFormat(this.language.code, { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
-    } catch {
-      return localDateString(date);
-    }
+    return formatFarmDate(new Date(isoTimestamp), this.language.code);
   }
 
   formatShare(value) {
@@ -1459,17 +1464,32 @@ class App {
         h('th', { scope: 'row', text: this.t(`metric_${name}`) }), cell('tree', name), cell('baseline', name)))));
     const sources = [h('li', { text: this.t('source_labels') })];
     if (Number.isInteger(this.model.weatherYear)) sources.unshift(h('li', { text: this.t('source_weather', { year: this.model.weatherYear }) }));
+    // For farmers: what the check does, that it can be wrong, and that records stay on the phone.
     const body = [h('p', { class: 'synthetic', text: this.t('synthetic_label') })];
     if (this.model.demo) body.push(h('p', { class: 'demo-note', text: this.t('demo_model_note') }));
-    // Opened from a result, the screen starts with that batch's exact humidity line.
+    body.push(this.howItWorks(true));
+    const canBeWrong = this.optionalText('about_can_be_wrong');
+    if (canBeWrong) body.push(h('p', { class: 'about-line', text: canBeWrong }));
+    body.push(h('p', { class: 'about-line', text: this.t('consent_text') }));
+    // For reviewers, closed by default: every number, name and hash a farmer has no use for. Opened
+    // from a result, it starts with that batch's exact humidity line.
+    const technical = [];
     if (batch && batch.result && Number.isInteger(batch.result.weatherYear)) {
-      body.push(h('section', { class: 'evidence-weather' },
-        h('h2', { class: 'section-title', text: batch.label }),
+      technical.push(h('section', { class: 'evidence-weather' },
+        h('h3', { class: 'section-title', text: batch.label }),
         this.humidityStrip(batch)));
     }
-    body.push(facts, fileList,
-      h('h2', { class: 'section-title', text: this.t('evidence_metrics') }), metrics,
-      h('h2', { class: 'section-title', text: this.t('evidence_sources') }), h('ul', { class: 'sources' }, sources));
+    technical.push(facts, fileList,
+      h('h3', { class: 'section-title', text: this.t('evidence_metrics') }), metrics,
+      h('h3', { class: 'section-title', text: this.t('evidence_sources') }), h('ul', { class: 'sources' }, sources));
+    const technicalTitle = this.optionalText('about_technical');
+    if (technicalTitle) {
+      body.push(h('details', { class: 'technical' },
+        h('summary', {}, h('span', { text: technicalTitle }), icon('expand', 'technical-mark')),
+        ...technical));
+    } else {
+      body.push(...technical);
+    }
     const back = batch && batch.result ? { href: routeHash('result', batch.label), label: this.t('title_result') } : this.backToBatches();
     return { title: this.t('title_evidence'), back, body };
   }

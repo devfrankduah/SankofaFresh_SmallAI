@@ -1132,6 +1132,43 @@ main:focus {
   margin: 0 0 22px;
 }
 
+/* About this check: plain lines for farmers, then the reviewers' details behind one closed section. */
+.synthetic + .how {
+  margin-top: 22px;
+}
+
+.about-line {
+  margin: 0 0 18px;
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.technical {
+  margin: 8px 0 0;
+  border-top: 2px solid var(--line);
+}
+
+.technical > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--tap);
+  padding: 12px 0;
+  font-size: 20px;
+  font-weight: 800;
+  list-style: none;
+  cursor: pointer;
+}
+
+.technical > summary::-webkit-details-marker {
+  display: none;
+}
+
+.technical[open] .technical-mark {
+  transform: rotate(180deg);
+}
+
 .demo-note {
   display: flex;
   align-items: flex-start;
