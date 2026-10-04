@@ -1024,12 +1024,8 @@ main:focus {
 
 .action {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.action .icon {
-  margin-top: 1px;
+  align-items: center;
+  gap: 14px;
 }
 
 .action {
@@ -1040,8 +1036,26 @@ main:focus {
   font-weight: 650;
 }
 
-.action .icon {
-  color: var(--tarp);
+/* Each action has its own picture, so it can be understood without reading. */
+.action-art {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--jute);
+}
+
+.action-art .icon {
+  --art-fill: var(--relief-face);
+  --art-side: var(--relief-side);
+  --art-hi: var(--paper);
+  --art-ground: var(--parchment);
+  width: 46px;
+  height: 46px;
+  stroke-width: 1.9;
 }
 
 .synthetic {
@@ -1056,7 +1070,65 @@ main:focus {
 
 /* Result extras */
 .play {
+  min-height: 64px;
   margin: 0 0 18px;
+  font-size: 21px;
+}
+
+.play .icon {
+  width: 30px;
+  height: 30px;
+  fill: currentColor;
+}
+
+.wizard .play {
+  margin: 0 0 14px;
+}
+
+/* Fourteen days in two rows of seven: a sun for air that dries, a drop for very damp air. */
+.weather-days {
+  margin: 0 0 18px;
+}
+
+.day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.day {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 8px;
+}
+
+.day .icon {
+  width: 30px;
+  height: 30px;
+}
+
+.day-dry {
+  --art-fill: var(--relief-face);
+  --art-side: var(--relief-side);
+  --art-hi: var(--paper);
+  background: var(--paper);
+  color: var(--jute);
+}
+
+.day-damp {
+  --art-fill: var(--paper);
+  --art-side: var(--tarp-soft);
+  background: var(--tarp-soft);
+  color: var(--tarp);
+}
+
+.weather-days .weather-note {
+  margin: 8px 0 0;
+}
+
+.evidence-weather {
+  margin: 0 0 22px;
 }
 
 .demo-note {
