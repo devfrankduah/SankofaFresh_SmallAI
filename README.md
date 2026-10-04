@@ -36,7 +36,7 @@ This evidence is for the problem, not for our tool: we have not measured any eff
 
 ## Try it
 
-**Offline test on a phone:** open [the live app](https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection and let it load. Turn on airplane mode, then reload the page. Open Settings, tap "Load demo batches" and open each batch. Results, reasons, the SMS draft and the evidence screen ("About this check") all work with no connection. Our own check so far was in a desktop browser with the server stopped ([evidence/offline-check.md](evidence/offline-check.md)); the real-phone check is still to do ([#17](https://github.com/devfrankduah/SankofaFresh_SmallAI/issues/17)).
+**Offline test on a phone:** open [the live app](https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection and let it load. Turn on airplane mode, then reload the page. Open Settings, tap "Load demo batches" and open each batch. Results, reasons, the SMS draft and the evidence screen ("About this check") all work with no connection. We checked it in a desktop browser with the server stopped, and on an iPhone 15 Pro Max in Safari: after one load it works in airplane mode, including a reload; the demo batches, all results and Twi work offline; a bagging date after today is refused; and double-tap doesn't zoom ([evidence/offline-check.md](evidence/offline-check.md)).
 
 **The three demo batches** ([evidence/demo_batches.json](evidence/demo_batches.json), loaded by the Settings button):
 
@@ -157,7 +157,7 @@ The tree uses the rewetting and floor answers directly. Its depth was chosen fro
 
 ## Claims we make and claims we don't
 
-We claim, with the evidence linked above: the app runs offline after one load (checked in a desktop browser; the real-phone check is pending); the model is 12 KB; on held-out synthetic farms the tree scores the reported metrics against the baseline; results come only from the fixed message set.
+We claim, with the evidence linked above: the app runs offline after one load (checked in a desktop browser and on an iPhone 15 Pro Max in Safari); the model is 12 KB; on held-out synthetic farms the tree scores the reported metrics against the baseline; results come only from the fixed message set.
 
 We do not claim reduced losses, higher income, food safety, real-world accuracy or real SMS delivery. The farmer described in our specification is a persona, not a real person.
 
