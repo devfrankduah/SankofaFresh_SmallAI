@@ -1,6 +1,6 @@
 # Video script
 
-One video, under 4 minutes 45 seconds, covering the five required parts in order. Spoken lines are the quoted blocks (590 words; about 4 minutes 38 seconds at 140 words a minute, including about 25 seconds of demo taps). "Do" steps are what the phone shows. "Numbers" lines give the file behind every number that is spoken; don't read them aloud.
+One video, under 4 minutes 45 seconds, covering the five required parts in order. Spoken lines are the quoted blocks (592 words; about 4 minutes 39 seconds at 140 words a minute, including about 25 seconds of demo taps). "Do" steps are what the phone shows. "Numbers" lines give the file behind every number that is spoken; don't read them aloud.
 
 Before recording: open the live app (https://devfrankduah.github.io/SankofaFresh_SmallAI/) once with a connection so the app is stored on the phone, delete any old records in Settings, and have airplane mode one swipe away. Record the phone screen with the status bar visible, so viewers can see airplane mode.
 
@@ -68,9 +68,9 @@ Numbers: twelve days, twenty days, January, `evidence/demo_batches.json` (and `w
 
 > In the household we designed for, the smartphone is home at weekends, so this is a Saturday habit: check the stored batches before the buyer comes. During the week, the basic phone handles texts with the cooperative.
 >
-> Under the hood, it's a static web app with no server, and a service worker keeps every file on the phone. The whole app is about two hundred kilobytes; the tree itself is twelve. And a less-supported language? The app only ever shows a fixed list of eighty-seven messages, so a new language means one fluent speaker translating and checking that list, with no retraining. Next: a pilot with one Kwahu South cooperative, whose moisture meter turns sampled batches into real labels.
+> Under the hood, it's a static web app with no server, and a service worker keeps every file on the phone. The whole app is about two hundred and thirty kilobytes; the tree itself is twelve. And a less-supported language? The app only ever shows a fixed list of eighty-eight messages, so a new language means one fluent speaker translating and checking that list, with no retraining. Next: a pilot with one Kwahu South cooperative, whose moisture meter turns sampled batches into real labels.
 
-Numbers: about two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, 201,234 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); eighty-seven messages, `web/contract.json` (message_keys).
+Numbers: about two hundred and thirty kilobytes, `evidence/sizes.json` (web_total_bytes, 231,243 bytes when this was written); twelve kilobytes, `web/tree.json` (12,029 bytes); eighty-eight messages, `web/contract.json` (message_keys).
 
 ## 5. What localizing AI development means to us (about 25 seconds)
 
@@ -78,6 +78,6 @@ Numbers: about two hundred kilobytes, `evidence/sizes.json` (web_total_bytes, 20
 
 ## Checks before recording
 
-- Read the numbers again from `web/metrics.json`, `evidence/metrics.json`, `evidence/sizes.json` and `web/contract.json` if anything has changed since this script was written (model `tree-v2-9b83270`, 87 message keys).
+- Read the numbers again from `web/metrics.json`, `evidence/metrics.json`, `evidence/sizes.json` and `web/contract.json` if anything has changed since this script was written (model `tree-v2-9b83270`, 88 message keys).
 - If the form asks for more than one video, cut at the part headings above.
 - Data limits from spec section 10 that the video must not contradict: labels are synthetic, the weather is one coarse grid cell for one year, and there has been no field test.
