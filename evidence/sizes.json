@@ -1,7 +1,7 @@
 {
   "tree_json_bytes": 12029,
   "tree_json_limit_bytes": 250000,
-  "web_total_bytes": 249643,
+  "web_total_bytes": 249684,
   "web_target_bytes": 1000000,
   "web_total_within_target": true,
   "files": {
@@ -15,8 +15,8 @@
     "web/icons/icon-maskable-512.png": 19747,
     "web/index.html": 15996,
     "web/manifest.webmanifest": 535,
-    "web/messages.en.json": 4925,
-    "web/messages.tw.json": 5010,
+    "web/messages.en.json": 4936,
+    "web/messages.tw.json": 5040,
     "web/metrics.json": 483,
     "web/storage.js": 4910,
     "web/styles.css": 27844,
