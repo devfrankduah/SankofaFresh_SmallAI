@@ -53,7 +53,7 @@
   "title_result": "Result",
   "title_settings": "Settings",
   "title_evidence": "About this check",
-  "weather_note": "Typical humidity for these weeks, NASA POWER {year}.",
+  "weather_note": "Usual weather for these weeks, from NASA records for {year}.",
   "not_evaluated": "Not evaluated",
   "language_name": "English",
   "confirm_delete_all": "Delete all records on this phone? This cannot be undone.",
