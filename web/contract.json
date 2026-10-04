@@ -80,7 +80,8 @@
     "button_load_demo", "demo_data_note", "sms_copied",
     "weather_strip", "button_back",
     "error_future_date", "app_tagline", "offline_chip", "summary_line", "app_name",
-    "how_title", "how_step_answer", "how_step_weather", "how_step_result"
+    "how_title", "how_step_answer", "how_step_weather", "how_step_result",
+    "weather_days", "nav_home"
   ],
-  "message_placeholders": {"sms_template": ["batch_label"], "weather_note": ["year"], "source_weather": ["year"], "weather_strip": ["low", "high"], "summary_line": ["count", "total"]}
+  "message_placeholders": {"sms_template": ["batch_label"], "weather_note": ["year"], "source_weather": ["year"], "weather_strip": ["low", "high"], "summary_line": ["count", "total"], "weather_days": ["wet"]}
 }
