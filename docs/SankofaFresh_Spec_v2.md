@@ -10,7 +10,7 @@ Track: Hack-Nation 7th Global AI Hackathon, Challenge 04, Small AI for Developme
 
 An offline phone web app (PWA) that helps a smallholder coffee farmer decide what to do with stored coffee parchment before she sells it: keep it, re-dry it, move it off the floor, or take a sample to the cooperative's moisture meter first.
 
-The household opens the app on the smartphone it already has. The farmer answers a few tap-only questions about each batch. A small decision tree that runs inside the browser combines those answers with bundled local humidity data and returns one of four results, read out in a named local language:
+The household opens the app on the smartphone it already has. The farmer answers a few tap-only questions about each batch. A small decision tree that runs inside the browser combines those answers with bundled local humidity data and returns one of four results, shown in a named local language (audio clips are optional; none ship yet):
 
 | Band | Meaning shown to the user |
 |---|---|
@@ -234,7 +234,7 @@ All are requirements, not achieved results, until evidence is attached.
 
 Problem evidence (cite source, year and country in the README and video): FAO Guidelines for the Prevention of Mould Formation in Coffee (2006); Codex CAC/RCP 69-2009; ILO Uganda coffee value chain mapping (2024); Arslan, Gregg and Wollni, American Journal of Agricultural Economics 106(1) (2024; published online 2023), eastern Uganda; Uganda Ministry of Agriculture coffee price press brief (June 2025); World Bank "Small AI, Big Impact".
 
-Data we build with: NASA POWER (cite as the POWER project asks), the synthetic batches (team-generated, labelled), the message set (team-written, speaker-checked), and audio clips (source and licence recorded per clip; Meta MMS-TTS is CC-BY-NC 4.0).
+Data we build with: NASA POWER (cite as the POWER project asks), the synthetic batches (team-generated, labelled), the message set (English written by the team; Twi machine-drafted and checked by a fluent speaker, except the strings listed in README.md), and audio clips (source and licence recorded per clip; Meta MMS-TTS is CC-BY-NC 4.0).
 
 What our data does not cover (must appear in the README and the video):
 
