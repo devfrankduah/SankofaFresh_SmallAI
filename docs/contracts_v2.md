@@ -146,6 +146,53 @@ Audio is optional (spec 5.5). Clips live at `web/audio/<lang>/<key>.mp3`, one pe
 
 The app shows the Play button only for keys listed there. A missing `index.json`, or a language or key not in it, means no audio, and the text still shows. Each clip's source and licence are recorded in the messages issue (#19).
 
+## Icon vocabulary
+
+Every picture stands for one thing and means the same on every screen, so the app can be followed by someone who does not read. Pictures are inline SVG symbols in `web/index.html` (`i-<name>`). A picture that only decorates is left out. `tests/result.test.mjs` fails when a symbol is drawn but missing from this table, or listed here but not drawn.
+
+| Picture | Stands for | Where |
+|---|---|---|
+| `sankofa` | SankofaFresh itself | Welcome mark, batch list header, How it works in Settings |
+| `home` | The batch list | Header of every screen except the welcome |
+| `back` | Back one screen | Header, Back in the form |
+| `settings` | Settings | Batch list header |
+| `action` (arrow) | Go on to the next step | Continue on the welcome and in the form |
+| `check` (tick) | Yes, or done | The Yes answer, answered steps, the chosen tile, finishing the form, Copied |
+| `reload` | Check this batch again | Check on a result, reload after an error |
+| `plus` | Add one | Add batch, the day stepper |
+| `minus` | Take one away | The day stepper |
+| `alert` | Needs attention | The needs-check count, a missing answer, a date after today, notices |
+| `question` | Don't know | The Don't know answer, the reason that one question was answered Don't know |
+| `language` | Language | Language tiles, the language choice in Settings |
+| `sack` | A batch | A result's batch, the empty list, the batch question, How it works step 1 |
+| `sun` | Drying, or dry | The days-dried question, the short-drying reason, the Dry answer, a day of drying air |
+| `humid` (drop) | Damp | The Damp answer, the humid-weeks reason, a day of very damp air |
+| `rain` | Got wet | The got-wet question and reason |
+| `hand` | The hand or bite test | The hand-test question and reason |
+| `smell` (nose) | Smell | The musty-smell question and reason |
+| `floor` | Bags on the floor | The On the floor answer and reason |
+| `raised` (pallet) | Bags raised off the floor | The where-are-the-bags question, the Raised answer, the raise-the-bags action |
+| `storage` (calendar) | Dates and time in storage | The bagging-date question, the long-storage reason |
+| `half` | Unsure | The Unsure answer to the hand test |
+| `cross` | No | The No answer |
+| `range` | An answer outside what the check was built for | The out-of-range reason |
+| `scale` | The check cannot tell | The low-confidence reason |
+| `reason` (magnifier) | A reason with no picture of its own | Fallback only: every reason in this contract has its own |
+| `redry` | Dry it again | The re-dry action |
+| `carry` | Take a sample to the cooperative | The take-a-sample action |
+| `weather` (phone and cloud) | The check uses the usual weather | How it works step 2 |
+| `stamp` | A result | How it works step 3 |
+| `band-green`, `band-amber`, `band-red`, `band-not_sure` | The four results | The stamp on a result and on each batch row |
+| `pending` | Not checked yet | A batch row with no result |
+| `offline` (no-signal bars) | Works with no signal | The welcome chip |
+| `play` | Hear it | Play on a result and on a form question |
+| `copy` | Copy the SMS | Copy SMS |
+| `message` | The SMS draft | The SMS label |
+| `record` | Record what you did | Record what you did |
+| `trash` | Delete | Delete all in Settings |
+| `demo` (flask) | Demo data | Load demo batches, on the empty list and in Settings. The demo labels carry text only |
+| `evidence` (bars) | About this check | The link under each result, Settings |
+
 ## Fixtures
 
 `tests/fixtures/` holds shared test data for the features (#6), bands (#8), inference (#11) and screens (#12) work. Both encoders must reproduce every expected value exactly.

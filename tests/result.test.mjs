@@ -180,3 +180,21 @@ test('every action the contract can show has its own drawn picture', () => {
   }
   assert.equal(new Set(Object.values(ACTION_ART)).size, Object.keys(ACTION_ART).length, 'each action has a different picture');
 });
+
+test('every drawn picture is in the icon vocabulary in contracts_v2, and every listed one is drawn', () => {
+  const docs = read('docs/contracts_v2.md');
+  const table = docs.slice(docs.indexOf('## Icon vocabulary'), docs.indexOf('## Fixtures'));
+  const listed = new Set([...table.matchAll(/^\| (`[^|]+)\|/gm)].flatMap(match => [...match[1].matchAll(/`([a-z_-]+)`/g)].map(name => name[1])));
+  const drawn = new Set([...HTML.matchAll(/<symbol id="i-([a-z_-]+)"/g)].map(match => match[1]));
+  assert.deepEqual([...drawn].filter(name => !listed.has(name)), [], 'drawn but not in the vocabulary');
+  assert.deepEqual([...listed].filter(name => !drawn.has(name)), [], 'in the vocabulary but not drawn');
+  const app = read('web/app.js');
+  for (const [, name] of app.matchAll(/icon\('([a-z_-]+)'/g)) assert.ok(drawn.has(name), `icon('${name}') is not drawn`);
+});
+
+test('the demo labels carry text only, and the welcome goes on with the same arrow as the form', () => {
+  const app = read('web/app.js');
+  assert.doesNotMatch(app, /class: '(?:demo-note|batch-demo)' \}, icon\(/);
+  assert.match(app, /icon\('action'\), h\('span', \{ text: this\.t\('button_continue'\) \}\)/);
+  assert.doesNotMatch(app, /icon\('check'\), h\('span', \{ text: this\.t\('button_continue'\) \}\)/);
+});

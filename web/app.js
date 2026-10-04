@@ -186,7 +186,7 @@ export const QUESTION_ART = {
   storage_surface: 'raised',
   musty_smell: 'smell',
   dryness_check: 'hand',
-  days_stored: 'sack',
+  days_stored: 'storage',
   storage_start: 'storage',
 };
 
@@ -702,7 +702,7 @@ class App {
       bare: true,
       body: body.filter(Boolean),
       dock: [h('button', { class: 'button button-primary', type: 'button', onclick: () => this.giveConsent() },
-        icon('check'), h('span', { text: this.t('button_continue') }))],
+        icon('action'), h('span', { text: this.t('button_continue') }))],
     };
   }
 
@@ -752,13 +752,18 @@ class App {
     const title = h('h1', { class: 'bar-title', text: screen.title });
     // The welcome screen carries the mark and the name itself, so it has no bar.
     if (screen.bare) return [];
+    // The house is in the same corner on every screen and always leads to the batch list.
+    const homeLabel = this.optionalText('nav_home');
+    const home = homeLabel
+      ? h('a', { class: 'icon-button home', href: routeHash('batches'), 'aria-label': homeLabel, 'aria-current': screen.back ? null : 'page' }, icon('home'))
+      : null;
     if (!screen.back) {
       const settings = h('a', { class: 'icon-button', href: routeHash('settings'), 'aria-label': this.t('title_settings') },
         icon('settings'));
-      return [h('span', { class: 'bar-mark' }, icon('sankofa')), title, settings];
+      return [h('span', { class: 'bar-mark' }, icon('sankofa')), title, home, settings].filter(Boolean);
     }
     const back = h('a', { class: 'icon-button', href: screen.back.href, 'aria-label': screen.back.label }, icon('back'));
-    return [back, title];
+    return [back, title, home].filter(Boolean);
   }
 
   backToBatches() {
@@ -815,7 +820,7 @@ class App {
 
   demoDataTag(batch) {
     const text = batch.demoData ? this.optionalText('demo_data_note') : null;
-    return text ? h('span', { class: 'batch-demo' }, icon('demo'), h('span', { text })) : null;
+    return text ? h('span', { class: 'batch-demo', text }) : null;
   }
 
   checkScreen(label) {
@@ -1136,8 +1141,8 @@ class App {
           h('time', { datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) }))),
     ];
     const demoData = batch.demoData ? this.optionalText('demo_data_note') : null;
-    if (demoData) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: demoData })));
-    if (batch.result.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
+    if (demoData) body.push(h('p', { class: 'demo-note', text: demoData }));
+    if (batch.result.demo) body.push(h('p', { class: 'demo-note', text: this.t('demo_model_note') }));
     if (shownReasons.length > 0) {
       body.push(h('ul', { class: 'why' }, shownReasons.map(reason => h('li', {}, icon(reasonIcon(reason)), h('span', { text: this.t(reason) })))));
     }
@@ -1336,7 +1341,7 @@ class App {
       h('a', { class: 'button button-secondary', href: routeHash('evidence') }, h('span', { text: this.t('title_evidence') })));
     const howTitle = this.optionalText('how_title');
     const how = howTitle && this.howItWorks(false)
-      ? h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('question')),
+      ? h('section', { class: 'setting' }, h('div', { class: 'setting-mark' }, icon('sankofa')),
         h('a', { class: 'button button-secondary', href: routeHash('how') }, h('span', { text: howTitle })))
       : null;
     const loadDemo = this.demoSetting();
@@ -1455,7 +1460,7 @@ class App {
     const sources = [h('li', { text: this.t('source_labels') })];
     if (Number.isInteger(this.model.weatherYear)) sources.unshift(h('li', { text: this.t('source_weather', { year: this.model.weatherYear }) }));
     const body = [h('p', { class: 'synthetic', text: this.t('synthetic_label') })];
-    if (this.model.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
+    if (this.model.demo) body.push(h('p', { class: 'demo-note', text: this.t('demo_model_note') }));
     // Opened from a result, the screen starts with that batch's exact humidity line.
     if (batch && batch.result && Number.isInteger(batch.result.weatherYear)) {
       body.push(h('section', { class: 'evidence-weather' },

@@ -400,19 +400,13 @@ main:focus {
   align-items: center;
   gap: 4px;
   max-width: 62%;
-  padding: 3px 8px 3px 6px;
+  padding: 3px 8px;
   border-bottom-left-radius: 8px;
   background: var(--page);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.2;
   color: var(--jute);
-}
-
-.batch-demo .icon {
-  width: 14px;
-  height: 14px;
-  flex: none;
 }
 
 .batch:has(.batch-demo) .batch-text {
@@ -625,6 +619,13 @@ main:focus {
 
 .dock-row > .button:only-child {
   grid-column: 1 / -1;
+}
+
+/* Two buttons share 328 px at 360 px wide: tighter padding keeps "Back" on one line, and longer
+   Twi labels wrap between words. */
+.dock-row > .button {
+  gap: 8px;
+  padding-inline: 12px;
 }
 
 .question {
@@ -1141,10 +1142,6 @@ main:focus {
   border-radius: var(--radius);
   background: var(--parchment);
   font-weight: 650;
-}
-
-.demo-note .icon {
-  color: var(--jute);
 }
 
 .weather-note {
