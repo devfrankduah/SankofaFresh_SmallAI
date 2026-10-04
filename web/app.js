@@ -201,6 +201,23 @@ export const OPTION_ICONS = {
   dont_know: 'question',
 };
 
+// Each action's picture: the sun over a drying bed, the pallet, a person carrying a sample.
+export const ACTION_ART = {
+  action_redry: 'redry',
+  action_raise_bags: 'raised',
+  action_test_sample: 'carry',
+};
+
+// Daily mean humidity above this many percent counts as very damp air: the FAO point at which stored
+// coffee starts taking up water (spec 7), and the line drawn on the humidity chart.
+export const DAMP_AIR_PERCENT = 80;
+
+// One entry per day of the window, oldest first: 'damp' above the mark, 'dry' at or below it.
+export function weatherDays(values, mark = DAMP_AIR_PERCENT) {
+  if (!Array.isArray(values)) return null;
+  return values.map(value => (value > mark ? 'damp' : 'dry'));
+}
+
 const MS_PER_DAY = 86400000;
 
 // The daily humidity values behind this batch's weather features, oldest first: the window rule in
@@ -624,7 +641,8 @@ class App {
     document.documentElement.lang = this.language.code;
     document.title = screen.title;
     this.bar.replaceChildren(...this.renderBar(screen));
-    this.main.replaceChildren(...this.notices(), ...screen.body);
+    // Screens may leave optional parts out as null; replaceChildren would print those as text.
+    this.main.replaceChildren(...this.notices(), ...screen.body.filter(Boolean));
     this.dock.replaceChildren(...(screen.dock ?? []));
     this.dock.hidden = !screen.dock || screen.dock.length === 0;
     const routeKey = this.consent ? `${route.view}/${route.param ?? ''}` : 'consent';
@@ -722,7 +740,7 @@ class App {
       case 'settings':
         return this.settingsScreen();
       case 'evidence':
-        return this.evidenceScreen();
+        return this.evidenceScreen(route.param);
       case 'how':
         return this.howScreen();
       default:
@@ -830,6 +848,7 @@ class App {
     const last = draft.step === steps.length - 1;
     const form = h('form', { class: 'check wizard', id: 'check-form', novalidate: true },
       this.stepMarkers(steps, draft),
+      this.playButton([`question_${input.name}`]),
       this.question(input, draft));
     form.addEventListener('submit', event => {
       event.preventDefault();
@@ -840,6 +859,7 @@ class App {
       ? h('button', {
         class: 'button button-secondary', type: 'button',
         onclick: () => {
+          this.stopAudio();
           draft.step -= 1;
           this.transition(() => this.render(focusQuestion));
         },
@@ -873,6 +893,7 @@ class App {
       return;
     }
     if (draft.step < steps.length - 1) {
+      this.stopAudio();
       draft.step += 1;
       this.transition(() => this.render(['.question input:checked', '.question input:not([disabled])']));
       return;
@@ -1103,6 +1124,7 @@ class App {
     const action = pickAction(this.contract, band, shownReasons);
     const spoken = [messageKey, ...shownReasons, ...(action ? [action] : [])];
     const body = [
+      this.playButton(spoken),
       h('section', { class: 'result-card' },
         h('div', { class: `band band-${band}` },
           h('div', { class: 'stamp' },
@@ -1113,22 +1135,21 @@ class App {
           h('span', { class: 'result-label', text: batch.label }),
           h('time', { datetime: batch.checkedAt, text: this.formatDate(batch.checkedAt) }))),
     ];
-    const playable = audioKeys(this.contract, this.audioIndex, this.language.code);
-    if (spoken.some(key => playable.has(key))) {
-      body.push(h('button', { class: 'button button-secondary play', type: 'button', onclick: () => this.playAudio(spoken, playable) },
-        icon('play'), h('span', { text: this.t('button_play') })));
-    }
     const demoData = batch.demoData ? this.optionalText('demo_data_note') : null;
     if (demoData) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: demoData })));
     if (batch.result.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
     if (shownReasons.length > 0) {
       body.push(h('ul', { class: 'why' }, shownReasons.map(reason => h('li', {}, icon(reasonIcon(reason)), h('span', { text: this.t(reason) })))));
     }
-    if (action) body.push(h('p', { class: 'action' }, icon('action'), h('span', { text: this.t(action) })));
-    if (Number.isInteger(batch.result.weatherYear)) body.push(this.humidityStrip(batch));
+    if (action) {
+      body.push(h('p', { class: 'action' },
+        h('span', { class: 'action-art' }, icon(Object.hasOwn(ACTION_ART, action) ? ACTION_ART[action] : 'action')),
+        h('span', { text: this.t(action) })));
+    }
+    if (Number.isInteger(batch.result.weatherYear)) body.push(this.weatherRow(batch));
     body.push(h('p', { class: 'synthetic' },
       h('span', { text: this.t('synthetic_label') }),
-      h('a', { class: 'synthetic-link', href: routeHash('evidence') }, icon('evidence'), h('span', { text: this.t('title_evidence') }))));
+      h('a', { class: 'synthetic-link', href: routeHash('evidence', batch.label) }, icon('evidence'), h('span', { text: this.t('title_evidence') }))));
     if (offersSms(this.contract, band)) body.push(this.smsSection(batch));
     body.push(this.recordSection(batch));
     return {
@@ -1140,8 +1161,31 @@ class App {
     };
   }
 
+  // Large, first on the screen, and only when this language has a clip for at least one of the keys.
+  playButton(keys) {
+    const playable = audioKeys(this.contract, this.audioIndex, this.language.code);
+    if (!keys.some(key => playable.has(key))) return null;
+    return h('button', { class: 'button button-primary play', type: 'button', onclick: () => this.playAudio(keys, playable) },
+      icon('play'), h('span', { text: this.t('button_play') }));
+  }
+
+  // The window read without reading: one picture per day, a sun at or below the damp-air mark and a
+  // drop above it, in two rows of seven. The exact line is on About this check. Shown only when
+  // weather_days can give it a text alternative; the note always shows.
+  weatherRow(batch) {
+    const note = h('p', { class: 'weather-note', text: this.t('weather_note', { year: batch.result.weatherYear }) });
+    const days = weatherDays(humiditySeries(this.contract, batch.answers, this.model.weather));
+    const wet = days ? days.filter(day => day === 'damp').length : null;
+    const label = days ? this.optionalText('weather_days', { wet: this.formatNumber(wet) }) : null;
+    if (!label) return note;
+    return h('figure', { class: 'weather-days' },
+      h('div', { class: 'day-grid', role: 'img', 'aria-label': label },
+        days.map(day => h('span', { class: `day day-${day}` }, icon(day === 'damp' ? 'humid' : 'sun')))),
+      h('figcaption', {}, note));
+  }
+
   // The 14 daily humidity values as a small line with the 80 percent mark from the OTA literature
-  // (spec 7). Drawn only when weather_strip can give it a text alternative; the note always shows.
+  // (spec 7), on About this check. Drawn only when weather_strip can give it a text alternative.
   humidityStrip(batch) {
     const note = h('p', { class: 'weather-note', text: this.t('weather_note', { year: batch.result.weatherYear }) });
     const values = humiditySeries(this.contract, batch.answers, this.model.weather);
@@ -1150,7 +1194,7 @@ class App {
       : null;
     if (!label) return note;
     // 50 to 100 percent covers the bundled year's daily means (about 54 to 91) with room to read the shape.
-    const [width, height, low, high, mark] = [300, 64, 50, 100, 80];
+    const [width, height, low, high, mark] = [300, 64, 50, 100, DAMP_AIR_PERCENT];
     const points = sparklinePoints(values, { width, height, low, high });
     const markY = sparklinePoints([mark], { width, height, low, high })[0][1];
     const [lastX, lastY] = points[points.length - 1];
@@ -1385,8 +1429,9 @@ class App {
     });
   }
 
-  evidenceScreen() {
+  evidenceScreen(label) {
     const { tree } = this.model;
+    const batch = label === null ? null : this.batches.get(label) ?? null;
     const notEvaluated = this.t('not_evaluated');
     const fact = (labelKey, value, className = '') => [
       h('dt', { text: this.t(labelKey) }),
@@ -1411,10 +1456,17 @@ class App {
     if (Number.isInteger(this.model.weatherYear)) sources.unshift(h('li', { text: this.t('source_weather', { year: this.model.weatherYear }) }));
     const body = [h('p', { class: 'synthetic', text: this.t('synthetic_label') })];
     if (this.model.demo) body.push(h('p', { class: 'demo-note' }, icon('demo'), h('span', { text: this.t('demo_model_note') })));
+    // Opened from a result, the screen starts with that batch's exact humidity line.
+    if (batch && batch.result && Number.isInteger(batch.result.weatherYear)) {
+      body.push(h('section', { class: 'evidence-weather' },
+        h('h2', { class: 'section-title', text: batch.label }),
+        this.humidityStrip(batch)));
+    }
     body.push(facts, fileList,
       h('h2', { class: 'section-title', text: this.t('evidence_metrics') }), metrics,
       h('h2', { class: 'section-title', text: this.t('evidence_sources') }), h('ul', { class: 'sources' }, sources));
-    return { title: this.t('title_evidence'), back: this.backToBatches(), body };
+    const back = batch && batch.result ? { href: routeHash('result', batch.label), label: this.t('title_result') } : this.backToBatches();
+    return { title: this.t('title_evidence'), back, body };
   }
 
   chooseLanguage(code) {

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { HOW_STEPS, REASON_ICONS, humiditySeries, parseRoute, reasonIcon, routeHash, sparklinePoints } from '../web/app.js';
+import { ACTION_ART, DAMP_AIR_PERCENT, HOW_STEPS, REASON_ICONS, humiditySeries, parseRoute, reasonIcon, routeHash, sparklinePoints, weatherDays } from '../web/app.js';
 import { weatherFeatures } from '../web/features.js';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -161,4 +161,22 @@ test('the how-it-works explainer has a drawn picture for each of its three steps
   assert.deepEqual(HOW_STEPS.map(([key]) => key), ['how_step_answer', 'how_step_weather', 'how_step_result']);
   for (const [key, art] of HOW_STEPS) assert.ok(drawn.has(art), `${key}: i-${art} is not drawn`);
   assert.deepEqual(parseRoute(routeHash('how')), { view: 'how', param: null });
+});
+
+test('a day counts as very damp air only above 80 percent, and a missing window gives no days', () => {
+  assert.equal(DAMP_AIR_PERCENT, 80);
+  assert.deepEqual(weatherDays([79.9, 80, 80.01, 95]), ['dry', 'dry', 'damp', 'damp']);
+  assert.equal(weatherDays(null), null);
+  const values = humiditySeries(CONTRACT, base('2025-09-01', 30), WEATHER);
+  assert.equal(weatherDays(values).length, CONTRACT.weather_window.days);
+});
+
+test('every action the contract can show has its own drawn picture', () => {
+  const drawn = new Set([...HTML.matchAll(/<symbol id="i-([a-z_-]+)"/g)].map(match => match[1]));
+  const actions = new Set([...Object.values(CONTRACT.actions.reason_action), ...Object.values(CONTRACT.actions.band_default)].filter(Boolean));
+  for (const action of actions) {
+    assert.ok(Object.hasOwn(ACTION_ART, action), `${action} has no picture`);
+    assert.ok(drawn.has(ACTION_ART[action]), `${action}: i-${ACTION_ART[action]} is not drawn`);
+  }
+  assert.equal(new Set(Object.values(ACTION_ART)).size, Object.keys(ACTION_ART).length, 'each action has a different picture');
 });
